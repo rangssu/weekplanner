@@ -722,7 +722,7 @@ export function buildMonthGrid(year: number, month: number): GridCell[] {
 - [ ] **Step 4: 테스트 통과 확인**
 
 Run: `npx vitest run src/model/calendar.test.ts`
-Expected: PASS — 19 passed
+Expected: PASS — 18 passed
 
 - [ ] **Step 5: 커밋**
 
