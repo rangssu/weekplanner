@@ -1,0 +1,90 @@
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { createEmptyDoc } from './defaults'
+import { DOC_KEY_PREFIX, listSavedMonthKeys, loadDoc, migrateDoc, saveDoc } from './storage'
+
+beforeEach(() => {
+  localStorage.clear()
+  vi.restoreAllMocks()
+})
+
+describe('saveDoc / loadDoc', () => {
+  it('저장한 문서를 그대로 되돌려준다', () => {
+    const doc = createEmptyDoc(2026, 8)
+    doc.header.customTitle = '몬몬 8월 스케줄'
+    doc.days['2026-08-03'] = {
+      text: '발로란트\n21:00', dateColor: '#ff0000', cellFill: '#ffe2d3', marker: '#ffe680',
+    }
+
+    expect(saveDoc(doc)).toEqual({ ok: true })
+    expect(loadDoc(2026, 8)).toEqual(doc)
+  })
+
+  it('저장된 적 없는 달은 null이다', () => {
+    expect(loadDoc(2026, 9)).toBeNull()
+  })
+
+  it('같은 달을 다시 저장하면 덮어쓴다', () => {
+    const a = createEmptyDoc(2026, 8)
+    a.footer = { enabled: true, text: '첫 번째' }
+    saveDoc(a)
+    const b = createEmptyDoc(2026, 8)
+    b.footer = { enabled: true, text: '두 번째' }
+    saveDoc(b)
+    expect(loadDoc(2026, 8)?.footer.text).toBe('두 번째')
+  })
+
+  it('용량 초과를 quota로 보고한다', () => {
+    vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+      const err = new Error('quota') as Error & { name: string }
+      err.name = 'QuotaExceededError'
+      throw err
+    })
+    expect(saveDoc(createEmptyDoc(2026, 8))).toEqual({ ok: false, reason: 'quota' })
+  })
+
+  it('손상된 JSON은 null로 처리하고 예외를 던지지 않는다', () => {
+    localStorage.setItem(`${DOC_KEY_PREFIX}2026-08`, '{망가진')
+    expect(loadDoc(2026, 8)).toBeNull()
+  })
+})
+
+describe('listSavedMonthKeys', () => {
+  it('저장된 달만 오름차순으로 준다', () => {
+    saveDoc(createEmptyDoc(2026, 9))
+    saveDoc(createEmptyDoc(2026, 8))
+    saveDoc(createEmptyDoc(2025, 12))
+    localStorage.setItem('무관한키', 'x')
+    expect(listSavedMonthKeys()).toEqual(['2025-12', '2026-08', '2026-09'])
+  })
+
+  it('저장된 게 없으면 빈 배열이다', () => {
+    expect(listSavedMonthKeys()).toEqual([])
+  })
+})
+
+describe('migrateDoc', () => {
+  it('현재 버전 문서를 그대로 통과시킨다', () => {
+    const doc = createEmptyDoc(2026, 8)
+    expect(migrateDoc(doc)).toEqual(doc)
+  })
+
+  it('필수 필드가 없으면 null이다', () => {
+    expect(migrateDoc({ version: 1 })).toBeNull()
+    expect(migrateDoc({ year: 2026, month: 8 })).toBeNull()
+    expect(migrateDoc(null)).toBeNull()
+    expect(migrateDoc('문자열')).toBeNull()
+  })
+
+  it('모르는 미래 버전은 null이다', () => {
+    expect(migrateDoc({ ...createEmptyDoc(2026, 8), version: 99 })).toBeNull()
+  })
+
+  it('빠진 선택 필드를 기본값으로 채운다', () => {
+    const partial = createEmptyDoc(2026, 8) as unknown as Record<string, unknown>
+    delete partial.stickers
+    delete partial.footer
+    const out = migrateDoc(partial)
+    expect(out?.stickers).toEqual([])
+    expect(out?.footer).toEqual({ enabled: false, text: '' })
+  })
+})
