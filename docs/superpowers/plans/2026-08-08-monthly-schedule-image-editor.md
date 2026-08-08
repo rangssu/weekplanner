@@ -1135,6 +1135,11 @@ EOF
 
 폰트와 이미지는 localStorage에 넣을 수 없다. 별도 계층으로 분리한다.
 
+**이 태스크에는 jsdom·fake-indexeddb 관련 함정이 두 개 있다. 둘 다 실제 구현에서 확인된 것이다.**
+
+- **Blob을 IndexedDB에 직접 넣으면 안 된다.** fake-indexeddb의 structured clone이 Blob을 빈 객체(`{}`)로 만들어 버려서 왕복 검증이 아예 불가능해진다. 내부적으로는 `ArrayBuffer`로 풀어서 저장하고 읽을 때 Blob을 다시 만든다. 실제 브라우저에서도 IndexedDB의 Blob 지원은 편차가 있어 이쪽이 더 안전하다.
+- **`blob.arrayBuffer()`와 `blob.text()`를 쓰면 안 된다.** jsdom의 Blob에는 두 메서드가 없다. `FileReader`는 브라우저와 jsdom 모두에서 동작하므로 전부 그쪽으로 통일한다.
+
 **Files:**
 - Create: `src/model/assets.ts`
 - Test: `src/model/assets.test.ts`
