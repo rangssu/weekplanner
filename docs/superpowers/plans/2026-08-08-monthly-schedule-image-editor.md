@@ -66,7 +66,7 @@
 빈 디렉터리에서 시작한다. `npm create vite`는 비어 있지 않은 디렉터리(이미 `docs/`, `.git/`, `.gitignore`가 있다)에서 대화형 프롬프트를 띄우므로 쓰지 않는다. 설정 파일을 직접 만든다.
 
 **Files:**
-- Create: `package.json`, `tsconfig.json`, `tsconfig.node.json`, `vite.config.ts`, `index.html`
+- Create: `package.json`, `tsconfig.json`, `vite.config.ts`, `index.html`
 - Create: `src/main.tsx`, `src/App.tsx`, `src/index.css`, `src/vite-env.d.ts`
 - Create: `src/test/setup.ts`
 - Test: `src/test/smoke.test.ts`
@@ -77,7 +77,9 @@
 
 - [ ] **Step 1: `package.json` 작성**
 
-명시된 버전 조합은 함께 동작하는 것이 확인된 조합이다. 더 최신 버전을 써도 되지만, 실패하면 이 조합으로 되돌린다.
+아래 조합은 Node 24.13 / npm 11.6 환경에서 테스트·빌드가 모두 통과하고 `npm audit`이 0건인 것이 확인된 조합이다.
+
+**Vite 8 / Vitest 4로 올리지 말 것.** Vite 8은 Node `^24.15.0` 이상을 요구하고, Vitest 4는 그 아래 Node에서 `Timeout waiting for worker to respond`로 테스트가 아예 뜨지 않는다. 빌드는 성공하므로 문제를 늦게 발견하게 된다. Node를 24.15 이상으로 올린 뒤라면 상향해도 된다.
 
 ```json
 {
@@ -101,17 +103,19 @@
     "@testing-library/react": "^16.0.1",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
-    "@vitejs/plugin-react": "^4.3.3",
+    "@vitejs/plugin-react": "^5.1.1",
     "fake-indexeddb": "^6.0.0",
-    "jsdom": "^25.0.1",
+    "jsdom": "^26.1.0",
     "typescript": "^5.6.3",
-    "vite": "^5.4.10",
-    "vitest": "^2.1.4"
+    "vite": "^7.3.6",
+    "vitest": "^3.2.7"
   }
 }
 ```
 
 - [ ] **Step 2: TypeScript 설정 작성**
+
+설정 파일 하나 때문에 프로젝트 참조(`references`)를 두지 않는다. 참조된 프로젝트는 `composite: true`여야 하고 emit을 끌 수 없어서, `tsc -b`가 TS6306/TS6310으로 실패한다. `vite.config.ts`를 그냥 `include`에 넣는 편이 단순하고 안전하다.
 
 `tsconfig.json`:
 
@@ -135,26 +139,7 @@
     "noFallthroughCasesInSwitch": true,
     "types": ["vitest/globals"]
   },
-  "include": ["src"],
-  "references": [{ "path": "./tsconfig.node.json" }]
-}
-```
-
-`tsconfig.node.json`:
-
-```json
-{
-  "compilerOptions": {
-    "target": "ES2022",
-    "lib": ["ES2023"],
-    "module": "ESNext",
-    "skipLibCheck": true,
-    "moduleResolution": "bundler",
-    "allowSyntheticDefaultImports": true,
-    "strict": true,
-    "noEmit": true
-  },
-  "include": ["vite.config.ts"]
+  "include": ["src", "vite.config.ts"]
 }
 ```
 
@@ -162,11 +147,12 @@
 
 `base: './'`는 GitHub Pages 같은 하위 경로 배포에서 자산 경로가 깨지지 않게 한다.
 
+`defineConfig`를 `vite`가 아니라 **`vitest/config`에서** 가져온다. Vitest 3부터 `test` 속성은 이쪽 `defineConfig`에만 있어서, `vite`에서 가져오면 타입 에러가 난다.
+
 `vite.config.ts`:
 
 ```ts
-/// <reference types="vitest" />
-import { defineConfig } from 'vite'
+import { defineConfig } from 'vitest/config'
 import react from '@vitejs/plugin-react'
 
 export default defineConfig({
@@ -286,7 +272,7 @@ Expected: 에러 없이 `dist/` 생성
 - [ ] **Step 9: 커밋**
 
 ```bash
-git add package.json package-lock.json tsconfig.json tsconfig.node.json vite.config.ts index.html src
+git add package.json package-lock.json tsconfig.json vite.config.ts index.html src
 git commit -m "$(cat <<'EOF'
 chore: Vite + React + TypeScript + Vitest 프로젝트 스캐폴딩
 
