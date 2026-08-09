@@ -2,6 +2,7 @@ import { buildMonthGrid } from '../model/calendar'
 import type { DayEntry } from '../model/types'
 import type { ScheduleDocApi } from '../state/useScheduleDoc'
 import { getTheme } from '../theme/themes'
+import { DAY_ICONS } from '../theme/dayIcons'
 import {
   fieldLabelStyle, inputStyle, isLikelyOverflowing, sectionStyle, sectionTitleStyle, updateDay,
 } from './controls'
@@ -98,6 +99,51 @@ export function DayEditor({ api }: DayEditorProps) {
                 placeholder="예) 12h"
                 onChange={(e) => patch(cell.date, { extra: e.target.value })}
               />
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 8 }}>
+                <span style={{ fontSize: 12, color: '#52525b', width: 56, flexShrink: 0 }}>
+                  아이콘
+                </span>
+                <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+                  <button
+                    type="button"
+                    aria-label="아이콘 없음"
+                    aria-pressed={(entry?.icon ?? '') === ''}
+                    onClick={() => patch(cell.date, { icon: undefined })}
+                    style={{
+                      width: 28, height: 28, borderRadius: 4, cursor: 'pointer', padding: 0,
+                      border: (entry?.icon ?? '') === ''
+                        ? '2px solid #18181b'
+                        : '1px solid #d4d4d8',
+                      background: '#ffffff', fontSize: 12, lineHeight: 1,
+                    }}
+                  >
+                    ×
+                  </button>
+                  {DAY_ICONS.map((icon) => (
+                    <button
+                      key={icon.id}
+                      type="button"
+                      aria-label={icon.label}
+                      aria-pressed={entry?.icon === icon.id}
+                      title={icon.label}
+                      onClick={() => patch(cell.date, { icon: icon.id })}
+                      style={{
+                        width: 28, height: 28, borderRadius: 4, cursor: 'pointer', padding: 1,
+                        border: entry?.icon === icon.id
+                          ? '2px solid #18181b'
+                          : '1px solid #d4d4d8',
+                        background: '#ffffff',
+                      }}
+                    >
+                      <img
+                        src={icon.src}
+                        alt=""
+                        style={{ width: '100%', height: '100%', display: 'block' }}
+                      />
+                    </button>
+                  ))}
+                </div>
+              </div>
               <SwatchRow
                 label="칸 배경"
                 colors={theme.accents}
