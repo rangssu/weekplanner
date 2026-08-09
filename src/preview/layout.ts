@@ -15,7 +15,7 @@ export const CANVAS_HEIGHT = 2250
 export const OUTER_PADDING = 70
 export const HEADER_HEIGHT = 330
 export const DOW_ROW_HEIGHT = 90
-export const FOOTER_HEIGHT = 80
+export const FOOTER_HEIGHT = 52
 
 export const BORDER_WIDTH = 5
 export const CANVAS_BORDER_WIDTH = 10
@@ -67,7 +67,7 @@ export const CELL_TEXT_MIN_SIZE = 28
 export const CELL_TEXT_LINE_HEIGHT = 1.25
 
 export const DOW_LABEL_SIZE = 48
-export const FOOTER_TEXT_SIZE = 36
+export const FOOTER_TEXT_SIZE = 30
 export const MEMO_LABEL_SIZE = 42
 export const MEMO_TEXT_SIZE = 34
 export const TODO_LABEL_SIZE = 42
