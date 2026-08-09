@@ -38,6 +38,12 @@ export function AutoFitText(props: AutoFitTextProps) {
     }
   }, [])
 
+  // scrollWidth/scrollHeight는 정수만 돌려준다. 칸 폭은 3800/7처럼 소수라
+  // 그대로 비교하면 514.857 상자에 대해 측정값이 515로 올라가 어떤 크기도
+  // "안 맞음"이 되고, 결국 항상 최소 크기로 떨어진다. 상자를 내림해서 맞춘다.
+  const boxWidth = Math.floor(maxWidth)
+  const boxHeight = Math.floor(maxHeight)
+
   useLayoutEffect(() => {
     const probe = probeRef.current
     if (!probe) return
@@ -47,8 +53,8 @@ export function AutoFitText(props: AutoFitTextProps) {
         probe.style.fontSize = `${fontSize}px`
         return { width: probe.scrollWidth, height: probe.scrollHeight }
       },
-      maxWidth,
-      maxHeight,
+      maxWidth: boxWidth,
+      maxHeight: boxHeight,
       baseSize,
       minSize,
     })
@@ -59,7 +65,7 @@ export function AutoFitText(props: AutoFitTextProps) {
     // props.onOverflowChange는 의도적으로 의존성에서 뺀다.
     // 부모가 인라인 함수를 넘기면 매 렌더마다 재측정이 돌기 때문이다.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [text, maxWidth, maxHeight, baseSize, minSize, lineHeight, fontEpoch])
+  }, [text, boxWidth, boxHeight, baseSize, minSize, lineHeight, fontEpoch])
 
   const textStyle = {
     whiteSpace: 'pre-wrap' as const,
@@ -81,7 +87,13 @@ export function AutoFitText(props: AutoFitTextProps) {
         color,
       }}
     >
-      {/* 측정용. 화면 밖에 두되 같은 폭 제약을 받게 한다. */}
+      {/*
+        측정용. 화면 밖에 두되 같은 폭 제약을 받게 한다.
+
+        width를 고정하지 않고 max-width만 건다. width를 고정하면 scrollWidth가
+        항상 그 폭 이상으로 나와 "실제 텍스트가 얼마나 넓은지"를 알 수 없다.
+        absolute 요소는 shrink-to-fit이라 max-width만 주면 콘텐츠 폭이 측정된다.
+      */}
       <div
         ref={probeRef}
         aria-hidden
@@ -90,7 +102,7 @@ export function AutoFitText(props: AutoFitTextProps) {
           position: 'absolute',
           left: -99999,
           top: 0,
-          width: maxWidth,
+          maxWidth: boxWidth,
           visibility: 'hidden',
           pointerEvents: 'none',
         }}

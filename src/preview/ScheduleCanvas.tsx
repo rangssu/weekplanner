@@ -1,8 +1,10 @@
 import { forwardRef } from 'react'
 import type { ScheduleDoc } from '../model/types'
 import { getTheme } from '../theme/themes'
+import { CalendarGrid } from './CalendarGrid'
 import {
-  CANVAS_BORDER_RADIUS, CANVAS_BORDER_WIDTH, CANVAS_HEIGHT, CANVAS_WIDTH, OUTER_PADDING,
+  CANVAS_BORDER_RADIUS, CANVAS_BORDER_WIDTH, CANVAS_HEIGHT, CANVAS_WIDTH,
+  FOOTER_HEIGHT, HEADER_HEIGHT, OUTER_PADDING,
 } from './layout'
 
 export type ScheduleCanvasProps = {
@@ -37,7 +39,11 @@ export const ScheduleCanvas = forwardRef<HTMLDivElement, ScheduleCanvasProps>(
           position: 'relative',
           color: theme.bodyText,
         }}
-      />
+      >
+        <div style={{ height: HEADER_HEIGHT, flexShrink: 0 }} />
+        <CalendarGrid doc={doc} theme={theme} />
+        <div style={{ height: FOOTER_HEIGHT, flexShrink: 0 }} />
+      </div>
     )
   },
 )
