@@ -4,6 +4,7 @@ import { PreviewStage } from './editor/PreviewStage'
 import { StickerDragLayer } from './editor/StickerDragLayer'
 import { ScheduleCanvas } from './preview/ScheduleCanvas'
 import { useAssetUrl } from './state/useAssetUrl'
+import { useRecurringRules } from './state/useRecurringRules'
 import { useScheduleDoc } from './state/useScheduleDoc'
 import { fontFamilyFor, type FontOption, loadUserFonts } from './theme/fonts'
 
@@ -13,6 +14,7 @@ export default function App() {
   const canvasRef = useRef<HTMLDivElement>(null)
   const api = useScheduleDoc(today.getFullYear(), today.getMonth() + 1)
   const [userFonts, setUserFonts] = useState<FontOption[]>([])
+  const rulesApi = useRecurringRules()
 
   useEffect(() => {
     void loadUserFonts().then(setUserFonts)
@@ -63,6 +65,7 @@ export default function App() {
             userFonts={userFonts}
             onUserFontsChange={setUserFonts}
             canvasRef={canvasRef}
+            rulesApi={rulesApi}
           />
         </div>
       </div>
