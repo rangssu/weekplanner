@@ -16,10 +16,15 @@ export const OUTER_PADDING = 90
 export const CANVAS_CONTENT_WIDTH = CANVAS_WIDTH - CANVAS_BORDER_WIDTH * 2 - OUTER_PADDING * 2
 export const CANVAS_CONTENT_HEIGHT = CANVAS_HEIGHT - CANVAS_BORDER_WIDTH * 2 - OUTER_PADDING * 2
 
-/** 맨 위 제목 줄 — 왼쪽에 "8월", 오른쪽 끝에 "AUGUST" */
-export const TITLE_ROW_HEIGHT = 200
+/**
+ * 맨 위 제목 줄 — 왼쪽에 "8월", 오른쪽 끝에 "AUGUST".
+ *
+ * 높이를 넉넉히 잡으면 제목이 짧아질 때 남는 공간이 그대로 빈 여백으로 보인다.
+ * 가장 큰 제목(TITLE_KO_SIZE)이 들어갈 만큼만 두고, 남는 세로는 격자에 넘긴다.
+ */
+export const TITLE_ROW_HEIGHT = 160
 /** 제목 줄과 본문 사이 */
-export const TITLE_GAP = 40
+export const TITLE_GAP = 32
 
 /** 본문(사이드바 + 격자)이 쓰는 세로 공간 */
 export const BODY_HEIGHT = CANVAS_CONTENT_HEIGHT - TITLE_ROW_HEIGHT - TITLE_GAP
@@ -58,6 +63,19 @@ export const CELL_TEXT_LINE_HEIGHT = 1.25
 
 export const TITLE_KO_SIZE = 130
 export const TITLE_EN_SIZE = 96
+
+/**
+ * 제목이 길면 줄이되, 한 번에 확 줄이지 않는다.
+ * 크게 줄이면 남는 세로 공간이 빈 여백으로 도드라지고, 영문 월 이름
+ * (TITLE_EN_SIZE)보다 작아져 위계까지 뒤집힌다. 최소값을 영문보다 크게 둔다.
+ */
+export const TITLE_KO_SIZE_STEPS = [
+  { maxLength: 6, size: TITLE_KO_SIZE },
+  { maxLength: 10, size: 112 },
+  // 영문 월 이름보다 작아지지 않는다. 더 긴 제목은 크기를 줄이는 대신
+  // 말줄임표로 자른다.
+  { maxLength: Infinity, size: TITLE_EN_SIZE + 8 },
+] as const
 export const DOW_LABEL_SIZE = 40
 
 /**
