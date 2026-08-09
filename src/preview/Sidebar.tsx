@@ -1,8 +1,8 @@
 import { GOAL_LINE_COUNT, type HeaderConfig } from '../model/types'
 import type { Theme } from '../theme/themes'
 import {
-  BODY_HEIGHT, BORDER_WIDTH, BOX_HINT_SIZE, BOX_TEXT_SIZE, GOALS_BOX_RATIO,
-  PRIORITIES_BOX_RATIO, SIDEBAR_WIDTH, TODO_BOX_RATIO,
+  BODY_HEIGHT, BORDER_WIDTH, BOX_CHECKBOX_SIZE, BOX_HINT_SIZE, BOX_TEXT_SIZE,
+  GOALS_BOX_RATIO, PRIORITIES_BOX_RATIO, SIDEBAR_WIDTH, TODO_BOX_RATIO,
 } from './layout'
 import { SidebarBox } from './SidebarBox'
 
@@ -56,10 +56,10 @@ export function Sidebar({ header, theme }: SidebarProps) {
           {!hasGoalText && <Hint text={GOALS_HINT} theme={theme} />}
           <div
             style={{
-              marginTop: hasGoalText ? 0 : 28,
+              marginTop: hasGoalText ? 0 : 34,
               display: 'flex',
               flexDirection: 'column',
-              gap: 26,
+              gap: 34,
             }}
           >
             {goalLines.map((line, index) => (
@@ -67,13 +67,14 @@ export function Sidebar({ header, theme }: SidebarProps) {
                 key={index}
                 style={{
                   borderBottom: `${BORDER_WIDTH}px solid ${theme.cellBorder}`,
-                  paddingBottom: 8,
+                  paddingBottom: 10,
                   fontSize: BOX_TEXT_SIZE,
+                  lineHeight: 1.2,
                   color: theme.bodyText,
                   whiteSpace: 'nowrap',
                   overflow: 'hidden',
                   textOverflow: 'ellipsis',
-                  minHeight: BOX_TEXT_SIZE + 12,
+                  minHeight: BOX_TEXT_SIZE + 16,
                 }}
               >
                 {line}
@@ -85,23 +86,23 @@ export function Sidebar({ header, theme }: SidebarProps) {
 
       {header.todo.enabled && (
         <SidebarBox label="주요 할 일" badge="TO-DO LIST" height={heightOf(1)} theme={theme}>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
             {Array.from({ length: MAX_TODO_ITEMS }, (_, index) => {
               const item = header.todo.items[index]
               return (
                 <div
                   key={index}
-                  style={{ display: 'flex', alignItems: 'center', gap: 18, height: 40 }}
+                  style={{ display: 'flex', alignItems: 'center', gap: 20, height: BOX_TEXT_SIZE + 8 }}
                 >
                   <span
                     style={{
-                      width: 34,
-                      height: 34,
+                      width: BOX_CHECKBOX_SIZE,
+                      height: BOX_CHECKBOX_SIZE,
                       border: `${BORDER_WIDTH}px solid ${theme.cellBorder}`,
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      fontSize: 26,
+                      fontSize: BOX_CHECKBOX_SIZE - 10,
                       lineHeight: 1,
                       flexShrink: 0,
                       color: theme.bodyText,

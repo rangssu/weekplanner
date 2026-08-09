@@ -60,14 +60,24 @@ export const TITLE_KO_SIZE = 130
 export const TITLE_EN_SIZE = 96
 export const DOW_LABEL_SIZE = 40
 
-/** 사이드바 박스 */
-export const BOX_HEADER_HEIGHT = 100
-export const BOX_LABEL_KO_SIZE = 38
-export const BOX_BADGE_SIZE = 40
+/**
+ * 사이드바 박스.
+ *
+ * 글자 크기는 날짜 칸(CELL_TEXT_BASE_SIZE = 52)을 기준으로 맞춘다.
+ * 사이드바 내용이 44면 X 타임라인 축소(0.3배) 후 약 13px로, 날짜 칸 16px보다
+ * 한 단계 작아 위계가 잡힌다. 이전 값(32)은 축소 후 9.6px라 읽기 어려웠다.
+ */
+export const BOX_HEADER_HEIGHT = 118
+export const BOX_LABEL_KO_SIZE = 52
+export const BOX_BADGE_SIZE = 48
 export const BOX_PADDING = 34
-export const BOX_HINT_SIZE = 26
-export const BOX_TEXT_SIZE = 32
-export const BOX_GAP = 0
+/**
+ * 안내 문구. 박스가 비어 있을 때 **이것만 보이므로** 본문과 크게 차이나면
+ * 그 박스만 글씨가 작아 보인다. 본문보다 한 단계만 작게 둔다.
+ */
+export const BOX_HINT_SIZE = 40
+export const BOX_TEXT_SIZE = 54
+export const BOX_CHECKBOX_SIZE = 44
 
 /** 박스 3개가 사이드바 높이를 나눠 갖는 비율 */
 export const GOALS_BOX_RATIO = 0.38
