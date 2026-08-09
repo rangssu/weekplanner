@@ -17,10 +17,15 @@ describe('DAY_ICONS', () => {
     expect(new Set(DAY_ICONS.map((i) => i.id)).size).toBe(DAY_ICONS.length)
   })
 
-  it('모두 라벨과 자산 경로를 갖는다', () => {
+  it('모두 라벨을 갖고, 자산 경로는 자기 id로 만든 파일을 가리킨다', () => {
+    // src만 비어 있지 않은지 보면 game인데 movie 그림을 잘못 짝지어도 통과한다.
+    // 각 아이콘 파일은 <id>.png로 저장되어 있고 Vite가 원래 파일명을 살려
+    // 해시를 붙이므로, src에 자기 id가 들어 있는지까지 확인해야 그런
+    // 복붙 실수를 잡는다. (아홉 id 중 서로의 파일명에 부분 문자열로
+    // 끼어드는 조합은 없음을 별도로 확인했다.)
     for (const icon of DAY_ICONS) {
       expect(icon.label.length).toBeGreaterThan(0)
-      expect(icon.src.length).toBeGreaterThan(0)
+      expect(icon.src).toContain(icon.id)
     }
   })
 })

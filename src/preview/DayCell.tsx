@@ -88,7 +88,15 @@ export function DayCell({ cell, entry, theme, bgOpacity }: DayCellProps) {
           markerColor={cell.inMonth ? (entry?.marker ?? null) : null}
         />
       ) : (
-        <div style={{ position: 'relative', width: CELL_TEXT_WIDTH, height: bodyHeight }}>
+        <div
+          style={{
+            position: 'relative',
+            width: CELL_TEXT_WIDTH,
+            height: bodyHeight,
+            // 아이콘이 커도 추가 문구 띠를 침범하지 않도록 잘라낸다.
+            overflow: 'hidden',
+          }}
+        >
           {/*
             아이콘은 글자 뒤에 깐다. 아이콘을 쓸 때는 글자를 안 쓰는 게 보통이지만,
             둘 다 있어도 글자가 읽혀야 한다.

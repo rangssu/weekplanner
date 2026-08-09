@@ -24,6 +24,13 @@ export function exportFileName(year: number, month: number, key: ExportSizeKey):
  * 두 번 렌더링하고 두 번째 결과를 쓴다. html-to-image는 첫 호출에서 폰트나
  * 이미지가 아직 준비되지 않아 빠진 채로 그려지는 알려진 문제가 있다.
  * document.fonts.ready만으로는 부족한 브라우저가 있어 이중으로 막는다.
+ *
+ * cacheBust는 반드시 꺼 둔다. 자산 파일명은 Vite가 이미 내용 해시를 붙이므로
+ * 바이트가 바뀌면 파일명도 같이 바뀌어 별도 캐시 무효화가 필요 없다. 켜면
+ * 요청에 `?시각` 쿼리가 붙는데, 서비스 워커의 precache 매칭은 쿼리가 다르면
+ * 못 찾아 네트워크로 새 요청이 나간다. 오프라인이면 그 요청이 실패하고
+ * html-to-image는 실패한 이미지를 빈 문자열로 모듈 캐시에 박아 버려서, 이후
+ * 내보내기마다 아이콘이 조용히 빠진 채로 나온다. 다시 켜지 말 것.
  */
 export async function renderCanvasPng(node: HTMLElement): Promise<string> {
   await document.fonts.ready
@@ -32,7 +39,7 @@ export async function renderCanvasPng(node: HTMLElement): Promise<string> {
     width: CANVAS_WIDTH,
     height: CANVAS_HEIGHT,
     pixelRatio: 1,
-    cacheBust: true,
+    cacheBust: false,
     skipFonts: false,
   }
 

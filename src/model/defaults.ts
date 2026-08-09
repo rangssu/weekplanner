@@ -27,7 +27,7 @@ export function isBlankDayEntry(entry: DayEntry): boolean {
     entry.cellFill === null &&
     entry.marker === null &&
     (entry.extra ?? '').trim() === '' &&
-    (entry.icon ?? '') === ''
+    (entry.icon ?? '').trim() === ''
   )
 }
 
