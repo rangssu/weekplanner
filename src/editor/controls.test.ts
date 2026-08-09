@@ -1,5 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import { createEmptyDoc } from '../model/defaults'
+import {
+  CELL_EXTRA_HEIGHT, CELL_TEXT_HEIGHT, CELL_TEXT_LINE_HEIGHT, CELL_TEXT_MIN_SIZE, CELL_TEXT_WIDTH,
+} from '../preview/layout'
 import { isLikelyOverflowing, updateDay } from './controls'
 
 describe('updateDay', () => {
@@ -90,5 +93,32 @@ describe('isLikelyOverflowing', () => {
   it('한도 언저리에서 단조롭게 판정한다', () => {
     expect(isLikelyOverflowing('가'.repeat(10))).toBe(false)
     expect(isLikelyOverflowing('가'.repeat(1000))).toBe(true)
+  })
+
+  it('추가 문구가 있으면 본문 칸이 좁아져, 혼자서는 안 넘치던 글도 넘친다고 본다', () => {
+    // isLikelyOverflowing과 같은 방식으로 한 줄당 글자 수 / 최대 줄 수를 구한다.
+    // 매직 넘버를 박지 않아야 CELL_* 상수가 바뀌어도 테스트가 계속 맞는다.
+    const charsPerLine = Math.max(1, Math.floor(CELL_TEXT_WIDTH / CELL_TEXT_MIN_SIZE))
+    const maxLinesWithoutExtra = Math.max(
+      1,
+      Math.floor(CELL_TEXT_HEIGHT / (CELL_TEXT_MIN_SIZE * CELL_TEXT_LINE_HEIGHT)),
+    )
+    const maxLinesWithExtra = Math.max(
+      1,
+      Math.floor(
+        (CELL_TEXT_HEIGHT - CELL_EXTRA_HEIGHT) / (CELL_TEXT_MIN_SIZE * CELL_TEXT_LINE_HEIGHT),
+      ),
+    )
+    // extra가 본문을 줄여야 이 테스트가 성립한다 (지금 상수로는 6줄 vs 4줄).
+    expect(maxLinesWithExtra).toBeLessThan(maxLinesWithoutExtra)
+
+    // maxLinesWithExtra는 넘고 maxLinesWithoutExtra는 넘지 않는 줄 수를 쓰는
+    // 최소 글자 수. ceil(length / charsPerLine) === lines가 되는 가장 짧은 길이다.
+    const lines = maxLinesWithExtra + 1
+    const text = '가'.repeat((lines - 1) * charsPerLine + 1)
+
+    expect(isLikelyOverflowing(text)).toBe(false)
+    expect(isLikelyOverflowing(text, undefined)).toBe(false)
+    expect(isLikelyOverflowing(text, '12h')).toBe(true)
   })
 })

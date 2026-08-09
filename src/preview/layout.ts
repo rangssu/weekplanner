@@ -74,6 +74,22 @@ export const CELL_EXTRA_HEIGHT = 78
 export const CELL_EXTRA_BASE_SIZE = 62
 export const CELL_EXTRA_MIN_SIZE = 32
 
+/**
+ * 칸의 텍스트 영역을 본문과 추가 문구가 어떻게 나눠 쓰는지 정한다.
+ *
+ * 추가 문구가 없으면 본문이 전부 가져간다. 이 경우 기존 결과물과 픽셀 단위로
+ * 같아야 하므로 띠를 0으로 두고 요소 자체를 그리지 않는다.
+ */
+export function splitCellText(extra: string | undefined): {
+  bodyHeight: number
+  extraHeight: number
+} {
+  if ((extra ?? '').trim() === '') {
+    return { bodyHeight: CELL_TEXT_HEIGHT, extraHeight: 0 }
+  }
+  return { bodyHeight: CELL_TEXT_HEIGHT - CELL_EXTRA_HEIGHT, extraHeight: CELL_EXTRA_HEIGHT }
+}
+
 export const TITLE_KO_SIZE = 130
 export const TITLE_EN_SIZE = 96
 

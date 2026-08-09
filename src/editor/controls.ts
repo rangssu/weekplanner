@@ -1,8 +1,8 @@
 import type { CSSProperties } from 'react'
-import { createEmptyDayEntry } from '../model/defaults'
+import { createEmptyDayEntry, isBlankDayEntry } from '../model/defaults'
 import type { DayEntry, ScheduleDoc } from '../model/types'
 import {
-  CELL_TEXT_HEIGHT, CELL_TEXT_LINE_HEIGHT, CELL_TEXT_MIN_SIZE, CELL_TEXT_WIDTH,
+  CELL_TEXT_LINE_HEIGHT, CELL_TEXT_MIN_SIZE, CELL_TEXT_WIDTH, splitCellText,
 } from '../preview/layout'
 
 export const sectionStyle: CSSProperties = {
@@ -47,17 +47,6 @@ export const buttonStyle: CSSProperties = {
   cursor: 'pointer',
 }
 
-/** 텍스트도 강조도 없으면 저장할 이유가 없는 항목 */
-function isEmptyEntry(entry: DayEntry): boolean {
-  return (
-    entry.text.trim() === '' &&
-    entry.dateColor === null &&
-    entry.cellFill === null &&
-    entry.marker === null &&
-    (entry.extra ?? '').trim() === ''
-  )
-}
-
 /**
  * 하루 항목의 일부 필드를 바꾼 새 문서를 만든다.
  * 결과가 완전히 빈 항목이면 키 자체를 지운다. 저장 용량을 아끼고
@@ -70,7 +59,7 @@ export function updateDay(
 ): ScheduleDoc {
   const next: DayEntry = { ...(doc.days[date] ?? createEmptyDayEntry()), ...patch }
   const days = { ...doc.days }
-  if (isEmptyEntry(next)) delete days[date]
+  if (isBlankDayEntry(next)) delete days[date]
   else days[date] = next
   return { ...doc, days }
 }
@@ -86,14 +75,20 @@ export function updateDay(
  * 한글은 폰트 크기와 글자 폭이 거의 같으므로 한 줄에 들어가는 글자 수를
  * CELL_TEXT_WIDTH / CELL_TEXT_MIN_SIZE로 본다. 라틴 문자는 이보다 좁아
  * 실제로는 더 들어가지만, 경고가 조금 이르게 뜨는 쪽이 안전하다.
+ *
+ * extra(추가 문구)가 있으면 본문이 쓸 수 있는 높이가 splitCellText만큼
+ * 줄어든다. 이걸 반영하지 않으면 추가 문구가 있는 칸에서 실제로는 잘리는
+ * 5번째 줄을 경고 없이 넘겨버린다 — 경고가 늦게 뜨는 쪽이 위험하므로
+ * 항상 splitCellText가 주는 실제 본문 높이를 기준으로 삼는다.
  */
-export function isLikelyOverflowing(text: string): boolean {
+export function isLikelyOverflowing(text: string, extra?: string): boolean {
   if (text.trim() === '') return false
 
+  const { bodyHeight } = splitCellText(extra)
   const charsPerLine = Math.max(1, Math.floor(CELL_TEXT_WIDTH / CELL_TEXT_MIN_SIZE))
   const maxLines = Math.max(
     1,
-    Math.floor(CELL_TEXT_HEIGHT / (CELL_TEXT_MIN_SIZE * CELL_TEXT_LINE_HEIGHT)),
+    Math.floor(bodyHeight / (CELL_TEXT_MIN_SIZE * CELL_TEXT_LINE_HEIGHT)),
   )
 
   const usedLines = text

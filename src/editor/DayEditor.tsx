@@ -79,7 +79,7 @@ export function DayEditor({ api }: DayEditorProps) {
                 placeholder="일정을 적어주세요"
                 onChange={(e) => patch(cell.date, { text: e.target.value })}
               />
-              {isLikelyOverflowing(entry?.text ?? '') && (
+              {isLikelyOverflowing(entry?.text ?? '', entry?.extra) && (
                 <p style={{ fontSize: 12, color: '#c0392b', margin: '4px 0 0' }}>
                   글자가 너무 많아 칸에서 잘릴 수 있습니다.
                 </p>

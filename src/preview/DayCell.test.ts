@@ -2,8 +2,8 @@ import { describe, expect, it } from 'vitest'
 import type { GridCell } from '../model/calendar'
 import type { DayEntry } from '../model/types'
 import { getTheme } from '../theme/themes'
-import { CELL_EXTRA_HEIGHT, CELL_TEXT_HEIGHT } from './layout'
-import { dateNumberColor, splitCellText } from './DayCell'
+import { CELL_EXTRA_HEIGHT, CELL_TEXT_HEIGHT, splitCellText } from './layout'
+import { dateNumberColor } from './DayCell'
 
 const theme = getTheme('pink')
 const cell = (dow: number, inMonth = true): GridCell => ({

@@ -1,4 +1,5 @@
 import { buildMonthGrid } from './calendar'
+import { isBlankDayEntry } from './defaults'
 import type { DayEntry, ScheduleDoc } from './types'
 
 /**
@@ -40,17 +41,15 @@ function usableRules(rules: RecurringRule[]): RecurringRule[] {
   return rules.filter((r) => r.weekdays.length > 0 && r.text.trim() !== '')
 }
 
+/**
+ * dateColor와 extra는 일부러 보지 않는다. isBlankDayEntry(다섯 필드 전부)와
+ * 기준이 다른 게 의도다. "빈 칸만 채우기"는 "여기 일정 텍스트가 없다"는
+ * 뜻이어야 하므로, 날짜 색만 있거나 추가 문구("12h")만 있는 칸도 채울 수
+ * 있는 빈 칸으로 본다.
+ */
 const hasContent = (entry: DayEntry | undefined): boolean =>
   entry !== undefined &&
   (entry.text.trim() !== '' || entry.cellFill !== null || entry.marker !== null)
-
-/** 저장할 이유가 남지 않은 항목인지. editor/controls의 isEmptyEntry와 같은 기준. */
-const isBlank = (entry: DayEntry): boolean =>
-  entry.text.trim() === '' &&
-  entry.dateColor === null &&
-  entry.cellFill === null &&
-  entry.marker === null &&
-  (entry.extra ?? '').trim() === ''
 
 /**
  * 규칙이 적용될 날짜와 그때 들어갈 내용을 계산한다.
@@ -132,8 +131,11 @@ function planClear(doc: ScheduleDoc, allRules: RecurringRule[]): Map<string, Day
     if (!texts.has(entry.text.trim())) continue
 
     result.set(cell.date, {
-      // 규칙이 넣었던 것만 되돌린다. 날짜 색과 추가 문구는 규칙이 애초에
-      // 건드리지 않으므로 그대로 둔다.
+      // cellFill과 marker는 규칙이 소유한 필드라 매치된 칸이면 항상 초기화한다
+      // — 이 칸에 규칙이 실제로 색/형광펜을 넣었는지는 보지 않는다. 그래서
+      // 텍스트는 그대로 두고 손으로 강조만 얹은 칸(그래서 여전히 매치되는 칸)은
+      // clear에서 그 강조를 잃는다. 반대로 dateColor와 extra는 날짜 자체를
+      // 나타내는 값이라 규칙 소유가 아니므로 손대지 않는다.
       text: '',
       dateColor: entry.dateColor,
       cellFill: null,
@@ -154,7 +156,7 @@ export function clearRecurringRules(doc: ScheduleDoc, rules: RecurringRule[]): S
 
   const days = { ...doc.days }
   for (const [date, entry] of cleared) {
-    if (isBlank(entry)) delete days[date]
+    if (isBlankDayEntry(entry)) delete days[date]
     else days[date] = entry
   }
   return { ...doc, days }

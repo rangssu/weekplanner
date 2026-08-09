@@ -3,9 +3,9 @@ import type { DayEntry } from '../model/types'
 import type { Theme } from '../theme/themes'
 import { AutoFitText } from './AutoFitText'
 import {
-  BORDER_WIDTH, CELL_EXTRA_BASE_SIZE, CELL_EXTRA_HEIGHT, CELL_EXTRA_MIN_SIZE, CELL_HEIGHT, CELL_PADDING, CELL_TEXT_BASE_SIZE, CELL_TEXT_HEIGHT,
+  BORDER_WIDTH, CELL_EXTRA_BASE_SIZE, CELL_EXTRA_MIN_SIZE, CELL_HEIGHT, CELL_PADDING, CELL_TEXT_BASE_SIZE,
   CELL_TEXT_LINE_HEIGHT, CELL_TEXT_MIN_SIZE, CELL_TEXT_WIDTH, CELL_WIDTH,
-  DATE_NUMBER_BLOCK, DATE_NUMBER_SIZE,
+  DATE_NUMBER_BLOCK, DATE_NUMBER_SIZE, splitCellText,
 } from './layout'
 
 /**
@@ -25,22 +25,6 @@ export function dateNumberColor(
   if (cell.dow === 0) return theme.sundayText
   if (cell.dow === 6) return theme.saturdayText
   return theme.bodyText
-}
-
-/**
- * 칸의 텍스트 영역을 본문과 추가 문구가 어떻게 나눠 쓰는지 정한다.
- *
- * 추가 문구가 없으면 본문이 전부 가져간다. 이 경우 기존 결과물과 픽셀 단위로
- * 같아야 하므로 띠를 0으로 두고 요소 자체를 그리지 않는다.
- */
-export function splitCellText(extra: string | undefined): {
-  bodyHeight: number
-  extraHeight: number
-} {
-  if ((extra ?? '').trim() === '') {
-    return { bodyHeight: CELL_TEXT_HEIGHT, extraHeight: 0 }
-  }
-  return { bodyHeight: CELL_TEXT_HEIGHT - CELL_EXTRA_HEIGHT, extraHeight: CELL_EXTRA_HEIGHT }
 }
 
 export type DayCellProps = {
