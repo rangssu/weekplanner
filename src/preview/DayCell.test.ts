@@ -2,7 +2,8 @@ import { describe, expect, it } from 'vitest'
 import type { GridCell } from '../model/calendar'
 import type { DayEntry } from '../model/types'
 import { getTheme } from '../theme/themes'
-import { dateNumberColor } from './DayCell'
+import { CELL_EXTRA_HEIGHT, CELL_TEXT_HEIGHT } from './layout'
+import { dateNumberColor, splitCellText } from './DayCell'
 
 const theme = getTheme('pink')
 const cell = (dow: number, inMonth = true): GridCell => ({
@@ -39,5 +40,34 @@ describe('dateNumberColor', () => {
 
   it('앞뒤 달 칸은 지정 색이 있어도 흐린 색이다', () => {
     expect(dateNumberColor(cell(0, false), entry('#00ff00'), theme)).toBe(theme.outsideMonthText)
+  })
+})
+
+describe('splitCellText', () => {
+  it('추가 문구가 없으면 본문이 텍스트 영역을 전부 쓴다', () => {
+    // 기존에 만든 일정표가 픽셀 하나도 안 바뀌어야 한다. 이 테스트가 그 보증이다.
+    expect(splitCellText(undefined)).toEqual({ bodyHeight: CELL_TEXT_HEIGHT, extraHeight: 0 })
+  })
+
+  it('추가 문구가 빈 문자열이어도 본문이 전부 쓴다', () => {
+    expect(splitCellText('')).toEqual({ bodyHeight: CELL_TEXT_HEIGHT, extraHeight: 0 })
+  })
+
+  it('추가 문구가 공백뿐이어도 본문이 전부 쓴다', () => {
+    expect(splitCellText('   ')).toEqual({ bodyHeight: CELL_TEXT_HEIGHT, extraHeight: 0 })
+  })
+
+  it('추가 문구가 있으면 아래쪽 띠만큼 본문이 줄어든다', () => {
+    expect(splitCellText('12h')).toEqual({
+      bodyHeight: CELL_TEXT_HEIGHT - CELL_EXTRA_HEIGHT,
+      extraHeight: CELL_EXTRA_HEIGHT,
+    })
+  })
+
+  it('두 띠를 더하면 항상 텍스트 영역 전체다', () => {
+    for (const value of [undefined, '', '12h', '아주 긴 문구를 넣어도 마찬가지']) {
+      const { bodyHeight, extraHeight } = splitCellText(value)
+      expect(bodyHeight + extraHeight).toBe(CELL_TEXT_HEIGHT)
+    }
   })
 })

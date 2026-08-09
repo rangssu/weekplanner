@@ -61,6 +61,19 @@ export const CELL_TEXT_BASE_SIZE = 52
 export const CELL_TEXT_MIN_SIZE = 26
 export const CELL_TEXT_LINE_HEIGHT = 1.25
 
+/**
+ * 일정 아래에 얹는 추가 문구가 쓰는 띠.
+ *
+ * 기본 크기 한 줄이 들어갈 만큼만 잡는다(62 × 1.25 ≈ 78). 더 크게 잡으면
+ * 본문이 두 줄도 못 쓰게 되고, 추가 문구가 없는 칸이 대부분이라 손해가 크다.
+ *
+ * 본문(52)보다 글자가 큰 이유: 여기 들어가는 값은 "12h"처럼 짧고 눈에 먼저
+ * 들어와야 하는 것이다. 길이가 아니라 위계로 크기를 정한다.
+ */
+export const CELL_EXTRA_HEIGHT = 78
+export const CELL_EXTRA_BASE_SIZE = 62
+export const CELL_EXTRA_MIN_SIZE = 32
+
 export const TITLE_KO_SIZE = 130
 export const TITLE_EN_SIZE = 96
 
