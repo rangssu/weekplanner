@@ -101,21 +101,28 @@ export type DayEntry = {
   dateColor: string | null
   cellFill: string | null
   marker: string | null
-  /** 일정 아래에 따로 얹는 문구. 빈 문자열이면 그리지 않는다. */
-  extra: string
+  /** 일정 아래에 따로 얹는 문구. 없거나 비면 그리지 않는다. */
+  extra?: string
 }
 ```
 
-`null`이 아니라 빈 문자열을 기본값으로 쓴다. `text`와 성격이 같은 자유 텍스트이므로 같은 표현을 쓰는 편이 다루기 쉽다.
+**선택 필드다.** 두 가지 이유가 있다.
 
-`storage.ts`의 `migrateDoc`은 `days`를 통째로 캐스팅해 넘긴다. 따라서 이 필드가 없는 예전 문서도 그대로 읽히고, 읽는 쪽에서 `?? ''`로 받으면 된다. **마이그레이션 코드는 필요 없다.**
+첫째, `storage.ts`의 `migrateDoc`은 `days`를 통째로 캐스팅해 넘긴다. 따라서 이 필드가 없는 예전 문서가 그대로 읽히고, **런타임에 `extra`가 없는 항목이 실제로 존재한다.** 필수로 선언하면 타입이 거짓말을 하게 된다. 선택으로 두면 타입이 현실과 맞고 마이그레이션 코드도 필요 없다.
+
+둘째, 필수로 만들면 기존 테스트 6개 파일에 흩어진 `DayEntry` 리터럴 14군데를 전부 고쳐야 한다. 이 기능과 무관한 변경으로 diff가 뒤덮인다.
+
+읽는 쪽은 전부 `entry?.extra ?? ''`로 받는다. `text`와 마찬가지로 `null`이 아니라 빈 문자열을 "없음"으로 본다.
 
 건드릴 곳:
 
 - `model/types.ts` — 필드 추가
-- `model/defaults.ts` — `createEmptyDayEntry`에 `extra: ''`
-- `editor/controls.ts` — `isEmptyEntry`에 `entry.extra.trim() === ''` 조건 추가
-- `model/recurring.ts` — `plan`이 만드는 `DayEntry`에 `extra: doc.days[cell.date]?.extra ?? ''` (기존 값 보존)
+- `editor/controls.ts` — `isEmptyEntry`에 `(entry.extra ?? '').trim() === ''` 조건 추가
+- `model/recurring.ts` — `plan`이 만드는 `DayEntry`에 `extra: doc.days[cell.date]?.extra` (기존 값 보존)
+
+`model/defaults.ts`의 `createEmptyDayEntry`는 **바꾸지 않는다.** 선택 필드이므로 빈 항목에 넣을 이유가 없고, 넣으면 기존 테스트의 `toEqual` 비교가 깨진다.
+
+`model/copyMonth.ts`도 바꿀 필요가 없다. 항목을 `{ ...entry }`로 복제하므로 `extra`가 자동으로 따라간다.
 
 마지막 항목이 핵심이다. **반복 규칙은 적용이든 삭제든 `extra`를 절대 건드리지 않는다.** 규칙으로 제목을 다시 뿌려도 날짜별로 적어둔 방송 길이는 살아남는다.
 
@@ -206,6 +213,7 @@ export const CELL_EXTRA_MIN_SIZE = 32
 
 - `extra`만 있는 항목은 빈 항목이 아니다 (`updateDay`가 키를 지우지 않는다)
 - `extra`를 지우면 다른 필드가 다 비어 있을 때 키가 사라진다
+- `extra`가 아예 없는 예전 모양의 항목도 빈 항목 판정이 예외 없이 동작한다
 
 ## 6. 범위 밖
 
