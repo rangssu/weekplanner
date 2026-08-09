@@ -79,6 +79,15 @@ describe('migrateDoc', () => {
     expect(migrateDoc({ ...createEmptyDoc(2026, 8), version: 99 })).toBeNull()
   })
 
+  it('예전 이름(priorities)으로 저장된 메모를 물려받는다', () => {
+    const old = createEmptyDoc(2026, 8) as unknown as Record<string, unknown>
+    const header = old.header as Record<string, unknown>
+    delete header.memo
+    header.priorities = { enabled: true, text: '예전에 적어둔 내용' }
+
+    expect(migrateDoc(old)?.header.memo).toEqual({ enabled: true, text: '예전에 적어둔 내용' })
+  })
+
   it('빠진 선택 필드를 기본값으로 채운다', () => {
     const partial = createEmptyDoc(2026, 8) as unknown as Record<string, unknown>
     delete partial.stickers

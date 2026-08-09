@@ -31,7 +31,7 @@ describe('createEmptyDoc', () => {
     const { header } = createEmptyDoc(2026, 8)
     expect(header.goals.enabled).toBe(true)
     expect(header.todo.enabled).toBe(true)
-    expect(header.priorities.enabled).toBe(true)
+    expect(header.memo.enabled).toBe(true)
   })
 
   it('목표는 항상 GOAL_LINE_COUNT줄이다', () => {

@@ -22,7 +22,7 @@ export function createEmptyDoc(year: number, month: number): ScheduleDoc {
       showEnglishMonth: true,
       goals: { enabled: true, lines: Array.from({ length: GOAL_LINE_COUNT }, () => '') },
       todo: { enabled: true, items: [] },
-      priorities: { enabled: true, text: '' },
+      memo: { enabled: true, text: '' },
     },
     days: {},
     themeId: DEFAULT_THEME_ID,

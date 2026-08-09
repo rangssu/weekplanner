@@ -2,13 +2,13 @@ import { GOAL_LINE_COUNT, type HeaderConfig } from '../model/types'
 import type { Theme } from '../theme/themes'
 import {
   BODY_HEIGHT, BORDER_WIDTH, BOX_CHECKBOX_SIZE, BOX_HINT_SIZE, BOX_TEXT_SIZE,
-  GOALS_BOX_RATIO, PRIORITIES_BOX_RATIO, SIDEBAR_WIDTH, TODO_BOX_RATIO,
+  GOALS_BOX_RATIO, MEMO_BOX_RATIO, SIDEBAR_WIDTH, TODO_BOX_RATIO,
 } from './layout'
 import { SidebarBox } from './SidebarBox'
 
 /** 비어 있을 때만 회색으로 보여주는 안내 문구 */
 const GOALS_HINT = '한 달 동안 반드시 이뤄야 할 핵심 목표 2~3가지를 적는 칸입니다.'
-const PRIORITIES_HINT = '가장 에너지를 쏟아야 하는 상위 3가지 항목을 적어둡니다.'
+const MEMO_HINT = '자유롭게 적어두는 칸입니다. 공지나 안내를 적어보세요.'
 
 /** 상자에 온전히 보이는 할 일 개수 */
 export const MAX_TODO_ITEMS = 5
@@ -27,10 +27,10 @@ export type SidebarProps = {
 }
 
 export function Sidebar({ header, theme }: SidebarProps) {
-  const enabled = [header.goals.enabled, header.todo.enabled, header.priorities.enabled]
+  const enabled = [header.goals.enabled, header.todo.enabled, header.memo.enabled]
   const shownCount = enabled.filter(Boolean).length
   // 켜진 박스끼리 세로 공간을 나눠 갖는다. 하나만 켜면 그것이 다 쓴다.
-  const ratios = [GOALS_BOX_RATIO, TODO_BOX_RATIO, PRIORITIES_BOX_RATIO]
+  const ratios = [GOALS_BOX_RATIO, TODO_BOX_RATIO, MEMO_BOX_RATIO]
   const shownRatioSum = ratios.reduce((sum, r, i) => sum + (enabled[i] ? r : 0), 0)
   const heightOf = (index: number) =>
     shownRatioSum === 0 ? 0 : Math.floor((BODY_HEIGHT * ratios[index]) / shownRatioSum)
@@ -128,10 +128,10 @@ export function Sidebar({ header, theme }: SidebarProps) {
         </SidebarBox>
       )}
 
-      {header.priorities.enabled && (
-        <SidebarBox label="우선순위" badge="TOP PRIORITIES" height={heightOf(2)} theme={theme}>
-          {header.priorities.text.trim() === '' ? (
-            <Hint text={PRIORITIES_HINT} theme={theme} />
+      {header.memo.enabled && (
+        <SidebarBox label="메모" badge="MEMO" height={heightOf(2)} theme={theme}>
+          {header.memo.text.trim() === '' ? (
+            <Hint text={MEMO_HINT} theme={theme} />
           ) : (
             <div
               style={{
@@ -142,7 +142,7 @@ export function Sidebar({ header, theme }: SidebarProps) {
                 wordBreak: 'break-word',
               }}
             >
-              {header.priorities.text}
+              {header.memo.text}
             </div>
           )}
         </SidebarBox>

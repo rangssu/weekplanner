@@ -139,24 +139,24 @@ export function HeaderEditor({ api }: HeaderEditorProps) {
       </section>
 
       <section style={sectionStyle}>
-        <h2 style={sectionTitleStyle}>우선순위 (TOP PRIORITIES)</h2>
+        <h2 style={sectionTitleStyle}>메모 (MEMO)</h2>
         <label style={{ ...checkboxRowStyle, marginTop: 0 }}>
           <input
             type="checkbox"
-            checked={header.priorities.enabled}
+            checked={header.memo.enabled}
             onChange={(e) =>
-              patchHeader({ priorities: { ...header.priorities, enabled: e.target.checked } })
+              patchHeader({ memo: { ...header.memo, enabled: e.target.checked } })
             }
           />
           표시
         </label>
-        {header.priorities.enabled && (
+        {header.memo.enabled && (
           <textarea
             style={{ ...inputStyle, minHeight: 72, marginTop: 6, resize: 'none' }}
-            value={header.priorities.text}
-            placeholder="가장 에너지를 쏟아야 하는 항목을 적어주세요"
+            value={header.memo.text}
+            placeholder="자유롭게 적어주세요"
             onChange={(e) =>
-              patchHeader({ priorities: { ...header.priorities, text: e.target.value } })
+              patchHeader({ memo: { ...header.memo, text: e.target.value } })
             }
           />
         )}

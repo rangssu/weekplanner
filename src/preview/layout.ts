@@ -100,4 +100,4 @@ export const BOX_CHECKBOX_SIZE = 44
 /** 박스 3개가 사이드바 높이를 나눠 갖는 비율 */
 export const GOALS_BOX_RATIO = 0.38
 export const TODO_BOX_RATIO = 0.34
-export const PRIORITIES_BOX_RATIO = 0.28
+export const MEMO_BOX_RATIO = 0.28

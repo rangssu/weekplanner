@@ -49,7 +49,9 @@ function mergeHeader(base: HeaderConfig, raw: unknown): HeaderConfig {
 
   const goals = isObject(raw.goals) ? raw.goals : null
   const todo = isObject(raw.todo) ? raw.todo : null
-  const priorities = isObject(raw.priorities) ? raw.priorities : null
+  // 예전에 이 칸은 "우선순위(priorities)"였다. 이름만 바뀌고 성격은 같으므로
+  // 예전 데이터를 그대로 물려받는다.
+  const memo = isObject(raw.memo) ? raw.memo : isObject(raw.priorities) ? raw.priorities : null
 
   return {
     titleMode: raw.titleMode === 'custom' ? 'custom' : 'auto',
@@ -68,10 +70,9 @@ function mergeHeader(base: HeaderConfig, raw: unknown): HeaderConfig {
       enabled: typeof todo?.enabled === 'boolean' ? todo.enabled : base.todo.enabled,
       items: Array.isArray(todo?.items) ? (todo.items as HeaderConfig['todo']['items']) : [],
     },
-    priorities: {
-      enabled:
-        typeof priorities?.enabled === 'boolean' ? priorities.enabled : base.priorities.enabled,
-      text: typeof priorities?.text === 'string' ? priorities.text : base.priorities.text,
+    memo: {
+      enabled: typeof memo?.enabled === 'boolean' ? memo.enabled : base.memo.enabled,
+      text: typeof memo?.text === 'string' ? memo.text : base.memo.text,
     },
   }
 }

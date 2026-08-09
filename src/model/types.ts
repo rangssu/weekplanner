@@ -44,8 +44,8 @@ export type HeaderConfig = {
   goals: { enabled: boolean; lines: string[] }
   /** 주요 할 일 */
   todo: { enabled: boolean; items: TodoItem[] }
-  /** 우선순위 — 자유 텍스트 */
-  priorities: { enabled: boolean; text: string }
+  /** 메모 — 자유 텍스트 */
+  memo: { enabled: boolean; text: string }
 }
 
 /** 한 달치 문서. 저장 단위이자 preview/의 유일한 입력. */
