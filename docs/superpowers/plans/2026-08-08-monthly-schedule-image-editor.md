@@ -4121,18 +4121,34 @@ describe('fontFaceRule', () => {
 Run: `npx vitest run src/theme/fonts.test.ts`
 Expected: FAIL — `Failed to resolve import "./fonts"`
 
-- [ ] **Step 3: Pretendard 설치와 경로 확인**
+- [ ] **Step 3: 기본 폰트 파일 준비**
 
-Run: `npm install pretendard`
-Run: `ls node_modules/pretendard/dist/web/variable/`
-Expected: `pretendardvariable.css`와 `woff2/` 디렉터리가 보인다.
+기본 폰트는 **카페24 동동(Cafe24 Dongdong)** 이다. 사용자 PC에 설치되어 있던 것을 파일째 가져와 번들한다.
 
-경로가 다르면 `ls node_modules/pretendard/dist`로 실제 구조를 확인하고 다음 단계의 import 경로를 그에 맞춘다. 패키지 자체를 못 찾으면 이 폰트는 건너뛰고 `BUILTIN_FONTS`에서 `system` 항목만 남긴 뒤 `DEFAULT_FONT_ID`를 `'system'`으로 바꾼다(`src/model/defaults.ts`도 함께).
+npm 패키지를 쓰지 않는다. 시스템에 설치된 폰트는 이름만으로는 결과 이미지에 임베딩되지 않으므로 파일이 필요하고, 마침 파일이 있기 때문이다.
 
-- [ ] **Step 4: `src/index.css` 맨 위에 폰트 import 추가**
+원본 TTF가 4.24MB로 무거우므로 woff2로 변환한다. `wawoff2`는 일회성 변환 도구라 `--no-save`로 설치한다.
+
+```bash
+npm i --no-save wawoff2
+mkdir -p src/assets/fonts
+node -e "
+const fs = require('fs'), w2 = require('wawoff2');
+const ttf = fs.readFileSync('C:/Users/wlqkr/AppData/Local/Microsoft/Windows/Fonts/Cafe24Dongdong-v2.0.ttf');
+w2.compress(ttf).then(out => fs.writeFileSync('src/assets/fonts/Cafe24Dongdong.woff2', Buffer.from(out)));
+"
+```
+
+Expected: `src/assets/fonts/Cafe24Dongdong.woff2` 약 0.39MB (91% 감소)
+
+- [ ] **Step 4: `src/index.css` 맨 위에 @font-face 추가**
 
 ```css
-@import 'pretendard/dist/web/variable/pretendardvariable.css';
+@font-face {
+  font-family: 'Cafe24 Dongdong';
+  src: url('./assets/fonts/Cafe24Dongdong.woff2') format('woff2');
+  font-display: block;
+}
 ```
 
 - [ ] **Step 5: 구현 작성**

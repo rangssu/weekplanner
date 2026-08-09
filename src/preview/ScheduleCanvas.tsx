@@ -11,6 +11,8 @@ import {
 
 export type ScheduleCanvasProps = {
   doc: ScheduleDoc
+  /** 적용할 CSS font-family. App이 fontFamilyFor()로 계산해 넘긴다. */
+  fontFamily: string
 }
 
 /**
@@ -20,7 +22,7 @@ export type ScheduleCanvasProps = {
  * 미리보기와 내보낸 이미지가 어긋난다. 축소는 부모(PreviewStage)가 담당한다.
  */
 export const ScheduleCanvas = forwardRef<HTMLDivElement, ScheduleCanvasProps>(
-  function ScheduleCanvas({ doc }, ref) {
+  function ScheduleCanvas({ doc, fontFamily }, ref) {
     const theme = getTheme(doc.themeId)
 
     return (
@@ -40,6 +42,7 @@ export const ScheduleCanvas = forwardRef<HTMLDivElement, ScheduleCanvasProps>(
           overflow: 'hidden',
           position: 'relative',
           color: theme.bodyText,
+          fontFamily,
         }}
       >
         <Header header={doc.header} year={doc.year} month={doc.month} theme={theme} />

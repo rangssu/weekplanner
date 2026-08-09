@@ -1,14 +1,22 @@
-import { useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { EditorPanel } from './editor/EditorPanel'
 import { PreviewStage } from './editor/PreviewStage'
 import { ScheduleCanvas } from './preview/ScheduleCanvas'
 import { useScheduleDoc } from './state/useScheduleDoc'
+import { fontFamilyFor, type FontOption, loadUserFonts } from './theme/fonts'
 
 const today = new Date()
 
 export default function App() {
   const canvasRef = useRef<HTMLDivElement>(null)
   const api = useScheduleDoc(today.getFullYear(), today.getMonth() + 1)
+  const [userFonts, setUserFonts] = useState<FontOption[]>([])
+
+  useEffect(() => {
+    void loadUserFonts().then(setUserFonts)
+  }, [])
+
+  const fontFamily = fontFamilyFor(api.doc.fontId, userFonts)
 
   return (
     <div style={{ padding: 16, maxWidth: 2000, margin: '0 auto' }}>
@@ -32,11 +40,11 @@ export default function App() {
       >
         <div style={{ position: 'sticky', top: 16 }}>
           <PreviewStage verticalChrome={90}>
-            <ScheduleCanvas ref={canvasRef} doc={api.doc} />
+            <ScheduleCanvas ref={canvasRef} doc={api.doc} fontFamily={fontFamily} />
           </PreviewStage>
         </div>
         <div style={{ maxHeight: 'calc(100vh - 90px)', overflowY: 'auto' }}>
-          <EditorPanel api={api} />
+          <EditorPanel api={api} userFonts={userFonts} onUserFontsChange={setUserFonts} />
         </div>
       </div>
     </div>
