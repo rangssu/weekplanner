@@ -84,6 +84,20 @@ export function DayEditor({ api }: DayEditorProps) {
                   글자가 너무 많아 칸에서 잘릴 수 있습니다.
                 </p>
               )}
+              <label
+                style={{ ...fieldLabelStyle, marginTop: 8 }}
+                htmlFor={`extra-${cell.date}`}
+              >
+                추가 문구
+              </label>
+              <input
+                id={`extra-${cell.date}`}
+                type="text"
+                style={inputStyle}
+                value={entry?.extra ?? ''}
+                placeholder="예) 12h"
+                onChange={(e) => patch(cell.date, { extra: e.target.value })}
+              />
               <SwatchRow
                 label="칸 배경"
                 colors={theme.accents}
