@@ -9,8 +9,14 @@ export type TodoBoxProps = {
 
 const TODO_WIDTH = 900
 const TODO_HEIGHT = 300
-const TODO_ROW_HEIGHT = 52
+const TODO_ROW_HEIGHT = 46
 const TODO_CHECKBOX_SIZE = 32
+
+/**
+ * 상자 안에 온전히 보이는 항목 수. 헤더 높이(330)에 맞춰 정한 값이다.
+ * 편집 폼도 이 수를 상한으로 쓰므로, 넣을 수는 있는데 안 보이는 일이 없다.
+ */
+export const MAX_TODO_ITEMS = 4
 
 export function TodoBox({ items, theme }: TodoBoxProps) {
   return (
