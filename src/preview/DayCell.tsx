@@ -3,7 +3,7 @@ import type { DayEntry } from '../model/types'
 import { withAlpha, type Theme } from '../theme/themes'
 import { AutoFitText } from './AutoFitText'
 import {
-  BORDER_WIDTH, CELL_EXTRA_BASE_SIZE, CELL_EXTRA_MIN_SIZE, CELL_HEIGHT, CELL_PADDING, CELL_TEXT_BASE_SIZE,
+  CELL_EXTRA_BASE_SIZE, CELL_EXTRA_MIN_SIZE, CELL_HEIGHT, CELL_PADDING, CELL_TEXT_BASE_SIZE,
   CELL_TEXT_LINE_HEIGHT, CELL_TEXT_MIN_SIZE, CELL_TEXT_WIDTH, CELL_WIDTH,
   DATE_NUMBER_BLOCK, DATE_NUMBER_SIZE, splitCellText,
 } from './layout'
@@ -46,8 +46,10 @@ export function DayCell({ cell, entry, theme, bgOpacity }: DayCellProps) {
         width: CELL_WIDTH,
         height: CELL_HEIGHT,
         boxSizing: 'border-box',
-        borderRight: `${BORDER_WIDTH}px solid ${theme.cellBorder}`,
-        borderBottom: `${BORDER_WIDTH}px solid ${theme.cellBorder}`,
+        // 구분선은 칸 안쪽으로 들어가므로(box-sizing: border-box) 두께를
+        // 바꿔도 칸의 바깥 크기와 격자 기하는 그대로다.
+        borderRight: `${theme.cellBorderWidth}px solid ${theme.cellBorder}`,
+        borderBottom: `${theme.cellBorderWidth}px solid ${theme.cellBorder}`,
         background: withAlpha(
           (cell.inMonth && entry?.cellFill) || theme.cellBackground,
           bgOpacity,

@@ -48,8 +48,10 @@ export function CalendarGrid({ doc, theme }: CalendarGridProps) {
                     ? theme.saturdayText
                     : theme.dowHeaderText,
               borderRight:
-                index === GRID_COLUMNS - 1 ? 'none' : `${BORDER_WIDTH}px solid ${theme.cellBorder}`,
-              borderBottom: `${BORDER_WIDTH}px solid ${theme.cellBorder}`,
+                index === GRID_COLUMNS - 1
+                  ? 'none'
+                  : `${theme.cellBorderWidth}px solid ${theme.cellBorder}`,
+              borderBottom: `${theme.cellBorderWidth}px solid ${theme.cellBorder}`,
               boxSizing: 'border-box',
             }}
           >

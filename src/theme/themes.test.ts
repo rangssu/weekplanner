@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { DEFAULT_THEME_ID } from '../model/defaults'
+import { BORDER_WIDTH, MAX_CELL_BORDER_WIDTH } from '../preview/layout'
 import { ACCENT_COUNT, getTheme, THEMES, withAlpha } from './themes'
 
 const HEX = /^#[0-9a-f]{6}$/i
@@ -69,8 +70,24 @@ describe('다크 테마 격자선', () => {
     // 어두운 배경에서는 선을 더 밝게 해야 뚜렷해진다. 더 어둡게 하면
     // 배경에 묻혀 오히려 안 보인다.
     const dark = getTheme('dark')
-    expect(dark.cellBorder).toBe('#8a90b5')
+    expect(dark.cellBorder).toBe('#c6cbdd')
     expect(dark.cellBackground).toBe('#2b2e42')
+  })
+
+  it('다크만 구분선이 두껍다', () => {
+    // 색만 밝혀서는 축소됐을 때 뭉개지는 걸 못 막는다.
+    expect(getTheme('dark').cellBorderWidth).toBe(MAX_CELL_BORDER_WIDTH)
+    for (const theme of THEMES.filter((t) => t.id !== 'dark')) {
+      expect(theme.cellBorderWidth).toBe(BORDER_WIDTH)
+    }
+  })
+
+  it('어떤 테마도 텍스트 영역이 예약한 두께를 넘지 않는다', () => {
+    // CELL_TEXT_HEIGHT가 MAX_CELL_BORDER_WIDTH만 빼두므로, 이보다 두꺼운
+    // 테마가 생기면 글자 상자가 실제보다 크게 잡혀 아래가 잘린다.
+    for (const theme of THEMES) {
+      expect(theme.cellBorderWidth).toBeLessThanOrEqual(MAX_CELL_BORDER_WIDTH)
+    }
   })
 })
 

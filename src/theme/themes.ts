@@ -1,4 +1,5 @@
 import { DEFAULT_THEME_ID } from '../model/defaults'
+import { MAX_CELL_BORDER_WIDTH } from '../preview/layout'
 
 export const ACCENT_COUNT = 6
 
@@ -14,6 +15,18 @@ export type Theme = {
   /** 날짜 칸 바탕 */
   cellBackground: string
   cellBorder: string
+  /**
+   * 칸 사이 구분선 두께. 격자 바깥 테두리는 이 값을 쓰지 않는다.
+   *
+   * 어두운 바탕에서는 얇은 선이 축소될 때 뭉개져, 색을 아무리 밝혀도
+   * 한계가 있다. 그래서 다크만 두껍게 둔다.
+   *
+   * 구분선은 칸 안쪽으로 들어가므로 이 값을 바꿔도 칸의 바깥 크기와 격자
+   * 기하는 그대로다. 바깥 테두리까지 두껍게 하면 격자 안쪽 높이가 줄어
+   * 마지막 주가 잘리므로 그쪽은 건드리지 않는다.
+   * 최댓값은 layout.ts의 MAX_CELL_BORDER_WIDTH와 맞춰야 한다.
+   */
+  cellBorderWidth: number
   /** 일정 텍스트 색 */
   bodyText: string
   /** 앞뒤 달 날짜의 흐린 색 */
@@ -42,6 +55,7 @@ export const THEMES: Theme[] = [
     headerText: '#5b3a42',
     cellBackground: '#fdf4f6',
     cellBorder: '#5b3a42',
+    cellBorderWidth: 3,
     bodyText: '#5b3a42',
     outsideMonthText: '#c9a7b0',
     sundayText: '#e2445c',
@@ -58,6 +72,7 @@ export const THEMES: Theme[] = [
     headerText: '#3d362c',
     cellBackground: '#fffdf8',
     cellBorder: '#4a4238',
+    cellBorderWidth: 3,
     bodyText: '#3d362c',
     outsideMonthText: '#bcb2a2',
     sundayText: '#c94f3d',
@@ -74,6 +89,7 @@ export const THEMES: Theme[] = [
     headerText: '#2f5b53',
     cellBackground: '#f6fffc',
     cellBorder: '#2f5b53',
+    cellBorderWidth: 3,
     bodyText: '#2f5b53',
     outsideMonthText: '#a5c6bf',
     sundayText: '#d9534f',
@@ -92,6 +108,7 @@ export const THEMES: Theme[] = [
     headerText: '#18181b',
     cellBackground: '#ffffff',
     cellBorder: '#d4d4d8',
+    cellBorderWidth: 3,
     bodyText: '#27272a',
     outsideMonthText: '#d4d4d8',
     sundayText: '#c0392b',
@@ -107,7 +124,10 @@ export const THEMES: Theme[] = [
     borderColor: '#5a5f7d',
     headerText: '#f2f3f8',
     cellBackground: '#2b2e42',
-    cellBorder: '#8a90b5',
+    // 어두운 바탕에서는 얇은 선이 축소될 때 뭉개진다. 밝기만 올려서는
+    // 한계가 있어 두께까지 함께 올린다.
+    cellBorder: '#c6cbdd',
+    cellBorderWidth: MAX_CELL_BORDER_WIDTH,
     bodyText: '#e7e9f2',
     outsideMonthText: '#666b87',
     sundayText: '#ff8a8a',

@@ -54,9 +54,29 @@ export const CELL_PADDING = 14
 export const DATE_NUMBER_SIZE = 40
 export const DATE_NUMBER_BLOCK = 52
 
-/** 일정 텍스트가 쓸 수 있는 영역 */
-export const CELL_TEXT_WIDTH = CELL_WIDTH - CELL_PADDING * 2
-export const CELL_TEXT_HEIGHT = CELL_HEIGHT - CELL_PADDING * 2 - DATE_NUMBER_BLOCK
+/**
+ * 테마가 고를 수 있는 칸 구분선 두께의 최댓값. `Theme.cellBorderWidth` 참고.
+ *
+ * 구분선은 칸 **안쪽**으로 들어가므로(`box-sizing: border-box`) 칸의 바깥 크기와
+ * 격자 기하는 두께와 무관하다. 하지만 글자가 쓸 수 있는 넓이는 그만큼 줄어든다.
+ *
+ * 텍스트 영역은 테마별로 달라지지 않게 **가장 두꺼운 경우를 기준으로** 잡는다.
+ * 테마마다 값이 달라지면 CELL_TEXT_HEIGHT에서 파생되는 splitCellText와
+ * isLikelyOverflowing이 전부 테마를 알아야 한다. 얇은 테마가 2px 손해 보는
+ * 쪽이 그 복잡도보다 훨씬 싸다.
+ */
+export const MAX_CELL_BORDER_WIDTH = 5
+
+/**
+ * 일정 텍스트가 쓸 수 있는 영역.
+ *
+ * 구분선 두께를 빼는 것에 주의. 예전에는 빼지 않아서 실제 렌더 높이보다
+ * 몇 px 크게 잡혔고, AutoFitText가 재는 상자와 실제로 그려지는 상자가
+ * 어긋나 있었다.
+ */
+export const CELL_TEXT_WIDTH = CELL_WIDTH - CELL_PADDING * 2 - MAX_CELL_BORDER_WIDTH
+export const CELL_TEXT_HEIGHT =
+  CELL_HEIGHT - CELL_PADDING * 2 - DATE_NUMBER_BLOCK - MAX_CELL_BORDER_WIDTH
 
 /**
  * 글자 크기는 **결과 이미지가 축소돼 보이는 상황**을 기준으로 잡는다.
