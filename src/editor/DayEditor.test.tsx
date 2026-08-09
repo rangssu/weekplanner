@@ -57,4 +57,18 @@ describe('DayEditor 아이콘 고르기', () => {
 
     expect(screen.queryByText('아이콘 없애기')).toBeNull()
   }, RENDER_TIMEOUT)
+
+  it('열린 토글을 다시 누르면 고르거나 지우지 않고 접힌다', () => {
+    const doc = createEmptyDoc(2026, 8)
+    render(createElement(DayEditor, { api: makeApi(doc) }))
+
+    const toggle = screen.getByRole('button', { name: '2026-08-01 아이콘 고르기' })
+    fireEvent.click(toggle)
+    expect(screen.queryByText('아이콘 없애기')).not.toBeNull()
+
+    fireEvent.click(toggle)
+
+    expect(screen.queryByText('아이콘 없애기')).toBeNull()
+    expect(toggle.getAttribute('aria-expanded')).toBe('false')
+  }, RENDER_TIMEOUT)
 })

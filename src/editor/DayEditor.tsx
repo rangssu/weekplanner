@@ -1,8 +1,8 @@
-import { useState } from 'react'
+import { memo, useCallback, useState } from 'react'
 import { buildMonthGrid } from '../model/calendar'
 import type { DayEntry } from '../model/types'
 import type { ScheduleDocApi } from '../state/useScheduleDoc'
-import { getTheme } from '../theme/themes'
+import { getTheme, type Theme } from '../theme/themes'
 import { DAY_ICONS, getDayIcon } from '../theme/dayIcons'
 import {
   fieldLabelStyle, inputStyle, isLikelyOverflowing, sectionStyle, sectionTitleStyle, updateDay,
@@ -163,6 +163,87 @@ function IconPicker({ date, value, isOpen, onToggle, onChange }: IconPickerProps
   )
 }
 
+type DayBlockProps = {
+  date: string
+  day: number
+  dow: number
+  entry: DayEntry | undefined
+  theme: Theme
+  isIconPickerOpen: boolean
+  onPatch: (date: string, next: Partial<DayEntry>) => void
+  onToggleIconPicker: (date: string) => void
+  onIconChange: (date: string, iconId: string | undefined) => void
+}
+
+/**
+ * 하루치 편집 블록. React.memo로 감싼 이유: 부모(DayEditor)는 아이콘
+ * 그리드 열림 상태를 자기 state로 들고 있는데, 그 state가 바뀔 때마다
+ * DayEditor 함수 전체가 다시 실행된다. memo가 없으면 31일치 블록이 전부
+ * 다시 그려진다 — 정작 바뀐 건 열렸다/닫힌 날짜 한둘뿐인데도. props를
+ * (date, day, dow 같은 원시값 / doc.days[date]·theme 같은 안정적 참조 /
+ * useCallback으로 고정한 콜백)으로만 구성해서, 관련 없는 날짜는 isOpen이
+ * false→false로 그대로라 얕은 비교에서 걸러진다.
+ */
+const DayBlock = memo(function DayBlock({
+  date, day, dow, entry, theme, isIconPickerOpen, onPatch, onToggleIconPicker, onIconChange,
+}: DayBlockProps) {
+  return (
+    <div style={{ borderTop: '1px solid #e4e4e7', paddingTop: 10 }}>
+      <label style={fieldLabelStyle} htmlFor={`day-${date}`}>
+        {day}일 ({DOW_KO[dow]})
+      </label>
+      <textarea
+        id={`day-${date}`}
+        style={{ ...inputStyle, minHeight: 52, resize: 'none' }}
+        value={entry?.text ?? ''}
+        placeholder="일정을 적어주세요"
+        onChange={(e) => onPatch(date, { text: e.target.value })}
+      />
+      {isLikelyOverflowing(entry?.text ?? '', entry?.extra) && (
+        <p style={{ fontSize: 12, color: '#c0392b', margin: '4px 0 0' }}>
+          글자가 너무 많아 칸에서 잘릴 수 있습니다.
+        </p>
+      )}
+      <label style={{ ...fieldLabelStyle, marginTop: 8 }} htmlFor={`extra-${date}`}>
+        추가 문구
+      </label>
+      <input
+        id={`extra-${date}`}
+        type="text"
+        style={inputStyle}
+        value={entry?.extra ?? ''}
+        placeholder="예) 12h"
+        onChange={(e) => onPatch(date, { extra: e.target.value })}
+      />
+      <IconPicker
+        date={date}
+        value={entry?.icon}
+        isOpen={isIconPickerOpen}
+        onToggle={() => onToggleIconPicker(date)}
+        onChange={(iconId) => onIconChange(date, iconId)}
+      />
+      <SwatchRow
+        label="칸 배경"
+        colors={theme.accents}
+        value={entry?.cellFill ?? null}
+        onChange={(color) => onPatch(date, { cellFill: color })}
+      />
+      <SwatchRow
+        label="형광펜"
+        colors={theme.accents}
+        value={entry?.marker ?? null}
+        onChange={(color) => onPatch(date, { marker: color })}
+      />
+      <SwatchRow
+        label="날짜 색"
+        colors={[theme.sundayText, theme.saturdayText, ...theme.accents.slice(0, 4)]}
+        value={entry?.dateColor ?? null}
+        onChange={(color) => onPatch(date, { dateColor: color })}
+      />
+    </div>
+  )
+})
+
 export function DayEditor({ api }: DayEditorProps) {
   const { doc, setDoc } = api
   const theme = getTheme(doc.themeId)
@@ -172,77 +253,45 @@ export function DayEditor({ api }: DayEditorProps) {
   // 있으면 패널이 감당 못 할 길이가 되므로, 새로 열면 이전 것을 밀어낸다.
   const [openIconPicker, setOpenIconPicker] = useState<string | null>(null)
 
-  const patch = (date: string, next: Partial<DayEntry>) =>
-    setDoc((prev) => updateDay(prev, date, next))
+  // setDoc(useScheduleDoc이 useCallback으로 고정해 준 값)에만 의존해야
+  // patch 자체가 매 렌더마다 새로 만들어지지 않는다. DayBlock에 그대로
+  // 넘기는 콜백이라 여기서 안 고정하면 memo가 무력화된다.
+  const patch = useCallback(
+    (date: string, next: Partial<DayEntry>) => setDoc((prev) => updateDay(prev, date, next)),
+    [setDoc],
+  )
+
+  const handleToggleIconPicker = useCallback(
+    (date: string) => setOpenIconPicker((prev) => (prev === date ? null : date)),
+    [],
+  )
+
+  const handleIconChange = useCallback(
+    (date: string, iconId: string | undefined) => {
+      patch(date, { icon: iconId })
+      setOpenIconPicker(null)
+    },
+    [patch],
+  )
 
   return (
     <section style={sectionStyle}>
       <h2 style={sectionTitleStyle}>날짜별 일정</h2>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-        {cells.map((cell) => {
-          const entry = doc.days[cell.date]
-          return (
-            <div key={cell.date} style={{ borderTop: '1px solid #e4e4e7', paddingTop: 10 }}>
-              <label style={fieldLabelStyle} htmlFor={`day-${cell.date}`}>
-                {cell.day}일 ({DOW_KO[cell.dow]})
-              </label>
-              <textarea
-                id={`day-${cell.date}`}
-                style={{ ...inputStyle, minHeight: 52, resize: 'none' }}
-                value={entry?.text ?? ''}
-                placeholder="일정을 적어주세요"
-                onChange={(e) => patch(cell.date, { text: e.target.value })}
-              />
-              {isLikelyOverflowing(entry?.text ?? '', entry?.extra) && (
-                <p style={{ fontSize: 12, color: '#c0392b', margin: '4px 0 0' }}>
-                  글자가 너무 많아 칸에서 잘릴 수 있습니다.
-                </p>
-              )}
-              <label
-                style={{ ...fieldLabelStyle, marginTop: 8 }}
-                htmlFor={`extra-${cell.date}`}
-              >
-                추가 문구
-              </label>
-              <input
-                id={`extra-${cell.date}`}
-                type="text"
-                style={inputStyle}
-                value={entry?.extra ?? ''}
-                placeholder="예) 12h"
-                onChange={(e) => patch(cell.date, { extra: e.target.value })}
-              />
-              <IconPicker
-                date={cell.date}
-                value={entry?.icon}
-                isOpen={openIconPicker === cell.date}
-                onToggle={() => setOpenIconPicker((prev) => (prev === cell.date ? null : cell.date))}
-                onChange={(iconId) => {
-                  patch(cell.date, { icon: iconId })
-                  setOpenIconPicker(null)
-                }}
-              />
-              <SwatchRow
-                label="칸 배경"
-                colors={theme.accents}
-                value={entry?.cellFill ?? null}
-                onChange={(color) => patch(cell.date, { cellFill: color })}
-              />
-              <SwatchRow
-                label="형광펜"
-                colors={theme.accents}
-                value={entry?.marker ?? null}
-                onChange={(color) => patch(cell.date, { marker: color })}
-              />
-              <SwatchRow
-                label="날짜 색"
-                colors={[theme.sundayText, theme.saturdayText, ...theme.accents.slice(0, 4)]}
-                value={entry?.dateColor ?? null}
-                onChange={(color) => patch(cell.date, { dateColor: color })}
-              />
-            </div>
-          )
-        })}
+        {cells.map((cell) => (
+          <DayBlock
+            key={cell.date}
+            date={cell.date}
+            day={cell.day}
+            dow={cell.dow}
+            entry={doc.days[cell.date]}
+            theme={theme}
+            isIconPickerOpen={openIconPicker === cell.date}
+            onPatch={patch}
+            onToggleIconPicker={handleToggleIconPicker}
+            onIconChange={handleIconChange}
+          />
+        ))}
       </div>
     </section>
   )
