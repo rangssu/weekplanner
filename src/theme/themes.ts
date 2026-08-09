@@ -100,7 +100,7 @@ export const THEMES: Theme[] = [
     borderColor: '#5a5f7d',
     headerText: '#f2f3f8',
     cellBackground: '#2b2e42',
-    cellBorder: '#4a4f6b',
+    cellBorder: '#8a90b5',
     bodyText: '#e7e9f2',
     outsideMonthText: '#666b87',
     sundayText: '#ff8a8a',

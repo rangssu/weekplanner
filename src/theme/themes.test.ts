@@ -57,3 +57,13 @@ describe('getTheme', () => {
     expect(getTheme('없는테마').id).toBe(DEFAULT_THEME_ID)
   })
 })
+
+describe('다크 테마 격자선', () => {
+  it('칸 배경과 충분히 대비된다', () => {
+    // 어두운 배경에서는 선을 더 밝게 해야 뚜렷해진다. 더 어둡게 하면
+    // 배경에 묻혀 오히려 안 보인다.
+    const dark = getTheme('dark')
+    expect(dark.cellBorder).toBe('#8a90b5')
+    expect(dark.cellBackground).toBe('#2b2e42')
+  })
+})
