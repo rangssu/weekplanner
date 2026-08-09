@@ -14,6 +14,52 @@
 }
 
 * { box-sizing: border-box; }
+
+/*
+  화면 배치.
+
+  editor/에는 px 전용 제약이 없으므로 미디어쿼리를 써도 된다.
+  (그 제약은 preview/에만 적용된다. README 참고)
+
+  좁은 화면에서 2단을 유지하면 미리보기가 짜부라져 아무것도 안 보인다.
+  폰에서는 위아래로 쌓고, 미리보기를 화면 위에 고정해 스크롤해도 보이게 한다.
+*/
+.app-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(320px, 420px);
+  gap: 20px;
+  align-items: start;
+}
+
+.app-preview {
+  position: sticky;
+  top: 16px;
+}
+
+.app-editor {
+  max-height: calc(100vh - 90px);
+  overflow-y: auto;
+}
+
+@media (max-width: 900px) {
+  .app-layout {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+  }
+
+  /* 미리보기를 위에 붙여두고 아래 편집 폼만 스크롤되게 한다. */
+  .app-preview {
+    top: 0;
+    z-index: 10;
+    background: #f4f4f5;
+    padding-bottom: 8px;
+  }
+
+  .app-editor {
+    max-height: none;
+    overflow-y: visible;
+  }
+}
 html, body, #root { margin: 0; padding: 0; height: 100%; }
 body {
   font-family: system-ui, -apple-system, "Segoe UI", "Malgun Gothic", sans-serif;

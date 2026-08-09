@@ -38,28 +38,21 @@ export default function App() {
         </p>
       )}
 
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'minmax(0, 1fr) minmax(320px, 420px)',
-          gap: 20,
-          alignItems: 'start',
-        }}
-      >
-        <div style={{ position: 'sticky', top: 16 }}>
+      <div className="app-layout">
+        <div className="app-preview">
           <div style={{ position: 'relative' }}>
-          <PreviewStage verticalChrome={90} onScaleChange={handleScaleChange}>
-            <ScheduleCanvas
-              ref={canvasRef}
-              doc={api.doc}
-              fontFamily={fontFamily}
-              backgroundUrl={backgroundUrl}
-            />
-          </PreviewStage>
-          <StickerDragLayer api={api} scale={previewScale} />
+            <PreviewStage verticalChrome={90} onScaleChange={handleScaleChange}>
+              <ScheduleCanvas
+                ref={canvasRef}
+                doc={api.doc}
+                fontFamily={fontFamily}
+                backgroundUrl={backgroundUrl}
+              />
+            </PreviewStage>
+            <StickerDragLayer api={api} scale={previewScale} />
           </div>
         </div>
-        <div style={{ maxHeight: 'calc(100vh - 90px)', overflowY: 'auto' }}>
+        <div className="app-editor">
           <EditorPanel
             api={api}
             userFonts={userFonts}
