@@ -2028,6 +2028,10 @@ export const ScheduleCanvas = forwardRef<HTMLDivElement, ScheduleCanvasProps>(
 
 - [ ] **Step 6: PreviewStage 작성**
 
+**host의 높이를 measure한 배율로 계산하지 말 것.** 배율 변경 → 높이 변경 → 페이지 높이 변경 → 스크롤바 출현/소멸 → 폭 변경 → 배율 변경으로 이어지는 ResizeObserver 피드백 루프가 생긴다. 높이는 CSS `aspect-ratio`가 폭에서 유도하게 두고, 상태로는 레이아웃에 영향을 주지 않는 `transform`만 바꾼다.
+
+**브라우저 자동화로 검증할 때 주의**: 탭이 `hidden` 상태면 Chrome이 `requestAnimationFrame`과 `ResizeObserver` 전달을 멈춘다. 그 상태에서는 창 크기 변경에 배율이 따라오는지 확인할 수 없고, 테스트 코드에서 rAF를 await하면 영영 풀리지 않는다. 라이브 리사이즈 확인은 사람이 보이는 창에서 해야 한다. 초기 측정 경로는 `useLayoutEffect`의 직접 호출이라 hidden 탭에서도 검증할 수 있다.
+
 `src/editor/PreviewStage.tsx`:
 
 ```tsx
