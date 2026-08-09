@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { DEFAULT_THEME_ID } from '../model/defaults'
-import { ACCENT_COUNT, getTheme, THEMES } from './themes'
+import { ACCENT_COUNT, getTheme, THEMES, withAlpha } from './themes'
 
 const HEX = /^#[0-9a-f]{6}$/i
 
@@ -65,5 +65,37 @@ describe('다크 테마 격자선', () => {
     const dark = getTheme('dark')
     expect(dark.cellBorder).toBe('#8a90b5')
     expect(dark.cellBackground).toBe('#2b2e42')
+  })
+})
+
+describe('withAlpha', () => {
+  it('알파가 1이면 원래 문자열을 그대로 준다', () => {
+    // 기본값 상태에서 지금까지 만든 결과물과 문자열 단위로 같아야 회귀가 없다.
+    expect(withAlpha('#2b2e42', 1)).toBe('#2b2e42')
+  })
+
+  it('알파가 1보다 커도 원래 문자열을 준다', () => {
+    expect(withAlpha('#2b2e42', 1.5)).toBe('#2b2e42')
+  })
+
+  it('알파를 rgba로 바꾼다', () => {
+    expect(withAlpha('#ffffff', 0.5)).toBe('rgba(255, 255, 255, 0.5)')
+    expect(withAlpha('#2b2e42', 0)).toBe('rgba(43, 46, 66, 0)')
+  })
+
+  it('대문자 표기도 처리한다', () => {
+    expect(withAlpha('#FFE680', 0.4)).toBe('rgba(255, 230, 128, 0.4)')
+  })
+
+  it('음수 알파는 0으로 자른다', () => {
+    expect(withAlpha('#ffffff', -1)).toBe('rgba(255, 255, 255, 0)')
+  })
+
+  it('#rrggbb 꼴이 아니면 그대로 돌려준다', () => {
+    // 테마 값은 전부 #rrggbb지만, 못 알아보는 값에 rgba(NaN)을 만들면
+    // 색이 통째로 사라진다. 원본을 주는 쪽이 안전하다.
+    expect(withAlpha('rgba(0,0,0,.5)', 0.5)).toBe('rgba(0,0,0,.5)')
+    expect(withAlpha('#fff', 0.5)).toBe('#fff')
+    expect(withAlpha('', 0.5)).toBe('')
   })
 })

@@ -114,3 +114,23 @@ export const THEMES: Theme[] = [
 export function getTheme(id: string): Theme {
   return THEMES.find((t) => t.id === id) ?? THEMES.find((t) => t.id === DEFAULT_THEME_ID)!
 }
+
+/**
+ * `#rrggbb`에 알파를 입혀 `rgba()`로 바꾼다.
+ *
+ * 알파가 1 이상이면 **원래 문자열을 그대로 돌려준다.** 투명도 기본값이 1이므로,
+ * 이래야 기능을 더하기 전에 만든 결과물과 렌더링이 문자열 단위로 같아진다.
+ *
+ * 못 알아보는 형식도 원본을 그대로 준다. rgba(NaN, ...)을 만들면 색이 통째로
+ * 사라져서, 잘못된 입력의 대가가 너무 크다.
+ */
+export function withAlpha(hex: string, alpha: number): string {
+  if (alpha >= 1) return hex
+
+  const match = /^#([0-9a-f]{6})$/i.exec(hex)
+  if (match === null) return hex
+
+  const value = parseInt(match[1], 16)
+  const clamped = Math.max(0, alpha)
+  return `rgba(${(value >> 16) & 255}, ${(value >> 8) & 255}, ${value & 255}, ${clamped})`
+}
