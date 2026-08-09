@@ -37,7 +37,12 @@ export const ScheduleCanvas = forwardRef<HTMLDivElement, ScheduleCanvasProps>(
         style={{
           width: CANVAS_WIDTH,
           height: CANVAS_HEIGHT,
-          background: theme.pageBackground,
+          /*
+            단축 속성 `background`를 쓰면 안 된다. 테마를 바꾸면 이 값만 달라지는데,
+            React는 바뀐 속성만 다시 쓰고 단축 속성은 background-image까지 초기화한다.
+            backgroundImage는 값이 그대로라 다시 안 써지므로 배경 그림이 사라진다.
+          */
+          backgroundColor: theme.pageBackground,
           backgroundImage: backgroundUrl ? `url(${backgroundUrl})` : undefined,
           backgroundSize: backgroundUrl ? `${CANVAS_WIDTH}px ${CANVAS_HEIGHT}px` : undefined,
           backgroundRepeat: backgroundUrl ? 'no-repeat' : undefined,
