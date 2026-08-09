@@ -19,6 +19,12 @@ describe('THEMES', () => {
     expect(new Set(THEMES.map((t) => t.id)).size).toBe(THEMES.length)
   })
 
+  it('파스텔 3종이 앞, 무채색 2종이 뒤다', () => {
+    // 고르는 칸이 3열이라 이 순서가 그대로 두 줄로 떨어진다.
+    // 순서가 흐트러지면 성격이 다른 테마가 한 줄에 섞인다.
+    expect(THEMES.map((t) => t.id)).toEqual(['pink', 'cream', 'mint', 'white', 'dark'])
+  })
+
   it('기본 테마 id가 실제로 존재한다', () => {
     expect(THEMES.some((t) => t.id === DEFAULT_THEME_ID)).toBe(true)
   })

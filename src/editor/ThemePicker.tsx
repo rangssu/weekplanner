@@ -12,7 +12,11 @@ export function ThemePicker({ api }: ThemePickerProps) {
   return (
     <section style={sectionStyle}>
       <h2 style={sectionTitleStyle}>테마</h2>
-      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+      {/*
+        열 수를 3으로 고정한다. flex-wrap으로 두면 패널 폭에 따라 4+1처럼
+        갈려서, THEMES가 정해둔 파스텔/무채색 묶음이 한 줄에 섞인다.
+      */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
         {THEMES.map((theme) => (
           <button
             key={theme.id}
