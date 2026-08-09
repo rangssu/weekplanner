@@ -9,12 +9,35 @@ export const HEADER_HEIGHT = 420
 export const DOW_ROW_HEIGHT = 90
 export const FOOTER_HEIGHT = 100
 
-export const GRID_WIDTH = CANVAS_WIDTH - OUTER_PADDING * 2 // 3800
-export const GRID_HEIGHT =
-  CANVAS_HEIGHT - OUTER_PADDING * 2 - HEADER_HEIGHT - DOW_ROW_HEIGHT - FOOTER_HEIGHT // 1440
+export const BORDER_WIDTH = 5
+export const CANVAS_BORDER_WIDTH = 10
+export const CANVAS_BORDER_RADIUS = 40
 
-export const CELL_WIDTH = GRID_WIDTH / GRID_COLUMNS // 542.857…
-export const CELL_HEIGHT = GRID_HEIGHT / GRID_ROWS // 240
+/**
+ * 격자가 차지하는 영역. **테두리를 포함한 바깥 크기다.**
+ *
+ * CalendarGrid는 이 크기를 `box-sizing: border-box`로 쓴다. 테두리를 뺀
+ * 크기로 잡으면 실제 렌더링이 상수보다 가로세로 10px씩 커져서, 세로로는
+ * flex가 격자를 눌러 압축하고 가로로는 캔버스를 넘어 잘린다. 실제로 그랬다.
+ */
+/**
+ * 캔버스가 `box-sizing: border-box`라 실제로 내용이 들어갈 공간은
+ * 전체 크기에서 **자신의 테두리와 패딩을 모두 뺀** 값이다.
+ * 테두리를 빼먹으면 여백이 의도한 100px이 아니라 80px이 된다.
+ */
+export const CANVAS_CONTENT_WIDTH = CANVAS_WIDTH - CANVAS_BORDER_WIDTH * 2 - OUTER_PADDING * 2 // 3780
+export const CANVAS_CONTENT_HEIGHT =
+  CANVAS_HEIGHT - CANVAS_BORDER_WIDTH * 2 - OUTER_PADDING * 2 // 2030
+
+export const GRID_AREA_WIDTH = CANVAS_CONTENT_WIDTH // 3780
+export const GRID_AREA_HEIGHT = CANVAS_CONTENT_HEIGHT - HEADER_HEIGHT - FOOTER_HEIGHT // 1510
+
+/** 테두리 안쪽. 요일 행과 날짜 칸이 실제로 나눠 쓰는 공간. */
+export const GRID_INNER_WIDTH = GRID_AREA_WIDTH - BORDER_WIDTH * 2 // 3790
+export const GRID_INNER_HEIGHT = GRID_AREA_HEIGHT - BORDER_WIDTH * 2 // 1520
+
+export const CELL_WIDTH = GRID_INNER_WIDTH / GRID_COLUMNS // 541.43…
+export const CELL_HEIGHT = (GRID_INNER_HEIGHT - DOW_ROW_HEIGHT) / GRID_ROWS // 238.33…
 
 export const CELL_PADDING = 14
 export const DATE_NUMBER_SIZE = 34
@@ -27,7 +50,3 @@ export const CELL_TEXT_HEIGHT = CELL_HEIGHT - CELL_PADDING * 2 - DATE_NUMBER_BLO
 export const CELL_TEXT_BASE_SIZE = 44
 export const CELL_TEXT_MIN_SIZE = 22
 export const CELL_TEXT_LINE_HEIGHT = 1.25
-
-export const BORDER_WIDTH = 5
-export const CANVAS_BORDER_WIDTH = 10
-export const CANVAS_BORDER_RADIUS = 40

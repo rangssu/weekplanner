@@ -15,6 +15,16 @@ function sampleDoc() {
   doc.days['2026-08-06'] = {
     text: '신작 게임', dateColor: '#e2445c', cellFill: '#ffd6e0', marker: null,
   }
+  doc.header.memo = { enabled: true, text: '8월은 휴방이 많아요\n양해 부탁드립니다' }
+  doc.header.todo = {
+    enabled: true,
+    items: [
+      { text: '신작 게임 리스트 정리', checked: true },
+      { text: '합방 일정 확정', checked: false },
+      { text: '썸네일 새로 만들기', checked: false },
+    ],
+  }
+  doc.footer = { enabled: true, text: '*방송 일정은 사정에 따라 변경될 수 있어요 :D' }
   return doc
 }
 

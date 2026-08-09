@@ -2,9 +2,11 @@ import { forwardRef } from 'react'
 import type { ScheduleDoc } from '../model/types'
 import { getTheme } from '../theme/themes'
 import { CalendarGrid } from './CalendarGrid'
+import { Footer } from './Footer'
+import { Header } from './Header'
 import {
   CANVAS_BORDER_RADIUS, CANVAS_BORDER_WIDTH, CANVAS_HEIGHT, CANVAS_WIDTH,
-  FOOTER_HEIGHT, HEADER_HEIGHT, OUTER_PADDING,
+  FOOTER_HEIGHT, OUTER_PADDING,
 } from './layout'
 
 export type ScheduleCanvasProps = {
@@ -40,9 +42,17 @@ export const ScheduleCanvas = forwardRef<HTMLDivElement, ScheduleCanvasProps>(
           color: theme.bodyText,
         }}
       >
-        <div style={{ height: HEADER_HEIGHT, flexShrink: 0 }} />
+        <Header header={doc.header} year={doc.year} month={doc.month} theme={theme} />
         <CalendarGrid doc={doc} theme={theme} />
-        <div style={{ height: FOOTER_HEIGHT, flexShrink: 0 }} />
+        {/*
+          하단 문구를 꺼도 높이를 유지한다. 그러지 않으면 켰다 껐다 할 때마다
+          격자 위치가 위아래로 움직여 매달 결과물의 인상이 달라진다.
+        */}
+        {doc.footer.enabled ? (
+          <Footer text={doc.footer.text} theme={theme} />
+        ) : (
+          <div style={{ height: FOOTER_HEIGHT, flexShrink: 0 }} />
+        )}
       </div>
     )
   },

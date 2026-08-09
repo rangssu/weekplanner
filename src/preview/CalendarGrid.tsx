@@ -2,7 +2,7 @@ import { buildMonthGrid, GRID_COLUMNS } from '../model/calendar'
 import type { ScheduleDoc } from '../model/types'
 import type { Theme } from '../theme/themes'
 import { DayCell } from './DayCell'
-import { BORDER_WIDTH, DOW_ROW_HEIGHT, GRID_WIDTH } from './layout'
+import { BORDER_WIDTH, DOW_ROW_HEIGHT, GRID_AREA_HEIGHT, GRID_AREA_WIDTH } from './layout'
 
 export const DOW_LABELS = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'] as const
 
@@ -17,9 +17,13 @@ export function CalendarGrid({ doc, theme }: CalendarGridProps) {
   return (
     <div
       style={{
-        width: GRID_WIDTH,
+        width: GRID_AREA_WIDTH,
+        height: GRID_AREA_HEIGHT,
         border: `${BORDER_WIDTH}px solid ${theme.cellBorder}`,
-        boxSizing: 'content-box',
+        // 테두리가 크기 안쪽으로 들어가야 격자가 캔버스를 넘지 않는다.
+        boxSizing: 'border-box',
+        // flex 부모가 격자를 눌러 압축하지 못하게 한다.
+        flexShrink: 0,
         overflow: 'hidden',
       }}
     >
