@@ -1,6 +1,6 @@
 import { buildMonthGrid, GRID_COLUMNS } from '../model/calendar'
 import type { ScheduleDoc } from '../model/types'
-import type { Theme } from '../theme/themes'
+import { withAlpha, type Theme } from '../theme/themes'
 import { DayCell } from './DayCell'
 import {
   BORDER_WIDTH, DOW_LABEL_SIZE, DOW_ROW_HEIGHT, GRID_AREA_HEIGHT, GRID_AREA_WIDTH,
@@ -40,7 +40,7 @@ export function CalendarGrid({ doc, theme }: CalendarGridProps) {
               justifyContent: 'center',
               fontSize: DOW_LABEL_SIZE,
               fontWeight: 700,
-              background: theme.dowHeaderBackground,
+              background: withAlpha(theme.dowHeaderBackground, doc.gridOpacity),
               color:
                 index === 0
                   ? theme.sundayText
@@ -60,7 +60,13 @@ export function CalendarGrid({ doc, theme }: CalendarGridProps) {
 
       <div style={{ display: 'grid', gridTemplateColumns: `repeat(${GRID_COLUMNS}, 1fr)` }}>
         {cells.map((cell) => (
-          <DayCell key={cell.date} cell={cell} entry={doc.days[cell.date]} theme={theme} />
+          <DayCell
+            key={cell.date}
+            cell={cell}
+            entry={doc.days[cell.date]}
+            theme={theme}
+            bgOpacity={doc.gridOpacity}
+          />
         ))}
       </div>
     </div>

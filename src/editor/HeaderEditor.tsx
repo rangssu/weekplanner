@@ -1,4 +1,4 @@
-import { GOAL_LINE_COUNT, type HeaderConfig, type TodoItem } from '../model/types'
+import { BOX_DEFAULTS, GOAL_LINE_COUNT, type HeaderConfig, type TodoItem } from '../model/types'
 import { MAX_TODO_ITEMS } from '../preview/Sidebar'
 import type { ScheduleDocApi } from '../state/useScheduleDoc'
 import { buttonStyle, fieldLabelStyle, inputStyle, sectionStyle, sectionTitleStyle } from './controls'
@@ -55,19 +55,10 @@ export function HeaderEditor({ api }: HeaderEditorProps) {
             onChange={(e) => patchHeader({ customTitle: e.target.value })}
           />
         )}
-
-        <label style={checkboxRowStyle}>
-          <input
-            type="checkbox"
-            checked={header.showEnglishMonth}
-            onChange={(e) => patchHeader({ showEnglishMonth: e.target.checked })}
-          />
-          오른쪽 위 영문 월 이름 표시
-        </label>
       </section>
 
       <section style={sectionStyle}>
-        <h2 style={sectionTitleStyle}>이번 달의 목표 (GOALS)</h2>
+        <h2 style={sectionTitleStyle}>목표 상자</h2>
         <label style={{ ...checkboxRowStyle, marginTop: 0 }}>
           <input
             type="checkbox"
@@ -76,6 +67,30 @@ export function HeaderEditor({ api }: HeaderEditorProps) {
           />
           표시
         </label>
+        {header.goals.enabled && (
+          <>
+            <label style={{ ...fieldLabelStyle, marginTop: 8 }} htmlFor="goals-label">제목</label>
+            <input
+              id="goals-label"
+              style={inputStyle}
+              value={header.goals.label}
+              placeholder={BOX_DEFAULTS.goals.label}
+              onChange={(e) =>
+                patchHeader({ goals: { ...header.goals, label: e.target.value } })
+              }
+            />
+            <label style={{ ...fieldLabelStyle, marginTop: 6 }} htmlFor="goals-badge">배지</label>
+            <input
+              id="goals-badge"
+              style={inputStyle}
+              value={header.goals.badge}
+              placeholder="비우면 배지가 사라집니다"
+              onChange={(e) =>
+                patchHeader({ goals: { ...header.goals, badge: e.target.value } })
+              }
+            />
+          </>
+        )}
         {header.goals.enabled &&
           Array.from({ length: GOAL_LINE_COUNT }, (_, index) => (
             <input
@@ -98,7 +113,7 @@ export function HeaderEditor({ api }: HeaderEditorProps) {
       </section>
 
       <section style={sectionStyle}>
-        <h2 style={sectionTitleStyle}>주요 할 일 (TO-DO LIST)</h2>
+        <h2 style={sectionTitleStyle}>할 일 상자</h2>
         <label style={{ ...checkboxRowStyle, marginTop: 0 }}>
           <input
             type="checkbox"
@@ -109,6 +124,26 @@ export function HeaderEditor({ api }: HeaderEditorProps) {
         </label>
         {header.todo.enabled && (
           <>
+            <label style={{ ...fieldLabelStyle, marginTop: 8 }} htmlFor="todo-label">제목</label>
+            <input
+              id="todo-label"
+              style={inputStyle}
+              value={header.todo.label}
+              placeholder={BOX_DEFAULTS.todo.label}
+              onChange={(e) =>
+                patchHeader({ todo: { ...header.todo, label: e.target.value } })
+              }
+            />
+            <label style={{ ...fieldLabelStyle, marginTop: 6 }} htmlFor="todo-badge">배지</label>
+            <input
+              id="todo-badge"
+              style={inputStyle}
+              value={header.todo.badge}
+              placeholder="비우면 배지가 사라집니다"
+              onChange={(e) =>
+                patchHeader({ todo: { ...header.todo, badge: e.target.value } })
+              }
+            />
             {Array.from({ length: MAX_TODO_ITEMS }, (_, index) => (
               <div
                 key={index}
@@ -139,7 +174,7 @@ export function HeaderEditor({ api }: HeaderEditorProps) {
       </section>
 
       <section style={sectionStyle}>
-        <h2 style={sectionTitleStyle}>메모 (MEMO)</h2>
+        <h2 style={sectionTitleStyle}>메모 상자</h2>
         <label style={{ ...checkboxRowStyle, marginTop: 0 }}>
           <input
             type="checkbox"
@@ -150,6 +185,30 @@ export function HeaderEditor({ api }: HeaderEditorProps) {
           />
           표시
         </label>
+        {header.memo.enabled && (
+          <>
+            <label style={{ ...fieldLabelStyle, marginTop: 8 }} htmlFor="memo-label">제목</label>
+            <input
+              id="memo-label"
+              style={inputStyle}
+              value={header.memo.label}
+              placeholder={BOX_DEFAULTS.memo.label}
+              onChange={(e) =>
+                patchHeader({ memo: { ...header.memo, label: e.target.value } })
+              }
+            />
+            <label style={{ ...fieldLabelStyle, marginTop: 6 }} htmlFor="memo-badge">배지</label>
+            <input
+              id="memo-badge"
+              style={inputStyle}
+              value={header.memo.badge}
+              placeholder="비우면 배지가 사라집니다"
+              onChange={(e) =>
+                patchHeader({ memo: { ...header.memo, badge: e.target.value } })
+              }
+            />
+          </>
+        )}
         {header.memo.enabled && (
           <textarea
             style={{ ...inputStyle, minHeight: 72, marginTop: 6, resize: 'none' }}

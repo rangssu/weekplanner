@@ -1,11 +1,11 @@
 import type { GridCell } from '../model/calendar'
 import type { DayEntry } from '../model/types'
-import type { Theme } from '../theme/themes'
+import { withAlpha, type Theme } from '../theme/themes'
 import { AutoFitText } from './AutoFitText'
 import {
-  BORDER_WIDTH, CELL_HEIGHT, CELL_PADDING, CELL_TEXT_BASE_SIZE, CELL_TEXT_HEIGHT,
+  BORDER_WIDTH, CELL_EXTRA_BASE_SIZE, CELL_EXTRA_MIN_SIZE, CELL_HEIGHT, CELL_PADDING, CELL_TEXT_BASE_SIZE,
   CELL_TEXT_LINE_HEIGHT, CELL_TEXT_MIN_SIZE, CELL_TEXT_WIDTH, CELL_WIDTH,
-  DATE_NUMBER_BLOCK, DATE_NUMBER_SIZE,
+  DATE_NUMBER_BLOCK, DATE_NUMBER_SIZE, splitCellText,
 } from './layout'
 
 /**
@@ -31,10 +31,14 @@ export type DayCellProps = {
   cell: GridCell
   entry: DayEntry | undefined
   theme: Theme
+  /** 칸 배경 불투명도. 격자·글자는 이 값과 무관하게 항상 또렷하다. */
+  bgOpacity: number
 }
 
-export function DayCell({ cell, entry, theme }: DayCellProps) {
+export function DayCell({ cell, entry, theme, bgOpacity }: DayCellProps) {
   const text = cell.inMonth ? (entry?.text ?? '') : ''
+  const extra = cell.inMonth ? (entry?.extra ?? '') : ''
+  const { bodyHeight, extraHeight } = splitCellText(extra)
 
   return (
     <div
@@ -44,7 +48,10 @@ export function DayCell({ cell, entry, theme }: DayCellProps) {
         boxSizing: 'border-box',
         borderRight: `${BORDER_WIDTH}px solid ${theme.cellBorder}`,
         borderBottom: `${BORDER_WIDTH}px solid ${theme.cellBorder}`,
-        background: (cell.inMonth && entry?.cellFill) || theme.cellBackground,
+        background: withAlpha(
+          (cell.inMonth && entry?.cellFill) || theme.cellBackground,
+          bgOpacity,
+        ),
         padding: CELL_PADDING,
         display: 'flex',
         flexDirection: 'column',
@@ -68,13 +75,28 @@ export function DayCell({ cell, entry, theme }: DayCellProps) {
       <AutoFitText
         text={text}
         maxWidth={CELL_TEXT_WIDTH}
-        maxHeight={CELL_TEXT_HEIGHT}
+        maxHeight={bodyHeight}
         baseSize={CELL_TEXT_BASE_SIZE}
         minSize={CELL_TEXT_MIN_SIZE}
         lineHeight={CELL_TEXT_LINE_HEIGHT}
         color={cell.inMonth ? theme.bodyText : theme.outsideMonthText}
         markerColor={cell.inMonth ? (entry?.marker ?? null) : null}
       />
+
+      {extraHeight > 0 && (
+        <AutoFitText
+          text={extra}
+          maxWidth={CELL_TEXT_WIDTH}
+          maxHeight={extraHeight}
+          baseSize={CELL_EXTRA_BASE_SIZE}
+          minSize={CELL_EXTRA_MIN_SIZE}
+          lineHeight={CELL_TEXT_LINE_HEIGHT}
+          color={theme.bodyText}
+          // 형광펜은 본문에만 건다. 강조 수단이 둘로 늘면 조합만 복잡해지고
+          // 지금 요구에는 없다.
+          markerColor={null}
+        />
+      )}
     </div>
   )
 }

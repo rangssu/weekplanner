@@ -17,7 +17,7 @@ export const CANVAS_CONTENT_WIDTH = CANVAS_WIDTH - CANVAS_BORDER_WIDTH * 2 - OUT
 export const CANVAS_CONTENT_HEIGHT = CANVAS_HEIGHT - CANVAS_BORDER_WIDTH * 2 - OUTER_PADDING * 2
 
 /**
- * 맨 위 제목 줄 — 왼쪽에 "8월", 오른쪽 끝에 "AUGUST".
+ * 맨 위 제목 줄 — 왼쪽에 "8월".
  *
  * 높이를 넉넉히 잡으면 제목이 짧아질 때 남는 공간이 그대로 빈 여백으로 보인다.
  * 가장 큰 제목(TITLE_KO_SIZE)이 들어갈 만큼만 두고, 남는 세로는 격자에 넘긴다.
@@ -26,14 +26,21 @@ export const TITLE_ROW_HEIGHT = 160
 /** 제목 줄과 본문 사이 */
 export const TITLE_GAP = 32
 
-/** 본문(사이드바 + 격자)이 쓰는 세로 공간 */
-export const BODY_HEIGHT = CANVAS_CONTENT_HEIGHT - TITLE_ROW_HEIGHT - TITLE_GAP
+/**
+ * 사이드바가 쓰는 세로 공간. 제목이 왼쪽 열 위에 얹히므로 그만큼 짧다.
+ *
+ * 예전에는 이 값이 사이드바와 달력 모두의 높이였다(BODY_HEIGHT). 제목이
+ * 왼쪽 열로 들어가면서 두 값이 갈라졌고, 이름이 값을 설명하지 못하게 되어
+ * 둘로 나눴다.
+ */
+export const SIDEBAR_HEIGHT = CANVAS_CONTENT_HEIGHT - TITLE_ROW_HEIGHT - TITLE_GAP
 
 /** 왼쪽 사이드바와 오른쪽 격자 */
 export const SIDEBAR_WIDTH = 900
 export const COLUMN_GAP = 40
 export const GRID_AREA_WIDTH = CANVAS_CONTENT_WIDTH - SIDEBAR_WIDTH - COLUMN_GAP
-export const GRID_AREA_HEIGHT = BODY_HEIGHT
+/** 달력은 제목에 가리지 않으므로 캔버스 안쪽 세로를 전부 쓴다. */
+export const GRID_AREA_HEIGHT = CANVAS_CONTENT_HEIGHT
 
 /** 테두리 안쪽. 요일 행과 날짜 칸이 실제로 나눠 쓰는 공간. */
 export const GRID_INNER_WIDTH = GRID_AREA_WIDTH - BORDER_WIDTH * 2
@@ -61,20 +68,49 @@ export const CELL_TEXT_BASE_SIZE = 52
 export const CELL_TEXT_MIN_SIZE = 26
 export const CELL_TEXT_LINE_HEIGHT = 1.25
 
+/**
+ * 일정 아래에 얹는 추가 문구가 쓰는 띠.
+ *
+ * 기본 크기 한 줄이 들어갈 만큼만 잡는다(62 × 1.25 ≈ 78). 더 크게 잡으면
+ * 본문이 두 줄도 못 쓰게 되고, 추가 문구가 없는 칸이 대부분이라 손해가 크다.
+ *
+ * 본문(52)보다 글자가 큰 이유: 여기 들어가는 값은 "12h"처럼 짧고 눈에 먼저
+ * 들어와야 하는 것이다. 길이가 아니라 위계로 크기를 정한다.
+ */
+export const CELL_EXTRA_HEIGHT = 78
+export const CELL_EXTRA_BASE_SIZE = 62
+export const CELL_EXTRA_MIN_SIZE = 32
+
+/**
+ * 칸의 텍스트 영역을 본문과 추가 문구가 어떻게 나눠 쓰는지 정한다.
+ *
+ * 추가 문구가 없으면 본문이 전부 가져간다. 이 경우 기존 결과물과 픽셀 단위로
+ * 같아야 하므로 띠를 0으로 두고 요소 자체를 그리지 않는다.
+ */
+export function splitCellText(extra: string | undefined): {
+  bodyHeight: number
+  extraHeight: number
+} {
+  if ((extra ?? '').trim() === '') {
+    return { bodyHeight: CELL_TEXT_HEIGHT, extraHeight: 0 }
+  }
+  return { bodyHeight: CELL_TEXT_HEIGHT - CELL_EXTRA_HEIGHT, extraHeight: CELL_EXTRA_HEIGHT }
+}
+
 export const TITLE_KO_SIZE = 130
-export const TITLE_EN_SIZE = 96
 
 /**
  * 제목이 길면 줄이되, 한 번에 확 줄이지 않는다.
- * 크게 줄이면 남는 세로 공간이 빈 여백으로 도드라지고, 영문 월 이름
- * (TITLE_EN_SIZE)보다 작아져 위계까지 뒤집힌다. 최소값을 영문보다 크게 둔다.
+ * 크게 줄이면 남는 세로 공간이 빈 여백으로 도드라진다.
+ *
+ * 제목은 사이드바 폭(900) 안에서만 그려진다. 최소 80이면 약 11자까지
+ * 들어가고, 그보다 길면 말줄임표로 자른다. 더 줄이지 않는 이유는
+ * 사이드바 본문 글자(BOX_TEXT_SIZE = 54)와 비슷해지면 위계가 무너지기 때문이다.
  */
 export const TITLE_KO_SIZE_STEPS = [
   { maxLength: 6, size: TITLE_KO_SIZE },
   { maxLength: 10, size: 112 },
-  // 영문 월 이름보다 작아지지 않는다. 더 긴 제목은 크기를 줄이는 대신
-  // 말줄임표로 자른다.
-  { maxLength: Infinity, size: TITLE_EN_SIZE + 8 },
+  { maxLength: Infinity, size: 80 },
 ] as const
 export const DOW_LABEL_SIZE = 40
 

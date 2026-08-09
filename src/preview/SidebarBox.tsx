@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import type { Theme } from '../theme/themes'
+import { withAlpha, type Theme } from '../theme/themes'
 import {
   BORDER_WIDTH, BOX_BADGE_SIZE, BOX_HEADER_HEIGHT, BOX_LABEL_KO_SIZE, BOX_PADDING,
 } from './layout'
@@ -11,6 +11,8 @@ export type SidebarBoxProps = {
   badge: string
   height: number
   theme: Theme
+  /** 박스·배지 배경 불투명도. */
+  bgOpacity: number
   children: ReactNode
 }
 
@@ -19,7 +21,7 @@ export type SidebarBoxProps = {
  * 위쪽 제목 행(한글 제목 + 영문 배지)과 아래쪽 본문으로 나뉜다.
  * 세 박스가 모두 같은 꼴이라 여기서 한 번만 정의한다.
  */
-export function SidebarBox({ label, badge, height, theme, children }: SidebarBoxProps) {
+export function SidebarBox({ label, badge, height, theme, bgOpacity, children }: SidebarBoxProps) {
   return (
     <div
       style={{
@@ -29,7 +31,7 @@ export function SidebarBox({ label, badge, height, theme, children }: SidebarBox
         display: 'flex',
         flexDirection: 'column',
         overflow: 'hidden',
-        background: theme.cellBackground,
+        background: withAlpha(theme.cellBackground, bgOpacity),
       }}
     >
       <div
@@ -54,19 +56,21 @@ export function SidebarBox({ label, badge, height, theme, children }: SidebarBox
         >
           {label}
         </span>
-        <span
-          style={{
-            fontSize: BOX_BADGE_SIZE,
-            fontWeight: 900,
-            letterSpacing: 0.5,
-            color: theme.bodyText,
-            background: theme.dowHeaderBackground,
-            padding: '6px 14px',
-            whiteSpace: 'nowrap',
-          }}
-        >
-          {badge}
-        </span>
+        {badge.trim() !== '' && (
+          <span
+            style={{
+              fontSize: BOX_BADGE_SIZE,
+              fontWeight: 900,
+              letterSpacing: 0.5,
+              color: theme.bodyText,
+              background: withAlpha(theme.dowHeaderBackground, bgOpacity),
+              padding: '6px 14px',
+              whiteSpace: 'nowrap',
+            }}
+          >
+            {badge}
+          </span>
+        )}
       </div>
 
       <div style={{ flex: 1, padding: BOX_PADDING, overflow: 'hidden' }}>{children}</div>

@@ -21,10 +21,8 @@ describe('createEmptyDoc', () => {
     expect(createEmptyDoc(2026, 8).stickers).toEqual([])
   })
 
-  it('헤더 기본값은 자동 제목 + 영문 월 표기 켜짐', () => {
-    const { header } = createEmptyDoc(2026, 8)
-    expect(header.titleMode).toBe('auto')
-    expect(header.showEnglishMonth).toBe(true)
+  it('헤더 기본값은 자동 제목이다', () => {
+    expect(createEmptyDoc(2026, 8).header.titleMode).toBe('auto')
   })
 
   it('사이드바 세 박스는 기본으로 켜져 있다', () => {
@@ -32,6 +30,16 @@ describe('createEmptyDoc', () => {
     expect(header.goals.enabled).toBe(true)
     expect(header.todo.enabled).toBe(true)
     expect(header.memo.enabled).toBe(true)
+  })
+
+  it('사이드바 박스 제목과 배지의 기본값이 있다', () => {
+    const { header } = createEmptyDoc(2026, 8)
+    expect(header.goals.label).toBe('이번 달의 목표')
+    expect(header.goals.badge).toBe('GOALS')
+    expect(header.todo.label).toBe('주요 할 일')
+    expect(header.todo.badge).toBe('TO-DO LIST')
+    expect(header.memo.label).toBe('메모')
+    expect(header.memo.badge).toBe('MEMO')
   })
 
   it('목표는 항상 GOAL_LINE_COUNT줄이다', () => {

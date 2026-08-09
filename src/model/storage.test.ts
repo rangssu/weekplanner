@@ -19,6 +19,20 @@ describe('saveDoc / loadDoc', () => {
     expect(loadDoc(2026, 8)).toEqual(doc)
   })
 
+  it('추가 문구(extra)도 그대로 되돌려준다', () => {
+    // migrateDoc은 지금 raw.days를 통째로 캐스팅해서 살아남는다. days도
+    // mergeHeader처럼 필드별 화이트리스트로 바뀌면 extra가 조용히 빠질 수
+    // 있으므로, 그런 변경이 생기면 이 테스트가 바로 실패해야 한다.
+    const doc = createEmptyDoc(2026, 8)
+    doc.days['2026-08-03'] = {
+      text: '발로란트\n21:00', dateColor: null, cellFill: null, marker: null,
+      extra: '12h',
+    }
+
+    expect(saveDoc(doc)).toEqual({ ok: true })
+    expect(loadDoc(2026, 8)?.days['2026-08-03']?.extra).toBe('12h')
+  })
+
   it('저장된 적 없는 달은 null이다', () => {
     expect(loadDoc(2026, 9)).toBeNull()
   })
@@ -85,7 +99,29 @@ describe('migrateDoc', () => {
     delete header.memo
     header.priorities = { enabled: true, text: '예전에 적어둔 내용' }
 
-    expect(migrateDoc(old)?.header.memo).toEqual({ enabled: true, text: '예전에 적어둔 내용' })
+    const memo = migrateDoc(old)?.header.memo
+    expect(memo?.enabled).toBe(true)
+    expect(memo?.text).toBe('예전에 적어둔 내용')
+  })
+
+  it('박스 제목과 배지가 없으면 기본값으로 채운다', () => {
+    const old = createEmptyDoc(2026, 8) as unknown as Record<string, unknown>
+    const header = old.header as Record<string, unknown>
+    header.goals = { enabled: true, lines: ['', '', ''] }
+
+    const out = migrateDoc(old)
+    expect(out?.header.goals.label).toBe('이번 달의 목표')
+    expect(out?.header.goals.badge).toBe('GOALS')
+  })
+
+  it('저장된 박스 제목과 배지를 그대로 살린다', () => {
+    const doc = createEmptyDoc(2026, 8)
+    doc.header.memo.label = '공지'
+    doc.header.memo.badge = ''
+
+    const out = migrateDoc(doc)
+    expect(out?.header.memo.label).toBe('공지')
+    expect(out?.header.memo.badge).toBe('')
   })
 
   it('빠진 선택 필드를 기본값으로 채운다', () => {
@@ -95,5 +131,32 @@ describe('migrateDoc', () => {
     const out = migrateDoc(partial)
     expect(out?.stickers).toEqual([])
     expect(out?.backgroundAssetId).toBeNull()
+  })
+
+  it('투명도가 없으면 1로 채운다', () => {
+    const partial = createEmptyDoc(2026, 8) as unknown as Record<string, unknown>
+    delete partial.gridOpacity
+    delete partial.sidebarOpacity
+    const out = migrateDoc(partial)
+    expect(out?.gridOpacity).toBe(1)
+    expect(out?.sidebarOpacity).toBe(1)
+  })
+
+  it('저장된 투명도를 살린다', () => {
+    const doc = createEmptyDoc(2026, 8)
+    doc.gridOpacity = 0.4
+    doc.sidebarOpacity = 0.7
+    const out = migrateDoc(doc)
+    expect(out?.gridOpacity).toBe(0.4)
+    expect(out?.sidebarOpacity).toBe(0.7)
+  })
+
+  it('범위 밖이거나 숫자가 아닌 투명도는 1로 되돌린다', () => {
+    const broken = createEmptyDoc(2026, 8) as unknown as Record<string, unknown>
+    broken.gridOpacity = 5
+    broken.sidebarOpacity = '반투명'
+    const out = migrateDoc(broken)
+    expect(out?.gridOpacity).toBe(1)
+    expect(out?.sidebarOpacity).toBe(1)
   })
 })

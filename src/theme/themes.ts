@@ -26,25 +26,14 @@ export type Theme = {
   accents: string[]
 }
 
+/**
+ * 이 배열의 순서가 곧 테마 고르는 칸의 표시 순서다.
+ *
+ * **파스텔 3종을 앞에, 무채색 2종을 뒤에** 둔다. 고르는 칸이 3열이라
+ * 이 순서가 그대로 「핑크·크림·민트 / 화이트·다크」 두 줄로 떨어진다.
+ * 성격이 다른 테마가 한 줄에 섞이지 않아야 눈으로 훑기 쉽다.
+ */
 export const THEMES: Theme[] = [
-  {
-    // 파스텔 테마들과 달리 바탕이 무채색인 기본형. 어떤 일러스트·스티커와도
-    // 부딪히지 않고, 인쇄하거나 다른 곳에 얹기에도 무난하다.
-    id: 'white',
-    name: '화이트',
-    pageBackground: '#ffffff',
-    borderColor: '#3f3f46',
-    headerText: '#18181b',
-    cellBackground: '#ffffff',
-    cellBorder: '#d4d4d8',
-    bodyText: '#27272a',
-    outsideMonthText: '#d4d4d8',
-    sundayText: '#c0392b',
-    saturdayText: '#2563eb',
-    dowHeaderBackground: '#f4f4f5',
-    dowHeaderText: '#27272a',
-    accents: ['#ffe0e6', '#fff3c4', '#d9f2d0', '#d3e6fb', '#e6dcf7', '#ffe2cc'],
-  },
   {
     id: 'pink',
     name: '핑크',
@@ -94,13 +83,31 @@ export const THEMES: Theme[] = [
     accents: ['#c5f0e3', '#fff3bf', '#ffd6d6', '#cfe3ff', '#e6d9ff', '#ffe1c2'],
   },
   {
+    // 여기부터 무채색 두 종. 파스텔과 달리 바탕에 색이 없어 어떤 일러스트·
+    // 스티커와도 부딪히지 않고, 인쇄하거나 다른 곳에 얹기에도 무난하다.
+    id: 'white',
+    name: '화이트',
+    pageBackground: '#ffffff',
+    borderColor: '#3f3f46',
+    headerText: '#18181b',
+    cellBackground: '#ffffff',
+    cellBorder: '#d4d4d8',
+    bodyText: '#27272a',
+    outsideMonthText: '#d4d4d8',
+    sundayText: '#c0392b',
+    saturdayText: '#2563eb',
+    dowHeaderBackground: '#f4f4f5',
+    dowHeaderText: '#27272a',
+    accents: ['#ffe0e6', '#fff3c4', '#d9f2d0', '#d3e6fb', '#e6dcf7', '#ffe2cc'],
+  },
+  {
     id: 'dark',
     name: '다크',
     pageBackground: '#1f2130',
     borderColor: '#5a5f7d',
     headerText: '#f2f3f8',
     cellBackground: '#2b2e42',
-    cellBorder: '#4a4f6b',
+    cellBorder: '#8a90b5',
     bodyText: '#e7e9f2',
     outsideMonthText: '#666b87',
     sundayText: '#ff8a8a',
@@ -113,4 +120,24 @@ export const THEMES: Theme[] = [
 
 export function getTheme(id: string): Theme {
   return THEMES.find((t) => t.id === id) ?? THEMES.find((t) => t.id === DEFAULT_THEME_ID)!
+}
+
+/**
+ * `#rrggbb`에 알파를 입혀 `rgba()`로 바꾼다.
+ *
+ * 알파가 1 이상이면 **원래 문자열을 그대로 돌려준다.** 투명도 기본값이 1이므로,
+ * 이래야 기능을 더하기 전에 만든 결과물과 렌더링이 문자열 단위로 같아진다.
+ *
+ * 못 알아보는 형식도 원본을 그대로 준다. rgba(NaN, ...)을 만들면 색이 통째로
+ * 사라져서, 잘못된 입력의 대가가 너무 크다.
+ */
+export function withAlpha(hex: string, alpha: number): string {
+  if (alpha >= 1) return hex
+
+  const match = /^#([0-9a-f]{6})$/i.exec(hex)
+  if (match === null) return hex
+
+  const value = parseInt(match[1], 16)
+  const clamped = Math.max(0, alpha)
+  return `rgba(${(value >> 16) & 255}, ${(value >> 8) & 255}, ${value & 255}, ${clamped})`
 }

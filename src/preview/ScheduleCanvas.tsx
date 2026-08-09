@@ -6,7 +6,8 @@ import { Sidebar } from './Sidebar'
 import { StickerLayer } from './StickerLayer'
 import { TitleBar } from './TitleBar'
 import {
-  BODY_HEIGHT, CANVAS_HEIGHT, CANVAS_WIDTH, COLUMN_GAP, OUTER_PADDING, TITLE_GAP,
+  CANVAS_CONTENT_HEIGHT, CANVAS_HEIGHT, CANVAS_WIDTH, COLUMN_GAP, OUTER_PADDING,
+  SIDEBAR_WIDTH, TITLE_GAP,
 } from './layout'
 
 export type ScheduleCanvasProps = {
@@ -23,7 +24,8 @@ export type ScheduleCanvasProps = {
  * 이 트리 안에서는 px 이외의 단위를 쓰지 않는다. 화면 크기에 반응하는 순간
  * 미리보기와 내보낸 이미지가 어긋난다. 축소는 부모(PreviewStage)가 담당한다.
  *
- * 배치: 위에 제목 줄, 아래는 왼쪽 사이드바 + 오른쪽 달력.
+ * 배치: 왼쪽 열(제목 + 사이드바)과 오른쪽 달력이 나란하다. 제목이 왼쪽 열
+ * 안으로 들어간 덕에 달력이 캔버스 세로 전체를 쓴다.
  */
 export const ScheduleCanvas = forwardRef<HTMLDivElement, ScheduleCanvasProps>(
   function ScheduleCanvas({ doc, fontFamily, backgroundUrl }, ref) {
@@ -50,11 +52,24 @@ export const ScheduleCanvas = forwardRef<HTMLDivElement, ScheduleCanvasProps>(
           fontFamily,
         }}
       >
-        <TitleBar header={doc.header} month={doc.month} theme={theme} />
-        <div style={{ height: TITLE_GAP, flexShrink: 0 }} />
+        {/*
+          왼쪽 열은 제목 + 사이드바, 오른쪽은 달력.
+          제목을 전체 폭으로 가로지르지 않는 덕에 달력이 캔버스 세로를 다 쓴다.
+        */}
+        <div style={{ display: 'flex', gap: COLUMN_GAP, height: CANVAS_CONTENT_HEIGHT }}>
+          <div
+            style={{
+              width: SIDEBAR_WIDTH,
+              flexShrink: 0,
+              display: 'flex',
+              flexDirection: 'column',
+            }}
+          >
+            <TitleBar header={doc.header} month={doc.month} theme={theme} />
+            <div style={{ height: TITLE_GAP, flexShrink: 0 }} />
+            <Sidebar header={doc.header} theme={theme} bgOpacity={doc.sidebarOpacity} />
+          </div>
 
-        <div style={{ display: 'flex', gap: COLUMN_GAP, height: BODY_HEIGHT, flexShrink: 0 }}>
-          <Sidebar header={doc.header} theme={theme} />
           <CalendarGrid doc={doc} theme={theme} />
         </div>
 

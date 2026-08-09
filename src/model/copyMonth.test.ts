@@ -22,6 +22,21 @@ describe('copyMonthDays', () => {
     expect(out.days[landed.date]?.text).toBe('수요일 방송')
   })
 
+  it('day entry의 추가 문구(extra)도 같은 격자 위치로 옮겨진다', () => {
+    const src = createEmptyDoc(2026, 7)
+    const srcGrid = buildMonthGrid(2026, 7)
+    const idx = srcGrid.findIndex((c) => c.date === '2026-07-15')
+    src.days['2026-07-15'] = {
+      text: '수요일 방송', dateColor: null, cellFill: null, marker: null, extra: '12h',
+    }
+
+    const out = copyMonthDays(src, 2026, 8)
+    const dstGrid = buildMonthGrid(2026, 8)
+    const landed = dstGrid[idx]
+
+    expect(out.days[landed.date]?.extra).toBe('12h')
+  })
+
   it('옮겨간 일정은 모두 원래와 같은 요일에 놓인다', () => {
     const src = createEmptyDoc(2026, 7)
     const srcGrid = buildMonthGrid(2026, 7)
@@ -63,19 +78,27 @@ describe('copyMonthDays', () => {
     const src = createEmptyDoc(2026, 7)
     src.header.titleMode = 'custom'
     src.header.customTitle = '몬몬 스케줄'
-    src.header.showEnglishMonth = false
+    src.header.goals.enabled = false
+    src.header.goals.label = '커스텀 목표'
+    src.header.goals.badge = 'GOAL!'
     src.themeId = 'mint'
     src.fontId = 'user-1'
     src.backgroundAssetId = 'bg-1'
+    src.gridOpacity = 0.4
+    src.sidebarOpacity = 0.7
     src.stickers = [{ id: 's1', assetId: 'a1', x: 10, y: 20, width: 300, rotation: 5, z: 1 }]
 
     const out = copyMonthDays(src, 2026, 8)
 
     expect(out.header.customTitle).toBe('몬몬 스케줄')
-    expect(out.header.showEnglishMonth).toBe(false)
+    expect(out.header.goals.enabled).toBe(false)
+    expect(out.header.goals.label).toBe('커스텀 목표')
+    expect(out.header.goals.badge).toBe('GOAL!')
     expect(out.themeId).toBe('mint')
     expect(out.fontId).toBe('user-1')
     expect(out.backgroundAssetId).toBe('bg-1')
+    expect(out.gridOpacity).toBe(0.4)
+    expect(out.sidebarOpacity).toBe(0.7)
     expect(out.stickers).toEqual(src.stickers)
   })
 

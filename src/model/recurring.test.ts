@@ -2,8 +2,8 @@ import { beforeEach, describe, expect, it } from 'vitest'
 import { buildMonthGrid } from './calendar'
 import { createEmptyDoc } from './defaults'
 import {
-  applyRecurringRules, countRuleTargets, createRecurringRule, loadRecurringRules,
-  type RecurringRule, saveRecurringRules,
+  applyRecurringRules, clearRecurringRules, countClearTargets, countRuleTargets,
+  createRecurringRule, loadRecurringRules, type RecurringRule, saveRecurringRules,
 } from './recurring'
 
 const rule = (patch: Partial<RecurringRule> = {}): RecurringRule => ({
@@ -122,6 +122,20 @@ describe('applyRecurringRules', () => {
     expect(d.days).toEqual({})
   })
 
+  it('추가 문구는 어느 모드에서도 보존된다', () => {
+    // 규칙으로 제목을 다시 뿌려도 날짜별로 적어둔 방송 길이는 살아남아야 한다.
+    // 이게 안 되면 추가 문구를 적을 이유가 없다.
+    for (const mode of ['fill-empty', 'overwrite'] as const) {
+      const d = doc()
+      d.days['2026-08-04'] = {
+        text: '', dateColor: null, cellFill: null, marker: null, extra: '12h',
+      }
+      const out = applyRecurringRules(d, [rule()], mode)
+      expect(out.days['2026-08-04'].extra).toBe('12h')
+      expect(out.days['2026-08-04'].text).toBe('발로란트 랭크\n21:00')
+    }
+  })
+
   it('달이 바뀌면 그 달의 요일에 맞춰 채운다', () => {
     // 같은 규칙을 9월에 적용하면 9월의 화요일에 들어간다. 이것이 이 기능의 핵심이다.
     const out = applyRecurringRules(createEmptyDoc(2026, 9), [rule()], 'fill-empty')
@@ -143,6 +157,133 @@ describe('countRuleTargets', () => {
 
   it('규칙이 없으면 0이다', () => {
     expect(countRuleTargets(doc(), [], 'fill-empty')).toBe(0)
+  })
+})
+
+describe('clearRecurringRules', () => {
+  const applied = () => applyRecurringRules(doc(), [rule()], 'fill-empty')
+
+  it('규칙이 뿌린 칸을 전부 비운다', () => {
+    const out = clearRecurringRules(applied(), [rule()])
+    expect(out.days).toEqual({})
+  })
+
+  it('한 글자라도 다른 칸은 남긴다', () => {
+    const d = applied()
+    d.days['2026-08-11'] = {
+      text: '발로란트 랭크\n22:00', dateColor: null, cellFill: null, marker: null,
+    }
+    const out = clearRecurringRules(d, [rule()])
+    expect(out.days['2026-08-11'].text).toBe('발로란트 랭크\n22:00')
+    expect(Object.keys(out.days)).toEqual(['2026-08-11'])
+  })
+
+  it('앞뒤 공백만 다른 칸은 지운다', () => {
+    const d = doc()
+    d.days['2026-08-04'] = {
+      text: '  발로란트 랭크\n21:00  ', dateColor: null, cellFill: null, marker: null,
+    }
+    expect(clearRecurringRules(d, [rule()]).days).toEqual({})
+  })
+
+  it('규칙 요일이 아닌 날에 있어도 텍스트가 맞으면 지운다', () => {
+    // 규칙 요일을 나중에 바꿔도 예전에 뿌려둔 칸이 남지 않아야 한다.
+    const d = doc()
+    d.days['2026-08-03'] = { // 월요일. 규칙은 화요일이다.
+      text: '발로란트 랭크\n21:00', dateColor: null, cellFill: null, marker: null,
+    }
+    expect(clearRecurringRules(d, [rule()]).days).toEqual({})
+  })
+
+  it('규칙이 넣었던 강조도 함께 지운다', () => {
+    const d = applyRecurringRules(
+      doc(), [rule({ cellFill: '#ffd6e0', marker: '#ffe680' })], 'fill-empty',
+    )
+    expect(clearRecurringRules(d, [rule({ cellFill: '#ffd6e0', marker: '#ffe680' })]).days)
+      .toEqual({})
+  })
+
+  it('날짜 색은 보존한다', () => {
+    const d = applied()
+    d.days['2026-08-04'] = { ...d.days['2026-08-04'], dateColor: '#ff0000' }
+    const out = clearRecurringRules(d, [rule()])
+    // 날짜 색이 남았으므로 빈 항목이 아니고, 키도 살아 있다.
+    expect(out.days['2026-08-04'].dateColor).toBe('#ff0000')
+    expect(out.days['2026-08-04'].text).toBe('')
+    expect(out.days['2026-08-04'].cellFill).toBeNull()
+    expect(out.days['2026-08-04'].marker).toBeNull()
+  })
+
+  it('추가 문구는 보존한다', () => {
+    const d = applied()
+    d.days['2026-08-04'] = { ...d.days['2026-08-04'], extra: '12h' }
+    const out = clearRecurringRules(d, [rule()])
+    expect(out.days['2026-08-04'].extra).toBe('12h')
+    expect(out.days['2026-08-04'].text).toBe('')
+  })
+
+  it('여러 규칙 중 하나라도 맞으면 지운다', () => {
+    const d = applyRecurringRules(
+      doc(), [rule(), rule({ weekdays: [5], text: '금요일 방송' })], 'fill-empty',
+    )
+    const out = clearRecurringRules(d, [rule({ weekdays: [5], text: '금요일 방송' })])
+    // 금요일 칸만 사라지고 화요일 칸 4개는 남는다.
+    expect(Object.keys(out.days).sort()).toEqual(AUGUST_TUESDAYS)
+  })
+
+  it('텍스트가 빈 규칙은 무시한다', () => {
+    const d = doc()
+    d.days['2026-08-04'] = { text: '', dateColor: null, cellFill: '#ffd6e0', marker: null }
+    const out = clearRecurringRules(d, [rule({ text: '   ' })])
+    expect(out.days['2026-08-04'].cellFill).toBe('#ffd6e0')
+  })
+
+  it('요일을 안 고른 규칙도 텍스트가 맞으면 지운다', () => {
+    // 삭제는 요일을 보지 않으므로 요일이 비어도 동작한다.
+    expect(clearRecurringRules(applied(), [rule({ weekdays: [] })]).days).toEqual({})
+  })
+
+  it('규칙이 없으면 문서를 그대로 돌려준다', () => {
+    const d = applied()
+    expect(clearRecurringRules(d, [])).toBe(d)
+  })
+
+  it('지울 칸이 없으면 문서를 그대로 돌려준다', () => {
+    const d = doc()
+    expect(clearRecurringRules(d, [rule()])).toBe(d)
+  })
+
+  it('원본을 변경하지 않는다', () => {
+    const d = applied()
+    clearRecurringRules(d, [rule()])
+    expect(Object.keys(d.days)).toHaveLength(4)
+  })
+
+  it('앞뒤 달 칸은 건드리지 않는다', () => {
+    const d = doc()
+    d.days['2026-07-28'] = { // 7월 화요일. 8월 격자에 보이지만 8월이 아니다.
+      text: '발로란트 랭크\n21:00', dateColor: null, cellFill: null, marker: null,
+    }
+    expect(clearRecurringRules(d, [rule()]).days['2026-07-28'].text)
+      .toBe('발로란트 랭크\n21:00')
+  })
+})
+
+describe('countClearTargets', () => {
+  it('실제로 비워질 칸 수를 센다', () => {
+    const d = applyRecurringRules(doc(), [rule()], 'fill-empty')
+    expect(countClearTargets(d, [rule()])).toBe(4)
+
+    d.days['2026-08-11'] = { text: '손으로 고침', dateColor: null, cellFill: null, marker: null }
+    expect(countClearTargets(d, [rule()])).toBe(3)
+  })
+
+  it('규칙이 없으면 0이다', () => {
+    expect(countClearTargets(doc(), [])).toBe(0)
+  })
+
+  it('빈 문서면 0이다', () => {
+    expect(countClearTargets(doc(), [rule()])).toBe(0)
   })
 })
 

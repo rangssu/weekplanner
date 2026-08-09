@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import {
-  applyRecurringRules, countRuleTargets, createRecurringRule, type ApplyMode, type RecurringRule,
+  applyRecurringRules, clearRecurringRules, countClearTargets, countRuleTargets,
+  createRecurringRule, type ApplyMode, type RecurringRule,
 } from '../model/recurring'
 import type { RecurringRulesApi } from '../state/useRecurringRules'
 import type { ScheduleDocApi } from '../state/useScheduleDoc'
@@ -40,8 +41,19 @@ export function RecurringEditor({ api, rulesApi }: RecurringEditorProps) {
     setNotice(`${count}칸을 채웠습니다.`)
   }
 
+  const clear = () => {
+    const count = countClearTargets(doc, rules)
+    if (count === 0) {
+      setNotice('지울 칸이 없습니다. 규칙 내용과 칸의 내용이 정확히 같아야 지워집니다.')
+      return
+    }
+    setDoc((prev) => clearRecurringRules(prev, rules))
+    setNotice(`${count}칸을 비웠습니다.`)
+  }
+
   const fillCount = countRuleTargets(doc, rules, 'fill-empty')
   const overwriteCount = countRuleTargets(doc, rules, 'overwrite')
+  const clearCount = countClearTargets(doc, rules)
 
   return (
     <section style={sectionStyle}>
@@ -49,6 +61,7 @@ export function RecurringEditor({ api, rulesApi }: RecurringEditorProps) {
       <p style={{ fontSize: 12, color: '#71717a', margin: '0 0 10px' }}>
         고정 요일 방송을 한 번 적어두면 매달 버튼 한 번으로 채웁니다.
         규칙은 다음 달로 넘어가도 그대로 남습니다.
+        지우기는 칸 내용이 규칙과 정확히 같을 때만 동작합니다.
       </p>
 
       {rules.map((rule, index) => (
@@ -160,6 +173,9 @@ export function RecurringEditor({ api, rulesApi }: RecurringEditorProps) {
           </button>
           <button type="button" style={buttonStyle} onClick={() => apply('overwrite')}>
             전부 덮어쓰기 ({overwriteCount})
+          </button>
+          <button type="button" style={buttonStyle} onClick={clear}>
+            규칙 지우기 ({clearCount})
           </button>
         </div>
       )}

@@ -1,8 +1,8 @@
-import { GOAL_LINE_COUNT, type HeaderConfig } from '../model/types'
+import { BOX_DEFAULTS, GOAL_LINE_COUNT, type HeaderConfig } from '../model/types'
 import type { Theme } from '../theme/themes'
 import {
-  BODY_HEIGHT, BORDER_WIDTH, BOX_CHECKBOX_SIZE, BOX_HINT_SIZE, BOX_TEXT_SIZE,
-  GOALS_BOX_RATIO, MEMO_BOX_RATIO, SIDEBAR_WIDTH, TODO_BOX_RATIO,
+  BORDER_WIDTH, BOX_CHECKBOX_SIZE, BOX_HINT_SIZE, BOX_TEXT_SIZE,
+  GOALS_BOX_RATIO, MEMO_BOX_RATIO, SIDEBAR_HEIGHT, SIDEBAR_WIDTH, TODO_BOX_RATIO,
 } from './layout'
 import { SidebarBox } from './SidebarBox'
 
@@ -12,6 +12,15 @@ const MEMO_HINT = '자유롭게 적어두는 칸입니다. 공지나 안내를 �
 
 /** 상자에 온전히 보이는 할 일 개수 */
 export const MAX_TODO_ITEMS = 5
+
+/**
+ * 제목이 비면 기본값으로 되돌린다. 박스 제목이 없으면 상자를 식별할 수 없다.
+ *
+ * 배지에는 절대 쓰지 않는다 — 배지는 비우면 사라지는 게 요구사항이라 폴백이
+ * 있으면 안 된다. export하는 이유도 이 비대칭을 테스트로 못박기 위함이다.
+ */
+export const boxLabel = (value: string, fallback: string): string =>
+  value.trim() === '' ? fallback : value
 
 function Hint({ text, theme }: { text: string; theme: Theme }) {
   return (
@@ -24,16 +33,18 @@ function Hint({ text, theme }: { text: string; theme: Theme }) {
 export type SidebarProps = {
   header: HeaderConfig
   theme: Theme
+  /** 사이드바 박스·배지 배경 불투명도. */
+  bgOpacity: number
 }
 
-export function Sidebar({ header, theme }: SidebarProps) {
+export function Sidebar({ header, theme, bgOpacity }: SidebarProps) {
   const enabled = [header.goals.enabled, header.todo.enabled, header.memo.enabled]
   const shownCount = enabled.filter(Boolean).length
   // 켜진 박스끼리 세로 공간을 나눠 갖는다. 하나만 켜면 그것이 다 쓴다.
   const ratios = [GOALS_BOX_RATIO, TODO_BOX_RATIO, MEMO_BOX_RATIO]
   const shownRatioSum = ratios.reduce((sum, r, i) => sum + (enabled[i] ? r : 0), 0)
   const heightOf = (index: number) =>
-    shownRatioSum === 0 ? 0 : Math.floor((BODY_HEIGHT * ratios[index]) / shownRatioSum)
+    shownRatioSum === 0 ? 0 : Math.floor((SIDEBAR_HEIGHT * ratios[index]) / shownRatioSum)
 
   if (shownCount === 0) return <div style={{ width: SIDEBAR_WIDTH, flexShrink: 0 }} />
 
@@ -44,7 +55,7 @@ export function Sidebar({ header, theme }: SidebarProps) {
     <div
       style={{
         width: SIDEBAR_WIDTH,
-        height: BODY_HEIGHT,
+        height: SIDEBAR_HEIGHT,
         flexShrink: 0,
         display: 'flex',
         flexDirection: 'column',
@@ -52,7 +63,13 @@ export function Sidebar({ header, theme }: SidebarProps) {
       }}
     >
       {header.goals.enabled && (
-        <SidebarBox label="이번 달의 목표" badge="GOALS" height={heightOf(0)} theme={theme}>
+        <SidebarBox
+          label={boxLabel(header.goals.label, BOX_DEFAULTS.goals.label)}
+          badge={header.goals.badge}
+          height={heightOf(0)}
+          theme={theme}
+          bgOpacity={bgOpacity}
+        >
           {!hasGoalText && <Hint text={GOALS_HINT} theme={theme} />}
           <div
             style={{
@@ -85,7 +102,13 @@ export function Sidebar({ header, theme }: SidebarProps) {
       )}
 
       {header.todo.enabled && (
-        <SidebarBox label="주요 할 일" badge="TO-DO LIST" height={heightOf(1)} theme={theme}>
+        <SidebarBox
+          label={boxLabel(header.todo.label, BOX_DEFAULTS.todo.label)}
+          badge={header.todo.badge}
+          height={heightOf(1)}
+          theme={theme}
+          bgOpacity={bgOpacity}
+        >
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
             {Array.from({ length: MAX_TODO_ITEMS }, (_, index) => {
               const item = header.todo.items[index]
@@ -129,7 +152,13 @@ export function Sidebar({ header, theme }: SidebarProps) {
       )}
 
       {header.memo.enabled && (
-        <SidebarBox label="메모" badge="MEMO" height={heightOf(2)} theme={theme}>
+        <SidebarBox
+          label={boxLabel(header.memo.label, BOX_DEFAULTS.memo.label)}
+          badge={header.memo.badge}
+          height={heightOf(2)}
+          theme={theme}
+          bgOpacity={bgOpacity}
+        >
           {header.memo.text.trim() === '' ? (
             <Hint text={MEMO_HINT} theme={theme} />
           ) : (
