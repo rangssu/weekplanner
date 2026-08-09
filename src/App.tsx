@@ -58,7 +58,12 @@ export default function App() {
           </div>
         </div>
         <div style={{ maxHeight: 'calc(100vh - 90px)', overflowY: 'auto' }}>
-          <EditorPanel api={api} userFonts={userFonts} onUserFontsChange={setUserFonts} />
+          <EditorPanel
+            api={api}
+            userFonts={userFonts}
+            onUserFontsChange={setUserFonts}
+            canvasRef={canvasRef}
+          />
         </div>
       </div>
     </div>
