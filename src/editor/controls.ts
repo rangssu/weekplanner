@@ -53,7 +53,8 @@ function isEmptyEntry(entry: DayEntry): boolean {
     entry.text.trim() === '' &&
     entry.dateColor === null &&
     entry.cellFill === null &&
-    entry.marker === null
+    entry.marker === null &&
+    (entry.extra ?? '').trim() === ''
   )
 }
 

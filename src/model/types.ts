@@ -8,6 +8,14 @@ export type DayEntry = {
   cellFill: string | null
   /** 일정 텍스트 아래 형광펜 색. null이면 그리지 않는다. */
   marker: string | null
+  /**
+   * 일정 텍스트 아래에 따로 얹는 문구. 없거나 비면 그리지 않는다.
+   *
+   * 선택 필드인 이유: storage의 migrateDoc이 days를 통째로 캐스팅해 넘기므로,
+   * 이 필드가 없는 예전 문서가 그대로 읽힌다. 필수로 선언하면 타입이
+   * 실제 런타임 값과 어긋난다.
+   */
+  extra?: string
 }
 
 /** 캔버스 위에 자유 배치되는 이미지 요소. */
