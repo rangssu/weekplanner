@@ -33,6 +33,17 @@ describe('saveDoc / loadDoc', () => {
     expect(loadDoc(2026, 8)?.days['2026-08-03']?.extra).toBe('12h')
   })
 
+  it('아이콘이 저장·복원을 견딘다', () => {
+    // days를 통째로 캐스팅하기에 통과한다. 나중에 mergeHeader처럼 필드
+    // 화이트리스트로 조이면 이 테스트가 먼저 깨져야 한다.
+    const doc = createEmptyDoc(2026, 8)
+    doc.days['2026-08-03'] = {
+      text: '', dateColor: null, cellFill: null, marker: null, icon: 'movie',
+    }
+    saveDoc(doc)
+    expect(loadDoc(2026, 8)?.days['2026-08-03'].icon).toBe('movie')
+  })
+
   it('저장된 적 없는 달은 null이다', () => {
     expect(loadDoc(2026, 9)).toBeNull()
   })

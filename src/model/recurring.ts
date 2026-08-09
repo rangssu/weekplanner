@@ -75,6 +75,8 @@ function plan(doc: ScheduleDoc, allRules: RecurringRule[], mode: ApplyMode): Map
       // 추가 문구도 마찬가지다. 규칙은 요일에 묶인 것을 다루고, 추가 문구는
       // 날짜마다 다른 값이라 규칙이 덮으면 안 된다.
       extra: doc.days[cell.date]?.extra,
+      // 아이콘도 날짜에 묶인 값이라 규칙이 덮으면 안 된다.
+      icon: doc.days[cell.date]?.icon,
       text: rule.text,
       cellFill: rule.cellFill,
       marker: rule.marker,
@@ -134,13 +136,14 @@ function planClear(doc: ScheduleDoc, allRules: RecurringRule[]): Map<string, Day
       // cellFill과 marker는 규칙이 소유한 필드라 매치된 칸이면 항상 초기화한다
       // — 이 칸에 규칙이 실제로 색/형광펜을 넣었는지는 보지 않는다. 그래서
       // 텍스트는 그대로 두고 손으로 강조만 얹은 칸(그래서 여전히 매치되는 칸)은
-      // clear에서 그 강조를 잃는다. 반대로 dateColor와 extra는 날짜 자체를
+      // clear에서 그 강조를 잃는다. 반대로 dateColor, extra, icon은 날짜 자체를
       // 나타내는 값이라 규칙 소유가 아니므로 손대지 않는다.
       text: '',
       dateColor: entry.dateColor,
       cellFill: null,
       marker: null,
       extra: entry.extra,
+      icon: entry.icon,
     })
   }
   return result

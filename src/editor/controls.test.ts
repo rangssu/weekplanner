@@ -49,6 +49,17 @@ describe('updateDay', () => {
     expect(doc.days['2026-08-03']).toBeUndefined()
   })
 
+  it('아이콘만 있어도 항목을 유지한다', () => {
+    const doc = updateDay(createEmptyDoc(2026, 8), '2026-08-03', { icon: 'star' })
+    expect(doc.days['2026-08-03']?.icon).toBe('star')
+  })
+
+  it('아이콘을 지우면 다른 게 없을 때 항목이 사라진다', () => {
+    let doc = updateDay(createEmptyDoc(2026, 8), '2026-08-03', { icon: 'star' })
+    doc = updateDay(doc, '2026-08-03', { icon: undefined })
+    expect(doc.days['2026-08-03']).toBeUndefined()
+  })
+
   it('추가 문구 필드가 아예 없는 예전 항목도 판정이 동작한다', () => {
     // migrateDoc이 days를 통째로 캐스팅하므로 이 모양이 런타임에 실제로 들어온다.
     const doc = createEmptyDoc(2026, 8)
