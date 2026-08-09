@@ -1,10 +1,11 @@
 import type { GridCell } from '../model/calendar'
 import type { DayEntry } from '../model/types'
+import { getDayIcon } from '../theme/dayIcons'
 import { withAlpha, type Theme } from '../theme/themes'
 import { AutoFitText } from './AutoFitText'
 import {
-  CELL_EXTRA_BASE_SIZE, CELL_EXTRA_MIN_SIZE, CELL_HEIGHT, CELL_PADDING, CELL_TEXT_BASE_SIZE,
-  CELL_TEXT_LINE_HEIGHT, CELL_TEXT_MIN_SIZE, CELL_TEXT_WIDTH, CELL_WIDTH,
+  CELL_EXTRA_BASE_SIZE, CELL_EXTRA_MIN_SIZE, CELL_HEIGHT, CELL_ICON_SIZE, CELL_PADDING,
+  CELL_TEXT_BASE_SIZE, CELL_TEXT_LINE_HEIGHT, CELL_TEXT_MIN_SIZE, CELL_TEXT_WIDTH, CELL_WIDTH,
   DATE_NUMBER_BLOCK, DATE_NUMBER_SIZE, splitCellText,
 } from './layout'
 
@@ -39,6 +40,7 @@ export function DayCell({ cell, entry, theme, bgOpacity }: DayCellProps) {
   const text = cell.inMonth ? (entry?.text ?? '') : ''
   const extra = cell.inMonth ? (entry?.extra ?? '') : ''
   const { bodyHeight, extraHeight } = splitCellText(extra)
+  const icon = cell.inMonth ? getDayIcon(entry?.icon) : undefined
 
   return (
     <div
@@ -74,16 +76,50 @@ export function DayCell({ cell, entry, theme, bgOpacity }: DayCellProps) {
         {cell.inMonth ? cell.day : ''}
       </div>
 
-      <AutoFitText
-        text={text}
-        maxWidth={CELL_TEXT_WIDTH}
-        maxHeight={bodyHeight}
-        baseSize={CELL_TEXT_BASE_SIZE}
-        minSize={CELL_TEXT_MIN_SIZE}
-        lineHeight={CELL_TEXT_LINE_HEIGHT}
-        color={cell.inMonth ? theme.bodyText : theme.outsideMonthText}
-        markerColor={cell.inMonth ? (entry?.marker ?? null) : null}
-      />
+      {icon === undefined ? (
+        <AutoFitText
+          text={text}
+          maxWidth={CELL_TEXT_WIDTH}
+          maxHeight={bodyHeight}
+          baseSize={CELL_TEXT_BASE_SIZE}
+          minSize={CELL_TEXT_MIN_SIZE}
+          lineHeight={CELL_TEXT_LINE_HEIGHT}
+          color={cell.inMonth ? theme.bodyText : theme.outsideMonthText}
+          markerColor={cell.inMonth ? (entry?.marker ?? null) : null}
+        />
+      ) : (
+        <div style={{ position: 'relative', width: CELL_TEXT_WIDTH, height: bodyHeight }}>
+          {/*
+            아이콘은 글자 뒤에 깐다. 아이콘을 쓸 때는 글자를 안 쓰는 게 보통이지만,
+            둘 다 있어도 글자가 읽혀야 한다.
+          */}
+          <img
+            src={icon.src}
+            alt=""
+            style={{
+              position: 'absolute',
+              left: '50%',
+              top: '50%',
+              transform: 'translate(-50%, -50%)',
+              width: CELL_ICON_SIZE,
+              height: CELL_ICON_SIZE,
+              pointerEvents: 'none',
+            }}
+          />
+          <div style={{ position: 'relative' }}>
+            <AutoFitText
+              text={text}
+              maxWidth={CELL_TEXT_WIDTH}
+              maxHeight={bodyHeight}
+              baseSize={CELL_TEXT_BASE_SIZE}
+              minSize={CELL_TEXT_MIN_SIZE}
+              lineHeight={CELL_TEXT_LINE_HEIGHT}
+              color={cell.inMonth ? theme.bodyText : theme.outsideMonthText}
+              markerColor={cell.inMonth ? (entry?.marker ?? null) : null}
+            />
+          </div>
+        </div>
+      )}
 
       {extraHeight > 0 && (
         <AutoFitText

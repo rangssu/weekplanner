@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import {
   BORDER_WIDTH, CANVAS_CONTENT_HEIGHT, CANVAS_CONTENT_WIDTH, CANVAS_HEIGHT,
-  CANVAS_WIDTH, CELL_HEIGHT, CELL_TEXT_HEIGHT, CELL_TEXT_WIDTH, CELL_WIDTH, COLUMN_GAP,
+  CANVAS_WIDTH, CELL_EXTRA_HEIGHT, CELL_HEIGHT, CELL_ICON_SIZE, CELL_TEXT_HEIGHT,
+  CELL_TEXT_WIDTH, CELL_WIDTH, COLUMN_GAP,
   DOW_ROW_HEIGHT, GRID_AREA_HEIGHT, GRID_AREA_WIDTH, GRID_INNER_HEIGHT, GRID_INNER_WIDTH,
   OUTER_PADDING, SIDEBAR_HEIGHT, SIDEBAR_WIDTH, TITLE_GAP, TITLE_ROW_HEIGHT,
 } from './layout'
@@ -63,5 +64,14 @@ describe('레이아웃 상수', () => {
     expect(CELL_TEXT_HEIGHT).toBeLessThan(CELL_HEIGHT)
     expect(CELL_TEXT_WIDTH).toBeGreaterThan(0)
     expect(CELL_TEXT_HEIGHT).toBeGreaterThan(0)
+  })
+
+  it('아이콘이 추가 문구가 있는 칸에도 들어간다', () => {
+    // 추가 문구가 있을 때 본문 높이와 같은 크기다. 이보다 크면 넘친다.
+    expect(CELL_ICON_SIZE).toBe(CELL_TEXT_HEIGHT - CELL_EXTRA_HEIGHT)
+  })
+
+  it('아이콘이 칸 폭 안에 들어간다', () => {
+    expect(CELL_ICON_SIZE).toBeLessThan(CELL_TEXT_WIDTH)
   })
 })
