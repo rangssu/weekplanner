@@ -1,0 +1,118 @@
+# 월간 스케줄표 이미지 생성기
+
+년·월을 고르고 일정을 채우면 **4000×2250 스케줄표 이미지**를 만들어 준다.
+백엔드 없이 브라우저 안에서 전부 동작한다.
+
+포토샵으로 매달 스케줄표를 만들던 작업을 대체하는 것이 목적이다.
+
+## 실행
+
+```
+npm install
+npm run dev
+```
+
+`http://localhost:5173/`
+
+## 테스트
+
+```
+npm test        # 156개, 전부 자동
+npx tsc -b      # 타입 검사
+```
+
+렌더링과 이미지 내보내기는 자동 테스트를 만들지 않았다. 결과물이 이미지라
+자동 판정이 어렵고, 스냅샷 테스트는 디자인을 고칠 때마다 깨져 방해가 된다.
+대신 [`docs/manual-checklist.md`](docs/manual-checklist.md)로 확인한다.
+
+## 빌드
+
+```
+npm run build
+```
+
+`dist/`에 정적 파일이 나온다. `base: './'`로 빌드하므로 하위 경로에 올려도
+자산 경로가 깨지지 않는다. **아직 배포는 하지 않았다.**
+
+## 만든 것
+
+- 년·월 선택 시 달력 격자 자동 생성 (항상 7열 × 6행)
+- 날짜별 일정 텍스트, 칸이 넘치면 글자 크기 자동 조절
+- 강조 3종 — 칸 배경 채우기 / 텍스트 형광펜 / 날짜 숫자 색
+- 헤더 — 제목(자동·직접 입력), 년월 표기, MEMO, To Do List (각각 on/off)
+- 색상 테마 4종, 배경 이미지 업로드, 폰트 파일 업로드
+- 스티커 자유 배치 (드래그·크기·회전·순서)
+- 월별 자동 저장, 지난달 내용 가져오기
+- 4단계 크기 PNG 내보내기 (원본 / 4K / Full HD / HD)
+
+## 구조
+
+```
+src/
+  model/      도메인 타입, 달력 계산, 저장소. React를 모른다
+  preview/    ScheduleDoc 하나만 받아 그리는 표시 계층
+  editor/     입력 UI
+  export/     PNG 추출
+  state/      문서 상태와 자동 저장
+  theme/      색상 테마, 폰트
+```
+
+## 고쳐야 할 때 알아야 할 것
+
+이 프로젝트에서 실제로 발목을 잡았던 것들이다. 전부 **화면에서는 멀쩡해 보이는데
+결과물이나 특정 상황에서만 어긋나는** 종류라 미리 알아두는 편이 낫다.
+
+### `src/preview/` 안에서는 `px`만 쓴다
+
+`%`, `rem`, `vw`, 미디어쿼리를 쓰지 않는다. 화면 크기에 반응하는 순간 미리보기와
+내보낸 이미지가 어긋난다. 축소는 `editor/PreviewStage.tsx`가 담당한다.
+`editor/`에는 이 제약이 없다.
+
+### `src/preview/` 컴포넌트는 `ScheduleDoc`만 받는다
+
+저장 함수나 상태 setter를 넘기지 않는다. 그래야 디자인을 갈아엎어도 `preview/`만
+고치면 되고, 편집 UI를 바꿔도 결과물이 흔들리지 않는다.
+스티커 드래그 조작을 `editor/StickerDragLayer.tsx`로 따로 뺀 것도 이 때문이다.
+
+### 폰트는 `<style>`에 data URL `@font-face`로 등록한다
+
+`FontFace` API를 쓰면 **화면에는 나오지만 내보낸 이미지에서 폰트가 빠진다.**
+`html-to-image`가 `document.styleSheets`만 훑기 때문이다.
+같은 이유로 시스템에 설치만 된 폰트는 이름으로 지정할 수 없다. 파일이 필요하다.
+
+### `box-sizing: border-box` 요소의 테두리를 계산에서 빼먹지 않는다
+
+캔버스(테두리 10px)와 격자(5px) 모두 해당한다. 빼먹으면 격자가 캔버스를 넘거나
+flex에 눌려 압축되는데, `overflow: hidden` 때문에 화면상 티가 나지 않는다.
+레이아웃을 고친 뒤에는 **사방 여백이 모두 같은지 실측**해서 확인한다.
+
+### 글자 크기는 축소돼 보이는 상황을 기준으로 잡는다
+
+4000px 이미지를 X 타임라인에 올리면 1200px 안팎으로 줄어 보인다. 배율이 0.3이라
+캔버스의 56px가 화면에서 17px이 된다. **4000px 캔버스 위에서 "충분히 커 보이는"
+크기가 실제로는 작다.**
+
+### 측정값은 정수, 상자 크기는 소수일 수 있다
+
+`scrollWidth`/`scrollHeight`는 정수만 돌려주는데 칸 폭은 `3840/7`처럼 소수다.
+그대로 비교하면 어떤 폰트 크기도 "안 맞음"이 되어 모든 글자가 최소 크기까지
+줄어든다. `AutoFitText`가 상자를 `Math.floor`로 내리는 이유다.
+
+### 브라우저 자동화로 검증할 때
+
+탭이 `hidden` 상태면 Chrome이 `requestAnimationFrame`과 `ResizeObserver` 전달을
+멈춘다. 창 크기 변경에 미리보기가 따라오는지는 **보이는 창에서 사람이** 확인해야 한다.
+
+## 문서
+
+- 설계: [`docs/superpowers/specs/2026-08-08-monthly-schedule-image-editor-design.md`](docs/superpowers/specs/2026-08-08-monthly-schedule-image-editor-design.md)
+- 구현 계획: [`docs/superpowers/plans/2026-08-08-monthly-schedule-image-editor.md`](docs/superpowers/plans/2026-08-08-monthly-schedule-image-editor.md)
+- 수동 검증: [`docs/manual-checklist.md`](docs/manual-checklist.md)
+
+## 아직 안 한 것
+
+- **배포** — 정적 빌드는 되지만 아직 어디에도 올리지 않았다
+- 그림 필기 / 브러시 도구
+- 팀 일정 취합, 로그인 (백엔드가 필요하므로 범위 밖)
+- 주간 모드
+- 시스템 설치 폰트 자동 인식 (사유는 설계 문서 6.9절)

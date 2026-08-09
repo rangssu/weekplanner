@@ -8,6 +8,7 @@ import { FontPicker } from './FontPicker'
 import { HeaderEditor } from './HeaderEditor'
 import { MonthPicker } from './MonthPicker'
 import { StickerManager } from './StickerManager'
+import { StorageStatus } from './StorageStatus'
 import { ThemePicker } from './ThemePicker'
 
 export type EditorPanelProps = {
@@ -29,6 +30,7 @@ export function EditorPanel({ api, userFonts, onUserFontsChange, canvasRef }: Ed
       <FontPicker api={api} userFonts={userFonts} onUserFontsChange={onUserFontsChange} />
       <HeaderEditor api={api} />
       <DayEditor api={api} />
+      <StorageStatus api={api} />
     </div>
   )
 }

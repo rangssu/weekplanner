@@ -1,5 +1,9 @@
 import { beforeEach, describe, expect, it } from 'vitest'
-import { blobToDataUrl, deleteAsset, getAsset, listAssets, putAsset } from './assets'
+import {
+  blobToDataUrl, collectUsedAssetIds, deleteAsset, getAsset, listAssets, purgeUnusedAssets, putAsset,
+} from './assets'
+import { createEmptyDoc } from './defaults'
+import { saveDoc } from './storage'
 
 const makeBlob = (text: string, mime = 'image/png') => new Blob([text], { type: mime })
 
@@ -59,5 +63,67 @@ describe('blobToDataUrl', () => {
   it('data: URL을 만든다', async () => {
     const url = await blobToDataUrl(makeBlob('안녕', 'text/plain'))
     expect(url.startsWith('data:text/plain;base64,')).toBe(true)
+  })
+})
+
+describe('사용하지 않는 에셋 정리', () => {
+  beforeEach(() => localStorage.clear())
+
+  it('문서에서 참조 중인 에셋 id를 모은다', () => {
+    const doc = createEmptyDoc(2026, 8)
+    doc.backgroundAssetId = 'bg-1'
+    doc.stickers = [
+      { id: 's1', assetId: 'st-1', x: 0, y: 0, width: 400, rotation: 0, z: 0 },
+      { id: 's2', assetId: 'st-2', x: 0, y: 0, width: 400, rotation: 0, z: 1 },
+    ]
+    doc.fontId = 'user-f1'
+    saveDoc(doc)
+
+    const used = collectUsedAssetIds()
+    expect(used.has('bg-1')).toBe(true)
+    expect(used.has('st-1')).toBe(true)
+    expect(used.has('st-2')).toBe(true)
+    expect(used.has('f1')).toBe(true)
+  })
+
+  it('내장 폰트 id는 에셋으로 오해하지 않는다', () => {
+    const doc = createEmptyDoc(2026, 8)
+    doc.fontId = 'cafe24dongdong'
+    saveDoc(doc)
+    expect(collectUsedAssetIds().size).toBe(0)
+  })
+
+  it('여러 달의 참조를 모두 모은다', () => {
+    const august = createEmptyDoc(2026, 8)
+    august.backgroundAssetId = 'bg-8'
+    saveDoc(august)
+    const september = createEmptyDoc(2026, 9)
+    september.backgroundAssetId = 'bg-9'
+    saveDoc(september)
+
+    const used = collectUsedAssetIds()
+    expect(used.has('bg-8')).toBe(true)
+    expect(used.has('bg-9')).toBe(true)
+  })
+
+  it('참조되지 않는 에셋만 지운다', async () => {
+    const keepId = await putAsset({
+      kind: 'image', name: 'keep', mime: 'image/png', blob: makeBlob('keep'),
+    })
+    const dropId = await putAsset({
+      kind: 'image', name: 'drop', mime: 'image/png', blob: makeBlob('drop'),
+    })
+
+    const doc = createEmptyDoc(2026, 8)
+    doc.backgroundAssetId = keepId
+    saveDoc(doc)
+
+    expect(await purgeUnusedAssets()).toBe(1)
+    expect(await getAsset(keepId)).not.toBeNull()
+    expect(await getAsset(dropId)).toBeNull()
+  })
+
+  it('지울 게 없으면 0을 준다', async () => {
+    expect(await purgeUnusedAssets()).toBe(0)
   })
 })
