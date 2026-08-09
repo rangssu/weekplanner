@@ -4,10 +4,18 @@ import { GRID_COLUMNS, GRID_ROWS } from '../model/calendar'
 export const CANVAS_WIDTH = 4000
 export const CANVAS_HEIGHT = 2250
 
-export const OUTER_PADDING = 100
-export const HEADER_HEIGHT = 420
+/**
+ * 세로 공간 배분.
+ *
+ * 캔버스 높이 2250은 고정이므로, 날짜 칸을 키우려면 여백·헤더·하단에서
+ * 가져오는 수밖에 없다. 실사용자가 "칸이 더 길었으면" 한다고 해서
+ * 여백 100→70, 헤더 420→330, 하단 100→80으로 조여 격자에 몰아줬다.
+ * 칸 높이가 235 → 263으로 12% 늘었다.
+ */
+export const OUTER_PADDING = 70
+export const HEADER_HEIGHT = 330
 export const DOW_ROW_HEIGHT = 90
-export const FOOTER_HEIGHT = 100
+export const FOOTER_HEIGHT = 80
 
 export const BORDER_WIDTH = 5
 export const CANVAS_BORDER_WIDTH = 10
