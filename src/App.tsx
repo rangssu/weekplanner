@@ -1,43 +1,44 @@
 import { useRef } from 'react'
+import { EditorPanel } from './editor/EditorPanel'
 import { PreviewStage } from './editor/PreviewStage'
-import { createEmptyDoc } from './model/defaults'
 import { ScheduleCanvas } from './preview/ScheduleCanvas'
+import { useScheduleDoc } from './state/useScheduleDoc'
 
-function sampleDoc() {
-  const doc = createEmptyDoc(2026, 8)
-  doc.days['2026-08-01'] = {
-    text: '저챗\n20:00', dateColor: null, cellFill: null, marker: null,
-  }
-  doc.days['2026-08-03'] = {
-    text: '발로란트 랭크 올리기 방송\n플래티넘 찍을 때까지 안 잠',
-    dateColor: null, cellFill: null, marker: '#ffe680',
-  }
-  doc.days['2026-08-06'] = {
-    text: '신작 게임', dateColor: '#e2445c', cellFill: '#ffd6e0', marker: null,
-  }
-  doc.header.memo = { enabled: true, text: '8월은 휴방이 많아요\n양해 부탁드립니다' }
-  doc.header.todo = {
-    enabled: true,
-    items: [
-      { text: '신작 게임 리스트 정리', checked: true },
-      { text: '합방 일정 확정', checked: false },
-      { text: '썸네일 새로 만들기', checked: false },
-    ],
-  }
-  doc.footer = { enabled: true, text: '*방송 일정은 사정에 따라 변경될 수 있어요 :D' }
-  return doc
-}
+const today = new Date()
 
 export default function App() {
   const canvasRef = useRef<HTMLDivElement>(null)
-  const doc = sampleDoc()
+  const api = useScheduleDoc(today.getFullYear(), today.getMonth() + 1)
 
   return (
-    <div style={{ padding: 24, maxWidth: 1900, margin: '0 auto' }}>
-      <h1 style={{ fontSize: 20 }}>월간 스케줄표 만들기</h1>
-      <PreviewStage>
-        <ScheduleCanvas ref={canvasRef} doc={doc} />
-      </PreviewStage>
+    <div style={{ padding: 16, maxWidth: 2000, margin: '0 auto' }}>
+      <h1 style={{ fontSize: 18, margin: '0 0 12px' }}>월간 스케줄표 만들기</h1>
+
+      {api.saveError && (
+        <p style={{ color: '#c0392b', fontSize: 13 }}>
+          {api.saveError === 'quota'
+            ? '저장 공간이 가득 찼습니다. 배경 이미지나 폰트를 정리해 주세요.'
+            : '저장에 실패했습니다.'}
+        </p>
+      )}
+
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'minmax(0, 1fr) minmax(320px, 420px)',
+          gap: 20,
+          alignItems: 'start',
+        }}
+      >
+        <div style={{ position: 'sticky', top: 16 }}>
+          <PreviewStage verticalChrome={90}>
+            <ScheduleCanvas ref={canvasRef} doc={api.doc} />
+          </PreviewStage>
+        </div>
+        <div style={{ maxHeight: 'calc(100vh - 90px)', overflowY: 'auto' }}>
+          <EditorPanel api={api} />
+        </div>
+      </div>
     </div>
   )
 }
