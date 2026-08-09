@@ -53,11 +53,18 @@ function mergeHeader(base: HeaderConfig, raw: unknown): HeaderConfig {
   // 예전 데이터를 그대로 물려받는다.
   const memo = isObject(raw.memo) ? raw.memo : isObject(raw.priorities) ? raw.priorities : null
 
+  // 빈 문자열도 문자열이므로 그대로 살아남는다. 배지를 일부러 비운 설정이
+  // 새로고침 후에도 유지되려면 truthy 검사가 아니라 타입 검사여야 한다.
+  const text = (v: unknown, fallback: string): string =>
+    typeof v === 'string' ? v : fallback
+
   return {
     titleMode: raw.titleMode === 'custom' ? 'custom' : 'auto',
     customTitle: typeof raw.customTitle === 'string' ? raw.customTitle : base.customTitle,
     goals: {
       enabled: typeof goals?.enabled === 'boolean' ? goals.enabled : base.goals.enabled,
+      label: text(goals?.label, base.goals.label),
+      badge: text(goals?.badge, base.goals.badge),
       // 줄 수가 바뀌어도 항상 GOAL_LINE_COUNT에 맞춘다.
       lines: base.goals.lines.map((fallback, i) => {
         const line = Array.isArray(goals?.lines) ? goals.lines[i] : undefined
@@ -66,10 +73,14 @@ function mergeHeader(base: HeaderConfig, raw: unknown): HeaderConfig {
     },
     todo: {
       enabled: typeof todo?.enabled === 'boolean' ? todo.enabled : base.todo.enabled,
+      label: text(todo?.label, base.todo.label),
+      badge: text(todo?.badge, base.todo.badge),
       items: Array.isArray(todo?.items) ? (todo.items as HeaderConfig['todo']['items']) : [],
     },
     memo: {
       enabled: typeof memo?.enabled === 'boolean' ? memo.enabled : base.memo.enabled,
+      label: text(memo?.label, base.memo.label),
+      badge: text(memo?.badge, base.memo.badge),
       text: typeof memo?.text === 'string' ? memo.text : base.memo.text,
     },
   }

@@ -54,19 +54,21 @@ export function SidebarBox({ label, badge, height, theme, children }: SidebarBox
         >
           {label}
         </span>
-        <span
-          style={{
-            fontSize: BOX_BADGE_SIZE,
-            fontWeight: 900,
-            letterSpacing: 0.5,
-            color: theme.bodyText,
-            background: theme.dowHeaderBackground,
-            padding: '6px 14px',
-            whiteSpace: 'nowrap',
-          }}
-        >
-          {badge}
-        </span>
+        {badge.trim() !== '' && (
+          <span
+            style={{
+              fontSize: BOX_BADGE_SIZE,
+              fontWeight: 900,
+              letterSpacing: 0.5,
+              color: theme.bodyText,
+              background: theme.dowHeaderBackground,
+              padding: '6px 14px',
+              whiteSpace: 'nowrap',
+            }}
+          >
+            {badge}
+          </span>
+        )}
       </div>
 
       <div style={{ flex: 1, padding: BOX_PADDING, overflow: 'hidden' }}>{children}</div>

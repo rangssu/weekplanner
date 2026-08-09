@@ -85,7 +85,29 @@ describe('migrateDoc', () => {
     delete header.memo
     header.priorities = { enabled: true, text: '예전에 적어둔 내용' }
 
-    expect(migrateDoc(old)?.header.memo).toEqual({ enabled: true, text: '예전에 적어둔 내용' })
+    const memo = migrateDoc(old)?.header.memo
+    expect(memo?.enabled).toBe(true)
+    expect(memo?.text).toBe('예전에 적어둔 내용')
+  })
+
+  it('박스 제목과 배지가 없으면 기본값으로 채운다', () => {
+    const old = createEmptyDoc(2026, 8) as unknown as Record<string, unknown>
+    const header = old.header as Record<string, unknown>
+    header.goals = { enabled: true, lines: ['', '', ''] }
+
+    const out = migrateDoc(old)
+    expect(out?.header.goals.label).toBe('이번 달의 목표')
+    expect(out?.header.goals.badge).toBe('GOALS')
+  })
+
+  it('저장된 박스 제목과 배지를 그대로 살린다', () => {
+    const doc = createEmptyDoc(2026, 8)
+    doc.header.memo.label = '공지'
+    doc.header.memo.badge = ''
+
+    const out = migrateDoc(doc)
+    expect(out?.header.memo.label).toBe('공지')
+    expect(out?.header.memo.badge).toBe('')
   })
 
   it('빠진 선택 필드를 기본값으로 채운다', () => {

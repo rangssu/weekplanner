@@ -1,4 +1,4 @@
-import { GOAL_LINE_COUNT, type HeaderConfig } from '../model/types'
+import { BOX_DEFAULTS, GOAL_LINE_COUNT, type HeaderConfig } from '../model/types'
 import type { Theme } from '../theme/themes'
 import {
   BORDER_WIDTH, BOX_CHECKBOX_SIZE, BOX_HINT_SIZE, BOX_TEXT_SIZE,
@@ -12,6 +12,10 @@ const MEMO_HINT = '자유롭게 적어두는 칸입니다. 공지나 안내를 �
 
 /** 상자에 온전히 보이는 할 일 개수 */
 export const MAX_TODO_ITEMS = 5
+
+/** 제목이 비면 기본값으로 되돌린다. 박스 제목이 없으면 상자를 식별할 수 없다. */
+const boxLabel = (value: string, fallback: string): string =>
+  value.trim() === '' ? fallback : value
 
 function Hint({ text, theme }: { text: string; theme: Theme }) {
   return (
@@ -52,7 +56,12 @@ export function Sidebar({ header, theme }: SidebarProps) {
       }}
     >
       {header.goals.enabled && (
-        <SidebarBox label="이번 달의 목표" badge="GOALS" height={heightOf(0)} theme={theme}>
+        <SidebarBox
+          label={boxLabel(header.goals.label, BOX_DEFAULTS.goals.label)}
+          badge={header.goals.badge}
+          height={heightOf(0)}
+          theme={theme}
+        >
           {!hasGoalText && <Hint text={GOALS_HINT} theme={theme} />}
           <div
             style={{
@@ -85,7 +94,12 @@ export function Sidebar({ header, theme }: SidebarProps) {
       )}
 
       {header.todo.enabled && (
-        <SidebarBox label="주요 할 일" badge="TO-DO LIST" height={heightOf(1)} theme={theme}>
+        <SidebarBox
+          label={boxLabel(header.todo.label, BOX_DEFAULTS.todo.label)}
+          badge={header.todo.badge}
+          height={heightOf(1)}
+          theme={theme}
+        >
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
             {Array.from({ length: MAX_TODO_ITEMS }, (_, index) => {
               const item = header.todo.items[index]
@@ -129,7 +143,12 @@ export function Sidebar({ header, theme }: SidebarProps) {
       )}
 
       {header.memo.enabled && (
-        <SidebarBox label="메모" badge="MEMO" height={heightOf(2)} theme={theme}>
+        <SidebarBox
+          label={boxLabel(header.memo.label, BOX_DEFAULTS.memo.label)}
+          badge={header.memo.badge}
+          height={heightOf(2)}
+          theme={theme}
+        >
           {header.memo.text.trim() === '' ? (
             <Hint text={MEMO_HINT} theme={theme} />
           ) : (

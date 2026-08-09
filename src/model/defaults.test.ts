@@ -32,6 +32,16 @@ describe('createEmptyDoc', () => {
     expect(header.memo.enabled).toBe(true)
   })
 
+  it('사이드바 박스 제목과 배지의 기본값이 있다', () => {
+    const { header } = createEmptyDoc(2026, 8)
+    expect(header.goals.label).toBe('이번 달의 목표')
+    expect(header.goals.badge).toBe('GOALS')
+    expect(header.todo.label).toBe('주요 할 일')
+    expect(header.todo.badge).toBe('TO-DO LIST')
+    expect(header.memo.label).toBe('메모')
+    expect(header.memo.badge).toBe('MEMO')
+  })
+
   it('목표는 항상 GOAL_LINE_COUNT줄이다', () => {
     expect(createEmptyDoc(2026, 8).header.goals.lines).toHaveLength(GOAL_LINE_COUNT)
   })

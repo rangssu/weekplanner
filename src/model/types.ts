@@ -42,16 +42,23 @@ export type TodoItem = {
 /** 사이드바 GOALS 칸. 밑줄 위에 한 줄씩 적는다. */
 export const GOAL_LINE_COUNT = 3
 
+/** 사이드바 박스의 기본 제목. 사용자가 비우면 이 값으로 되돌아간다. */
+export const BOX_DEFAULTS = {
+  goals: { label: '이번 달의 목표', badge: 'GOALS' },
+  todo: { label: '주요 할 일', badge: 'TO-DO LIST' },
+  memo: { label: '메모', badge: 'MEMO' },
+} as const
+
 export type HeaderConfig = {
   /** auto = "8월"처럼 월 이름, custom = 자유 입력 */
   titleMode: 'auto' | 'custom'
   customTitle: string
-  /** 이번 달의 목표 — 길이는 항상 GOAL_LINE_COUNT */
-  goals: { enabled: boolean; lines: string[] }
+  /** 이번 달의 목표 — lines 길이는 항상 GOAL_LINE_COUNT */
+  goals: { enabled: boolean; label: string; badge: string; lines: string[] }
   /** 주요 할 일 */
-  todo: { enabled: boolean; items: TodoItem[] }
+  todo: { enabled: boolean; label: string; badge: string; items: TodoItem[] }
   /** 메모 — 자유 텍스트 */
-  memo: { enabled: boolean; text: string }
+  memo: { enabled: boolean; label: string; badge: string; text: string }
 }
 
 /** 한 달치 문서. 저장 단위이자 preview/의 유일한 입력. */

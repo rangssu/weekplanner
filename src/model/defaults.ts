@@ -1,4 +1,4 @@
-import { GOAL_LINE_COUNT, type DayEntry, type ScheduleDoc } from './types'
+import { BOX_DEFAULTS, GOAL_LINE_COUNT, type DayEntry, type ScheduleDoc } from './types'
 
 export const DOC_VERSION = 1 as const
 
@@ -38,9 +38,13 @@ export function createEmptyDoc(year: number, month: number): ScheduleDoc {
     header: {
       titleMode: 'auto',
       customTitle: '',
-      goals: { enabled: true, lines: Array.from({ length: GOAL_LINE_COUNT }, () => '') },
-      todo: { enabled: true, items: [] },
-      memo: { enabled: true, text: '' },
+      goals: {
+        enabled: true,
+        ...BOX_DEFAULTS.goals,
+        lines: Array.from({ length: GOAL_LINE_COUNT }, () => ''),
+      },
+      todo: { enabled: true, ...BOX_DEFAULTS.todo, items: [] },
+      memo: { enabled: true, ...BOX_DEFAULTS.memo, text: '' },
     },
     days: {},
     themeId: DEFAULT_THEME_ID,
