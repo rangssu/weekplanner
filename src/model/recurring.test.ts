@@ -136,6 +136,18 @@ describe('applyRecurringRules', () => {
     }
   })
 
+  it('아이콘은 어느 모드에서도 보존된다', () => {
+    for (const mode of ['fill-empty', 'overwrite'] as const) {
+      const d = doc()
+      d.days['2026-08-04'] = {
+        text: '', dateColor: null, cellFill: null, marker: null, icon: 'game',
+      }
+      const out = applyRecurringRules(d, [rule()], mode)
+      expect(out.days['2026-08-04'].icon).toBe('game')
+      expect(out.days['2026-08-04'].text).toBe('발로란트 랭크\n21:00')
+    }
+  })
+
   it('달이 바뀌면 그 달의 요일에 맞춰 채운다', () => {
     // 같은 규칙을 9월에 적용하면 9월의 화요일에 들어간다. 이것이 이 기능의 핵심이다.
     const out = applyRecurringRules(createEmptyDoc(2026, 9), [rule()], 'fill-empty')
@@ -219,6 +231,14 @@ describe('clearRecurringRules', () => {
     d.days['2026-08-04'] = { ...d.days['2026-08-04'], extra: '12h' }
     const out = clearRecurringRules(d, [rule()])
     expect(out.days['2026-08-04'].extra).toBe('12h')
+    expect(out.days['2026-08-04'].text).toBe('')
+  })
+
+  it('아이콘은 보존한다', () => {
+    const d = applyRecurringRules(doc(), [rule()], 'fill-empty')
+    d.days['2026-08-04'] = { ...d.days['2026-08-04'], icon: 'talk' }
+    const out = clearRecurringRules(d, [rule()])
+    expect(out.days['2026-08-04'].icon).toBe('talk')
     expect(out.days['2026-08-04'].text).toBe('')
   })
 

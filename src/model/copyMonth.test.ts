@@ -37,6 +37,21 @@ describe('copyMonthDays', () => {
     expect(out.days[landed.date]?.extra).toBe('12h')
   })
 
+  it('day entry의 아이콘(icon)도 같은 격자 위치로 옮겨진다', () => {
+    const src = createEmptyDoc(2026, 7)
+    const srcGrid = buildMonthGrid(2026, 7)
+    const idx = srcGrid.findIndex((c) => c.date === '2026-07-15')
+    src.days['2026-07-15'] = {
+      text: '수요일 방송', dateColor: null, cellFill: null, marker: null, icon: 'star',
+    }
+
+    const out = copyMonthDays(src, 2026, 8)
+    const dstGrid = buildMonthGrid(2026, 8)
+    const landed = dstGrid[idx]
+
+    expect(out.days[landed.date]?.icon).toBe('star')
+  })
+
   it('옮겨간 일정은 모두 원래와 같은 요일에 놓인다', () => {
     const src = createEmptyDoc(2026, 7)
     const srcGrid = buildMonthGrid(2026, 7)

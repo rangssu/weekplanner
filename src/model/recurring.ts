@@ -42,10 +42,10 @@ function usableRules(rules: RecurringRule[]): RecurringRule[] {
 }
 
 /**
- * dateColor와 extra는 일부러 보지 않는다. isBlankDayEntry(다섯 필드 전부)와
- * 기준이 다른 게 의도다. "빈 칸만 채우기"는 "여기 일정 텍스트가 없다"는
- * 뜻이어야 하므로, 날짜 색만 있거나 추가 문구("12h")만 있는 칸도 채울 수
- * 있는 빈 칸으로 본다.
+ * dateColor, extra, icon은 일부러 보지 않는다. DayEntry의 모든 필드를 보는
+ * isBlankDayEntry와 기준이 다른 게 의도다. "빈 칸만 채우기"는 "여기 일정
+ * 텍스트가 없다"는 뜻이어야 하므로, 날짜 색만 있거나 추가 문구("12h")만
+ * 있거나 아이콘만 있는 칸도 채울 수 있는 빈 칸으로 본다.
  */
 const hasContent = (entry: DayEntry | undefined): boolean =>
   entry !== undefined &&
@@ -75,6 +75,8 @@ function plan(doc: ScheduleDoc, allRules: RecurringRule[], mode: ApplyMode): Map
       // 추가 문구도 마찬가지다. 규칙은 요일에 묶인 것을 다루고, 추가 문구는
       // 날짜마다 다른 값이라 규칙이 덮으면 안 된다.
       extra: doc.days[cell.date]?.extra,
+      // 아이콘도 날짜에 묶인 값이라 규칙이 덮으면 안 된다.
+      icon: doc.days[cell.date]?.icon,
       text: rule.text,
       cellFill: rule.cellFill,
       marker: rule.marker,
@@ -134,13 +136,14 @@ function planClear(doc: ScheduleDoc, allRules: RecurringRule[]): Map<string, Day
       // cellFill과 marker는 규칙이 소유한 필드라 매치된 칸이면 항상 초기화한다
       // — 이 칸에 규칙이 실제로 색/형광펜을 넣었는지는 보지 않는다. 그래서
       // 텍스트는 그대로 두고 손으로 강조만 얹은 칸(그래서 여전히 매치되는 칸)은
-      // clear에서 그 강조를 잃는다. 반대로 dateColor와 extra는 날짜 자체를
+      // clear에서 그 강조를 잃는다. 반대로 dateColor, extra, icon은 날짜 자체를
       // 나타내는 값이라 규칙 소유가 아니므로 손대지 않는다.
       text: '',
       dateColor: entry.dateColor,
       cellFill: null,
       marker: null,
       extra: entry.extra,
+      icon: entry.icon,
     })
   }
   return result

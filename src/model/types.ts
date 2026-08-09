@@ -16,6 +16,13 @@ export type DayEntry = {
    * 실제 런타임 값과 어긋난다.
    */
   extra?: string
+  /**
+   * 칸에 찍은 아이콘 id. theme/dayIcons.ts의 DAY_ICONS를 참조한다.
+   *
+   * extra와 같은 이유로 선택 필드다 — storage의 migrateDoc이 days를 통째로
+   * 캐스팅해 넘기므로, 이 필드가 없는 예전 문서가 그대로 읽힌다.
+   */
+  icon?: string
 }
 
 /** 캔버스 위에 자유 배치되는 이미지 요소. */
