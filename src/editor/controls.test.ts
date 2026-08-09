@@ -109,7 +109,7 @@ describe('isLikelyOverflowing', () => {
         (CELL_TEXT_HEIGHT - CELL_EXTRA_HEIGHT) / (CELL_TEXT_MIN_SIZE * CELL_TEXT_LINE_HEIGHT),
       ),
     )
-    // extra가 본문을 줄여야 이 테스트가 성립한다 (지금 상수로는 6줄 vs 4줄).
+    // extra가 본문을 줄여야 이 테스트가 성립한다 (지금 상수로는 7줄 vs 5줄).
     expect(maxLinesWithExtra).toBeLessThan(maxLinesWithoutExtra)
 
     // maxLinesWithExtra는 넘고 maxLinesWithoutExtra는 넘지 않는 줄 수를 쓰는

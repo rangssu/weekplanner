@@ -71,7 +71,10 @@ export function BackgroundPicker({ api }: BackgroundPickerProps) {
 
   const handleRemove = async () => {
     const previous = doc.backgroundAssetId
-    setDoc((prev) => ({ ...prev, backgroundAssetId: null }))
+    // 배경을 없애면 슬라이더도 같이 사라져 사용자가 더는 값을 볼 수도, 되돌릴 수도 없다.
+    // 낮춰둔 투명도를 그대로 두면 문서가 "화면에 없는 컨트롤이 적용 중인" 상태로
+    // 저장돼 버리므로, 배경을 지우는 순간 함께 1(불투명)로 되돌린다.
+    setDoc((prev) => ({ ...prev, backgroundAssetId: null, gridOpacity: 1, sidebarOpacity: 1 }))
     if (previous) await deleteAsset(previous)
   }
 
