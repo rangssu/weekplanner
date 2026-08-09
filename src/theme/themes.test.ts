@@ -5,8 +5,14 @@ import { ACCENT_COUNT, getTheme, THEMES } from './themes'
 const HEX = /^#[0-9a-f]{6}$/i
 
 describe('THEMES', () => {
-  it('4종을 제공한다', () => {
-    expect(THEMES).toHaveLength(4)
+  it('5종을 제공한다', () => {
+    expect(THEMES).toHaveLength(5)
+  })
+
+  it('무채색 기본 테마(화이트)가 있다', () => {
+    const white = THEMES.find((t) => t.id === 'white')
+    expect(white).toBeDefined()
+    expect(white!.pageBackground).toBe('#ffffff')
   })
 
   it('id가 중복되지 않는다', () => {

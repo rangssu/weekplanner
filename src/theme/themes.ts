@@ -30,6 +30,25 @@ export type Theme = {
 
 export const THEMES: Theme[] = [
   {
+    // 파스텔 테마들과 달리 바탕이 무채색인 기본형. 어떤 일러스트·스티커와도
+    // 부딪히지 않고, 인쇄하거나 다른 곳에 얹기에도 무난하다.
+    id: 'white',
+    name: '화이트',
+    pageBackground: '#ffffff',
+    patternCss: 'none',
+    borderColor: '#3f3f46',
+    headerText: '#18181b',
+    cellBackground: '#ffffff',
+    cellBorder: '#d4d4d8',
+    bodyText: '#27272a',
+    outsideMonthText: '#d4d4d8',
+    sundayText: '#c0392b',
+    saturdayText: '#2563eb',
+    dowHeaderBackground: '#f4f4f5',
+    dowHeaderText: '#27272a',
+    accents: ['#ffe0e6', '#fff3c4', '#d9f2d0', '#d3e6fb', '#e6dcf7', '#ffe2cc'],
+  },
+  {
     id: 'pink',
     name: '핑크',
     pageBackground: '#f9c9d4',
