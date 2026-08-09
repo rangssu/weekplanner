@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { createEmptyDayEntry, createEmptyDoc, DOC_VERSION } from './defaults'
+import { GOAL_LINE_COUNT } from './types'
 
 describe('createEmptyDoc', () => {
   it('지정한 년·월을 갖는다', () => {
@@ -20,16 +21,21 @@ describe('createEmptyDoc', () => {
     expect(createEmptyDoc(2026, 8).stickers).toEqual([])
   })
 
-  it('헤더 기본값은 자동 제목 + 년월 표기 켜짐', () => {
+  it('헤더 기본값은 자동 제목 + 영문 월 표기 켜짐', () => {
     const { header } = createEmptyDoc(2026, 8)
     expect(header.titleMode).toBe('auto')
-    expect(header.showYearMonth).toBe(true)
+    expect(header.showEnglishMonth).toBe(true)
   })
 
-  it('MEMO와 To Do List는 기본으로 꺼져 있다', () => {
+  it('사이드바 세 박스는 기본으로 켜져 있다', () => {
     const { header } = createEmptyDoc(2026, 8)
-    expect(header.memo.enabled).toBe(false)
-    expect(header.todo.enabled).toBe(false)
+    expect(header.goals.enabled).toBe(true)
+    expect(header.todo.enabled).toBe(true)
+    expect(header.priorities.enabled).toBe(true)
+  })
+
+  it('목표는 항상 GOAL_LINE_COUNT줄이다', () => {
+    expect(createEmptyDoc(2026, 8).header.goals.lines).toHaveLength(GOAL_LINE_COUNT)
   })
 
   it('호출할 때마다 독립된 객체를 만든다', () => {

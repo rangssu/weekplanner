@@ -1,0 +1,151 @@
+import { GOAL_LINE_COUNT, type HeaderConfig } from '../model/types'
+import type { Theme } from '../theme/themes'
+import {
+  BODY_HEIGHT, BORDER_WIDTH, BOX_HINT_SIZE, BOX_TEXT_SIZE, GOALS_BOX_RATIO,
+  PRIORITIES_BOX_RATIO, SIDEBAR_WIDTH, TODO_BOX_RATIO,
+} from './layout'
+import { SidebarBox } from './SidebarBox'
+
+/** 비어 있을 때만 회색으로 보여주는 안내 문구 */
+const GOALS_HINT = '한 달 동안 반드시 이뤄야 할 핵심 목표 2~3가지를 적는 칸입니다.'
+const PRIORITIES_HINT = '가장 에너지를 쏟아야 하는 상위 3가지 항목을 적어둡니다.'
+
+/** 상자에 온전히 보이는 할 일 개수 */
+export const MAX_TODO_ITEMS = 5
+
+function Hint({ text, theme }: { text: string; theme: Theme }) {
+  return (
+    <div style={{ fontSize: BOX_HINT_SIZE, color: theme.outsideMonthText, lineHeight: 1.4 }}>
+      {text}
+    </div>
+  )
+}
+
+export type SidebarProps = {
+  header: HeaderConfig
+  theme: Theme
+}
+
+export function Sidebar({ header, theme }: SidebarProps) {
+  const enabled = [header.goals.enabled, header.todo.enabled, header.priorities.enabled]
+  const shownCount = enabled.filter(Boolean).length
+  // 켜진 박스끼리 세로 공간을 나눠 갖는다. 하나만 켜면 그것이 다 쓴다.
+  const ratios = [GOALS_BOX_RATIO, TODO_BOX_RATIO, PRIORITIES_BOX_RATIO]
+  const shownRatioSum = ratios.reduce((sum, r, i) => sum + (enabled[i] ? r : 0), 0)
+  const heightOf = (index: number) =>
+    shownRatioSum === 0 ? 0 : Math.floor((BODY_HEIGHT * ratios[index]) / shownRatioSum)
+
+  if (shownCount === 0) return <div style={{ width: SIDEBAR_WIDTH, flexShrink: 0 }} />
+
+  const goalLines = header.goals.lines.slice(0, GOAL_LINE_COUNT)
+  const hasGoalText = goalLines.some((line) => line.trim() !== '')
+
+  return (
+    <div
+      style={{
+        width: SIDEBAR_WIDTH,
+        height: BODY_HEIGHT,
+        flexShrink: 0,
+        display: 'flex',
+        flexDirection: 'column',
+        overflow: 'hidden',
+      }}
+    >
+      {header.goals.enabled && (
+        <SidebarBox label="이번 달의 목표" badge="GOALS" height={heightOf(0)} theme={theme}>
+          {!hasGoalText && <Hint text={GOALS_HINT} theme={theme} />}
+          <div
+            style={{
+              marginTop: hasGoalText ? 0 : 28,
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 26,
+            }}
+          >
+            {goalLines.map((line, index) => (
+              <div
+                key={index}
+                style={{
+                  borderBottom: `${BORDER_WIDTH}px solid ${theme.cellBorder}`,
+                  paddingBottom: 8,
+                  fontSize: BOX_TEXT_SIZE,
+                  color: theme.bodyText,
+                  whiteSpace: 'nowrap',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  minHeight: BOX_TEXT_SIZE + 12,
+                }}
+              >
+                {line}
+              </div>
+            ))}
+          </div>
+        </SidebarBox>
+      )}
+
+      {header.todo.enabled && (
+        <SidebarBox label="주요 할 일" badge="TO-DO LIST" height={heightOf(1)} theme={theme}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
+            {Array.from({ length: MAX_TODO_ITEMS }, (_, index) => {
+              const item = header.todo.items[index]
+              return (
+                <div
+                  key={index}
+                  style={{ display: 'flex', alignItems: 'center', gap: 18, height: 40 }}
+                >
+                  <span
+                    style={{
+                      width: 34,
+                      height: 34,
+                      border: `${BORDER_WIDTH}px solid ${theme.cellBorder}`,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: 26,
+                      lineHeight: 1,
+                      flexShrink: 0,
+                      color: theme.bodyText,
+                    }}
+                  >
+                    {item?.checked ? 'V' : ''}
+                  </span>
+                  <span
+                    style={{
+                      fontSize: BOX_TEXT_SIZE,
+                      color: theme.bodyText,
+                      whiteSpace: 'nowrap',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                    }}
+                  >
+                    {item?.text ?? ''}
+                  </span>
+                </div>
+              )
+            })}
+          </div>
+        </SidebarBox>
+      )}
+
+      {header.priorities.enabled && (
+        <SidebarBox label="우선순위" badge="TOP PRIORITIES" height={heightOf(2)} theme={theme}>
+          {header.priorities.text.trim() === '' ? (
+            <Hint text={PRIORITIES_HINT} theme={theme} />
+          ) : (
+            <div
+              style={{
+                fontSize: BOX_TEXT_SIZE,
+                color: theme.bodyText,
+                lineHeight: 1.5,
+                whiteSpace: 'pre-wrap',
+                wordBreak: 'break-word',
+              }}
+            >
+              {header.priorities.text}
+            </div>
+          )}
+        </SidebarBox>
+      )}
+    </div>
+  )
+}

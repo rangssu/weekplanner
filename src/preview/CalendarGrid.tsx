@@ -6,7 +6,7 @@ import {
   BORDER_WIDTH, DOW_LABEL_SIZE, DOW_ROW_HEIGHT, GRID_AREA_HEIGHT, GRID_AREA_WIDTH,
 } from './layout'
 
-export const DOW_LABELS = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'] as const
+export const DOW_LABELS = ['일요일', '월요일', '화요일', '수요일', '목요일', '금요일', '토요일'] as const
 
 export type CalendarGridProps = {
   doc: ScheduleDoc
@@ -39,8 +39,7 @@ export function CalendarGrid({ doc, theme }: CalendarGridProps) {
               alignItems: 'center',
               justifyContent: 'center',
               fontSize: DOW_LABEL_SIZE,
-              fontWeight: 800,
-              letterSpacing: 2,
+              fontWeight: 700,
               background: theme.dowHeaderBackground,
               color:
                 index === 0
@@ -50,6 +49,7 @@ export function CalendarGrid({ doc, theme }: CalendarGridProps) {
                     : theme.dowHeaderText,
               borderRight:
                 index === GRID_COLUMNS - 1 ? 'none' : `${BORDER_WIDTH}px solid ${theme.cellBorder}`,
+              borderBottom: `${BORDER_WIDTH}px solid ${theme.cellBorder}`,
               boxSizing: 'border-box',
             }}
           >

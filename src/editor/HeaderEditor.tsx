@@ -1,5 +1,5 @@
-import type { HeaderConfig, TodoItem } from '../model/types'
-import { MAX_TODO_ITEMS } from '../preview/TodoBox'
+import { GOAL_LINE_COUNT, type HeaderConfig, type TodoItem } from '../model/types'
+import { MAX_TODO_ITEMS } from '../preview/Sidebar'
 import type { ScheduleDocApi } from '../state/useScheduleDoc'
 import { buttonStyle, fieldLabelStyle, inputStyle, sectionStyle, sectionTitleStyle } from './controls'
 
@@ -22,121 +22,145 @@ export function HeaderEditor({ api }: HeaderEditorProps) {
   const patchHeader = (patch: Partial<HeaderConfig>) =>
     setDoc((prev) => ({ ...prev, header: { ...prev.header, ...patch } }))
 
-  const patchTodoItems = (items: TodoItem[]) =>
-    patchHeader({ todo: { ...header.todo, items } })
+  const patchTodoItems = (items: TodoItem[]) => patchHeader({ todo: { ...header.todo, items } })
+
+  const itemAt = (index: number): TodoItem => header.todo.items[index] ?? { text: '', checked: false }
+  const setItemAt = (index: number, patch: Partial<TodoItem>) => {
+    const items = Array.from({ length: MAX_TODO_ITEMS }, (_, i) => itemAt(i))
+    items[index] = { ...items[index], ...patch }
+    patchTodoItems(items)
+  }
 
   return (
-    <section style={sectionStyle}>
-      <h2 style={sectionTitleStyle}>헤더</h2>
+    <>
+      <section style={sectionStyle}>
+        <h2 style={sectionTitleStyle}>제목</h2>
 
-      <label style={fieldLabelStyle} htmlFor="title-mode">제목</label>
-      <select
-        id="title-mode"
-        style={inputStyle}
-        value={header.titleMode}
-        onChange={(e) => patchHeader({ titleMode: e.target.value as 'auto' | 'custom' })}
-      >
-        <option value="auto">자동 (영문 월 이름)</option>
-        <option value="custom">직접 입력</option>
-      </select>
+        <label style={fieldLabelStyle} htmlFor="title-mode">왼쪽 큰 제목</label>
+        <select
+          id="title-mode"
+          style={inputStyle}
+          value={header.titleMode}
+          onChange={(e) => patchHeader({ titleMode: e.target.value as 'auto' | 'custom' })}
+        >
+          <option value="auto">자동 ({doc.month}월)</option>
+          <option value="custom">직접 입력</option>
+        </select>
 
-      {header.titleMode === 'custom' && (
-        <input
-          style={{ ...inputStyle, marginTop: 6 }}
-          value={header.customTitle}
-          placeholder="예: 몬몬 8월 스케줄"
-          onChange={(e) => patchHeader({ customTitle: e.target.value })}
-        />
-      )}
+        {header.titleMode === 'custom' && (
+          <input
+            style={{ ...inputStyle, marginTop: 6 }}
+            value={header.customTitle}
+            placeholder="예: 몬몬 8월 스케줄"
+            onChange={(e) => patchHeader({ customTitle: e.target.value })}
+          />
+        )}
 
-      <label style={checkboxRowStyle}>
-        <input
-          type="checkbox"
-          checked={header.showYearMonth}
-          onChange={(e) => patchHeader({ showYearMonth: e.target.checked })}
-        />
-        년·월 표기 ({doc.year}.{String(doc.month).padStart(2, '0')})
-      </label>
+        <label style={checkboxRowStyle}>
+          <input
+            type="checkbox"
+            checked={header.showEnglishMonth}
+            onChange={(e) => patchHeader({ showEnglishMonth: e.target.checked })}
+          />
+          오른쪽 위 영문 월 이름 표시
+        </label>
+      </section>
 
-      <label style={checkboxRowStyle}>
-        <input
-          type="checkbox"
-          checked={header.memo.enabled}
-          onChange={(e) => patchHeader({ memo: { ...header.memo, enabled: e.target.checked } })}
-        />
-        MEMO 표시
-      </label>
-      {header.memo.enabled && (
-        <textarea
-          style={{ ...inputStyle, minHeight: 64, marginTop: 6, resize: 'vertical' }}
-          value={header.memo.text}
-          placeholder="자유롭게 적어주세요"
-          onChange={(e) => patchHeader({ memo: { ...header.memo, text: e.target.value } })}
-        />
-      )}
-
-      <label style={checkboxRowStyle}>
-        <input
-          type="checkbox"
-          checked={header.todo.enabled}
-          onChange={(e) => patchHeader({ todo: { ...header.todo, enabled: e.target.checked } })}
-        />
-        To Do List 표시
-      </label>
-      {header.todo.enabled && (
-        <div style={{ marginTop: 6 }}>
-          {header.todo.items.map((item, index) => (
-            <div
+      <section style={sectionStyle}>
+        <h2 style={sectionTitleStyle}>이번 달의 목표 (GOALS)</h2>
+        <label style={{ ...checkboxRowStyle, marginTop: 0 }}>
+          <input
+            type="checkbox"
+            checked={header.goals.enabled}
+            onChange={(e) => patchHeader({ goals: { ...header.goals, enabled: e.target.checked } })}
+          />
+          표시
+        </label>
+        {header.goals.enabled &&
+          Array.from({ length: GOAL_LINE_COUNT }, (_, index) => (
+            <input
               key={index}
-              style={{ display: 'flex', gap: 6, alignItems: 'center', marginTop: 4 }}
-            >
-              <input
-                type="checkbox"
-                checked={item.checked}
-                onChange={(e) =>
-                  patchTodoItems(
-                    header.todo.items.map((it, i) =>
-                      i === index ? { ...it, checked: e.target.checked } : it,
+              style={{ ...inputStyle, marginTop: 6 }}
+              value={header.goals.lines[index] ?? ''}
+              placeholder={`목표 ${index + 1}`}
+              onChange={(e) =>
+                patchHeader({
+                  goals: {
+                    ...header.goals,
+                    lines: header.goals.lines.map((line, i) =>
+                      i === index ? e.target.value : line,
                     ),
-                  )
-                }
-              />
-              <input
-                style={inputStyle}
-                value={item.text}
-                placeholder="할 일"
-                onChange={(e) =>
-                  patchTodoItems(
-                    header.todo.items.map((it, i) =>
-                      i === index ? { ...it, text: e.target.value } : it,
-                    ),
-                  )
-                }
-              />
-              <button
-                type="button"
-                style={buttonStyle}
-                onClick={() => patchTodoItems(header.todo.items.filter((_, i) => i !== index))}
-              >
-                삭제
-              </button>
-            </div>
+                  },
+                })
+              }
+            />
           ))}
-          {header.todo.items.length < MAX_TODO_ITEMS ? (
+      </section>
+
+      <section style={sectionStyle}>
+        <h2 style={sectionTitleStyle}>주요 할 일 (TO-DO LIST)</h2>
+        <label style={{ ...checkboxRowStyle, marginTop: 0 }}>
+          <input
+            type="checkbox"
+            checked={header.todo.enabled}
+            onChange={(e) => patchHeader({ todo: { ...header.todo, enabled: e.target.checked } })}
+          />
+          표시
+        </label>
+        {header.todo.enabled && (
+          <>
+            {Array.from({ length: MAX_TODO_ITEMS }, (_, index) => (
+              <div
+                key={index}
+                style={{ display: 'flex', gap: 6, alignItems: 'center', marginTop: 6 }}
+              >
+                <input
+                  type="checkbox"
+                  checked={itemAt(index).checked}
+                  onChange={(e) => setItemAt(index, { checked: e.target.checked })}
+                />
+                <input
+                  style={inputStyle}
+                  value={itemAt(index).text}
+                  placeholder={`할 일 ${index + 1}`}
+                  onChange={(e) => setItemAt(index, { text: e.target.value })}
+                />
+              </div>
+            ))}
             <button
               type="button"
               style={{ ...buttonStyle, marginTop: 8 }}
-              onClick={() => patchTodoItems([...header.todo.items, { text: '', checked: false }])}
+              onClick={() => patchTodoItems([])}
             >
-              항목 추가
+              전부 비우기
             </button>
-          ) : (
-            <p style={{ fontSize: 12, color: '#71717a', marginTop: 8 }}>
-              상자에 보이는 최대 개수({MAX_TODO_ITEMS}개)입니다.
-            </p>
-          )}
-        </div>
-      )}
-    </section>
+          </>
+        )}
+      </section>
+
+      <section style={sectionStyle}>
+        <h2 style={sectionTitleStyle}>우선순위 (TOP PRIORITIES)</h2>
+        <label style={{ ...checkboxRowStyle, marginTop: 0 }}>
+          <input
+            type="checkbox"
+            checked={header.priorities.enabled}
+            onChange={(e) =>
+              patchHeader({ priorities: { ...header.priorities, enabled: e.target.checked } })
+            }
+          />
+          표시
+        </label>
+        {header.priorities.enabled && (
+          <textarea
+            style={{ ...inputStyle, minHeight: 72, marginTop: 6, resize: 'none' }}
+            value={header.priorities.text}
+            placeholder="가장 에너지를 쏟아야 하는 항목을 적어주세요"
+            onChange={(e) =>
+              patchHeader({ priorities: { ...header.priorities, text: e.target.value } })
+            }
+          />
+        )}
+      </section>
+    </>
   )
 }

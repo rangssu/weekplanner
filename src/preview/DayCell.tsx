@@ -55,13 +55,14 @@ export function DayCell({ cell, entry, theme }: DayCellProps) {
         style={{
           height: DATE_NUMBER_BLOCK,
           fontSize: DATE_NUMBER_SIZE,
-          fontWeight: 800,
+          fontWeight: 600,
           lineHeight: 1,
           color: dateNumberColor(cell, entry, theme),
           flexShrink: 0,
         }}
       >
-        {cell.day}
+        {/* 앞뒤 달 날짜는 숫자도 적지 않고 칸을 비워 둔다. */}
+        {cell.inMonth ? cell.day : ''}
       </div>
 
       <AutoFitText

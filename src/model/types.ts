@@ -31,14 +31,21 @@ export type TodoItem = {
   checked: boolean
 }
 
+/** 사이드바 GOALS 칸. 밑줄 위에 한 줄씩 적는다. */
+export const GOAL_LINE_COUNT = 3
+
 export type HeaderConfig = {
-  /** auto = 월 이름을 크게(MAY), custom = 자유 입력 */
+  /** auto = "8월"처럼 월 이름, custom = 자유 입력 */
   titleMode: 'auto' | 'custom'
   customTitle: string
-  /** "2026.08" 표기 여부 */
-  showYearMonth: boolean
-  memo: { enabled: boolean; text: string }
+  /** 오른쪽 위 영문 월 이름(AUGUST) 표기 여부 */
+  showEnglishMonth: boolean
+  /** 이번 달의 목표 — 길이는 항상 GOAL_LINE_COUNT */
+  goals: { enabled: boolean; lines: string[] }
+  /** 주요 할 일 */
   todo: { enabled: boolean; items: TodoItem[] }
+  /** 우선순위 — 자유 텍스트 */
+  priorities: { enabled: boolean; text: string }
 }
 
 /** 한 달치 문서. 저장 단위이자 preview/의 유일한 입력. */

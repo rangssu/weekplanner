@@ -7,8 +7,6 @@ export type Theme = {
   name: string
   /** 캔버스 전체 바탕 */
   pageBackground: string
-  /** background-image 값. 무늬가 없으면 'none' */
-  patternCss: string
   /** 격자와 캔버스 테두리 */
   borderColor: string
   /** 제목·년월 글자색 */
@@ -35,7 +33,6 @@ export const THEMES: Theme[] = [
     id: 'white',
     name: '화이트',
     pageBackground: '#ffffff',
-    patternCss: 'none',
     borderColor: '#3f3f46',
     headerText: '#18181b',
     cellBackground: '#ffffff',
@@ -52,8 +49,6 @@ export const THEMES: Theme[] = [
     id: 'pink',
     name: '핑크',
     pageBackground: '#f9c9d4',
-    patternCss:
-      'repeating-linear-gradient(45deg, rgba(255,255,255,0.28) 0 4px, transparent 4px 40px)',
     borderColor: '#5b3a42',
     headerText: '#5b3a42',
     cellBackground: '#fdf4f6',
@@ -70,7 +65,6 @@ export const THEMES: Theme[] = [
     id: 'cream',
     name: '크림',
     pageBackground: '#f5eddf',
-    patternCss: 'none',
     borderColor: '#4a4238',
     headerText: '#3d362c',
     cellBackground: '#fffdf8',
@@ -87,8 +81,6 @@ export const THEMES: Theme[] = [
     id: 'mint',
     name: '민트',
     pageBackground: '#cfeee6',
-    patternCss:
-      'repeating-linear-gradient(0deg, rgba(255,255,255,0.3) 0 3px, transparent 3px 36px)',
     borderColor: '#2f5b53',
     headerText: '#2f5b53',
     cellBackground: '#f6fffc',
@@ -105,7 +97,6 @@ export const THEMES: Theme[] = [
     id: 'dark',
     name: '다크',
     pageBackground: '#1f2130',
-    patternCss: 'none',
     borderColor: '#5a5f7d',
     headerText: '#f2f3f8',
     cellBackground: '#2b2e42',

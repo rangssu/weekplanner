@@ -74,7 +74,7 @@ export function DayEditor({ api }: DayEditorProps) {
               </label>
               <textarea
                 id={`day-${cell.date}`}
-                style={{ ...inputStyle, minHeight: 52, resize: 'vertical' }}
+                style={{ ...inputStyle, minHeight: 52, resize: 'none' }}
                 value={entry?.text ?? ''}
                 placeholder="일정을 적어주세요"
                 onChange={(e) => patch(cell.date, { text: e.target.value })}
