@@ -44,6 +44,14 @@ const hasContent = (entry: DayEntry | undefined): boolean =>
   entry !== undefined &&
   (entry.text.trim() !== '' || entry.cellFill !== null || entry.marker !== null)
 
+/** 저장할 이유가 남지 않은 항목인지. editor/controls의 isEmptyEntry와 같은 기준. */
+const isBlank = (entry: DayEntry): boolean =>
+  entry.text.trim() === '' &&
+  entry.dateColor === null &&
+  entry.cellFill === null &&
+  entry.marker === null &&
+  (entry.extra ?? '').trim() === ''
+
 /**
  * 규칙이 적용될 날짜와 그때 들어갈 내용을 계산한다.
  * 여러 규칙이 같은 요일을 다루면 **배열 앞쪽 규칙이 이긴다**. 우선순위 목록처럼
@@ -97,6 +105,64 @@ export function countRuleTargets(
   mode: ApplyMode,
 ): number {
   return plan(doc, rules, mode).size
+}
+
+/**
+ * 지울 대상이 되는 날짜와, 지운 뒤의 내용을 계산한다.
+ *
+ * 적용(plan)과 달리 **요일을 보지 않는다.** 규칙 요일을 나중에 바꾸면 예전에
+ * 뿌려둔 칸이 판정에서 빠져 영영 안 지워지기 때문이다. 텍스트만 보면
+ * "규칙이 넣은 내용은 어디 있든 지운다"가 되어 예측이 단순하다.
+ *
+ * 부분 일치는 보지 않는다. 손으로 한 글자라도 고친 칸은 사용자가 의도해서
+ * 손댄 칸이므로 남긴다.
+ */
+function planClear(doc: ScheduleDoc, allRules: RecurringRule[]): Map<string, DayEntry> {
+  const texts = new Set(
+    allRules.map((r) => r.text.trim()).filter((t) => t !== ''),
+  )
+  const result = new Map<string, DayEntry>()
+  if (texts.size === 0) return result
+
+  for (const cell of buildMonthGrid(doc.year, doc.month)) {
+    if (!cell.inMonth) continue
+
+    const entry = doc.days[cell.date]
+    if (entry === undefined) continue
+    if (!texts.has(entry.text.trim())) continue
+
+    result.set(cell.date, {
+      // 규칙이 넣었던 것만 되돌린다. 날짜 색과 추가 문구는 규칙이 애초에
+      // 건드리지 않으므로 그대로 둔다.
+      text: '',
+      dateColor: entry.dateColor,
+      cellFill: null,
+      marker: null,
+      extra: entry.extra,
+    })
+  }
+  return result
+}
+
+/**
+ * 규칙이 넣은 내용과 일치하는 칸을 비운 새 문서를 만든다.
+ * 비운 결과가 완전히 빈 항목이면 키 자체를 지운다.
+ */
+export function clearRecurringRules(doc: ScheduleDoc, rules: RecurringRule[]): ScheduleDoc {
+  const cleared = planClear(doc, rules)
+  if (cleared.size === 0) return doc
+
+  const days = { ...doc.days }
+  for (const [date, entry] of cleared) {
+    if (isBlank(entry)) delete days[date]
+    else days[date] = entry
+  }
+  return { ...doc, days }
+}
+
+/** 지우면 몇 칸이 바뀌는지. 버튼에 미리 보여주기 위한 것. */
+export function countClearTargets(doc: ScheduleDoc, rules: RecurringRule[]): number {
+  return planClear(doc, rules).size
 }
 
 const RULES_KEY = 'weekplanner:rules'
