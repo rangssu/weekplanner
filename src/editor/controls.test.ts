@@ -39,7 +39,13 @@ describe('updateDay', () => {
   })
 
   it('추가 문구를 지우면 다른 게 없을 때 항목이 사라진다', () => {
-    let doc = updateDay(createEmptyDoc(2026, 8), '2026-08-03', { extra: '12h' })
+    // extra만으로 항목이 시작하면, 텍스트가 처음부터 없어 isBlankDayEntry에
+    // extra 조건이 없어도 우연히 통과해버린다(text가 이미 비어 있으니까).
+    // 그래서 text가 있는 항목에서 text를 먼저 비워 extra 하나로만 버티게
+    // 만든 다음에 지워야, extra 조건이 실제로 지우는 걸 막고 있었는지 검증된다.
+    let doc = updateDay(createEmptyDoc(2026, 8), '2026-08-03', { text: '방송', extra: '12h' })
+    doc = updateDay(doc, '2026-08-03', { text: '' })
+    expect(doc.days['2026-08-03']?.extra).toBe('12h')
     doc = updateDay(doc, '2026-08-03', { extra: '' })
     expect(doc.days['2026-08-03']).toBeUndefined()
   })
@@ -55,7 +61,13 @@ describe('updateDay', () => {
   })
 
   it('아이콘을 지우면 다른 게 없을 때 항목이 사라진다', () => {
-    let doc = updateDay(createEmptyDoc(2026, 8), '2026-08-03', { icon: 'star' })
+    // icon만으로 항목이 시작하면, text가 처음부터 비어 있어 isBlankDayEntry에
+    // icon 조건이 없어도 우연히 통과해버린다(text가 이미 비어 있으니까).
+    // 그래서 text가 있는 항목에서 text를 먼저 비워 icon 하나로만 버티게
+    // 만든 다음에 지워야, icon 조건이 실제로 지우는 걸 막고 있었는지 검증된다.
+    let doc = updateDay(createEmptyDoc(2026, 8), '2026-08-03', { text: '방송', icon: 'star' })
+    doc = updateDay(doc, '2026-08-03', { text: '' })
+    expect(doc.days['2026-08-03']?.icon).toBe('star')
     doc = updateDay(doc, '2026-08-03', { icon: undefined })
     expect(doc.days['2026-08-03']).toBeUndefined()
   })

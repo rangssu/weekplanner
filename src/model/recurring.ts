@@ -42,10 +42,10 @@ function usableRules(rules: RecurringRule[]): RecurringRule[] {
 }
 
 /**
- * dateColor와 extra는 일부러 보지 않는다. isBlankDayEntry(다섯 필드 전부)와
- * 기준이 다른 게 의도다. "빈 칸만 채우기"는 "여기 일정 텍스트가 없다"는
- * 뜻이어야 하므로, 날짜 색만 있거나 추가 문구("12h")만 있는 칸도 채울 수
- * 있는 빈 칸으로 본다.
+ * dateColor, extra, icon은 일부러 보지 않는다. DayEntry의 모든 필드를 보는
+ * isBlankDayEntry와 기준이 다른 게 의도다. "빈 칸만 채우기"는 "여기 일정
+ * 텍스트가 없다"는 뜻이어야 하므로, 날짜 색만 있거나 추가 문구("12h")만
+ * 있거나 아이콘만 있는 칸도 채울 수 있는 빈 칸으로 본다.
  */
 const hasContent = (entry: DayEntry | undefined): boolean =>
   entry !== undefined &&
