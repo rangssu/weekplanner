@@ -65,6 +65,9 @@ function plan(doc: ScheduleDoc, allRules: RecurringRule[], mode: ApplyMode): Map
       // 날짜 숫자 색은 규칙이 건드리지 않는다. 공휴일 표시처럼 날짜 자체의
       // 성격을 나타내는 것이라 반복 일정과 성격이 다르다.
       dateColor: doc.days[cell.date]?.dateColor ?? null,
+      // 추가 문구도 마찬가지다. 규칙은 요일에 묶인 것을 다루고, 추가 문구는
+      // 날짜마다 다른 값이라 규칙이 덮으면 안 된다.
+      extra: doc.days[cell.date]?.extra,
       text: rule.text,
       cellFill: rule.cellFill,
       marker: rule.marker,

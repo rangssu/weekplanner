@@ -122,6 +122,20 @@ describe('applyRecurringRules', () => {
     expect(d.days).toEqual({})
   })
 
+  it('추가 문구는 어느 모드에서도 보존된다', () => {
+    // 규칙으로 제목을 다시 뿌려도 날짜별로 적어둔 방송 길이는 살아남아야 한다.
+    // 이게 안 되면 추가 문구를 적을 이유가 없다.
+    for (const mode of ['fill-empty', 'overwrite'] as const) {
+      const d = doc()
+      d.days['2026-08-04'] = {
+        text: '', dateColor: null, cellFill: null, marker: null, extra: '12h',
+      }
+      const out = applyRecurringRules(d, [rule()], mode)
+      expect(out.days['2026-08-04'].extra).toBe('12h')
+      expect(out.days['2026-08-04'].text).toBe('발로란트 랭크\n21:00')
+    }
+  })
+
   it('달이 바뀌면 그 달의 요일에 맞춰 채운다', () => {
     // 같은 규칙을 9월에 적용하면 9월의 화요일에 들어간다. 이것이 이 기능의 핵심이다.
     const out = applyRecurringRules(createEmptyDoc(2026, 9), [rule()], 'fill-empty')
