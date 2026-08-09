@@ -24,7 +24,6 @@ export function createEmptyDoc(year: number, month: number): ScheduleDoc {
       todo: { enabled: false, items: [] },
     },
     days: {},
-    footer: { enabled: false, text: '' },
     themeId: DEFAULT_THEME_ID,
     fontId: DEFAULT_FONT_ID,
     backgroundAssetId: null,

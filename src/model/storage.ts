@@ -43,6 +43,9 @@ const isObject = (v: unknown): v is Record<string, unknown> =>
 /**
  * 저장된 데이터를 현재 문서 형태로 맞춘다.
  * 되살릴 수 없으면 null을 준다. 호출부는 null을 "새 문서로 시작"으로 처리한다.
+ *
+ * 알려진 필드만 골라 새 문서를 만든다. `...raw`로 통째로 퍼뜨리면 예전 버전이
+ * 남긴 필드가 그대로 딸려 들어와, 없앤 기능의 흔적이 계속 저장된다.
  */
 export function migrateDoc(raw: unknown): ScheduleDoc | null {
   if (!isObject(raw)) return null
@@ -52,10 +55,15 @@ export function migrateDoc(raw: unknown): ScheduleDoc | null {
 
   const base = createEmptyDoc(raw.year, raw.month)
   return {
-    ...base,
-    ...(raw as unknown as ScheduleDoc),
+    version: DOC_VERSION,
+    year: raw.year,
+    month: raw.month,
     header: { ...base.header, ...(raw.header as ScheduleDoc['header']) },
-    footer: isObject(raw.footer) ? (raw.footer as ScheduleDoc['footer']) : base.footer,
+    days: raw.days as ScheduleDoc['days'],
+    themeId: typeof raw.themeId === 'string' ? raw.themeId : base.themeId,
+    fontId: typeof raw.fontId === 'string' ? raw.fontId : base.fontId,
+    backgroundAssetId:
+      typeof raw.backgroundAssetId === 'string' ? raw.backgroundAssetId : null,
     stickers: Array.isArray(raw.stickers) ? (raw.stickers as ScheduleDoc['stickers']) : [],
   }
 }

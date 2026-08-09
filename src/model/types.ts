@@ -50,7 +50,6 @@ export type ScheduleDoc = {
   header: HeaderConfig
   /** 키는 "2026-08-03" 형식. 해당 월의 날짜만 담는다. */
   days: Record<string, DayEntry>
-  footer: { enabled: boolean; text: string }
   themeId: string
   fontId: string
   /** IndexedDB 에셋 참조. null이면 테마 기본 배경. */

@@ -26,11 +26,11 @@ describe('useScheduleDoc', () => {
 
   it('저장된 문서가 있으면 불러온다', () => {
     const saved = createEmptyDoc(2026, 8)
-    saved.footer = { enabled: true, text: '저장됨' }
+    saved.header.customTitle = '저장됨'
     saveDoc(saved)
 
     const { result } = renderHook(() => useScheduleDoc(2026, 8))
-    expect(result.current.doc.footer.text).toBe('저장됨')
+    expect(result.current.doc.header.customTitle).toBe('저장됨')
   })
 
   it('변경하면 잠시 뒤 자동 저장된다', () => {
@@ -38,36 +38,36 @@ describe('useScheduleDoc', () => {
 
     act(() => {
       result.current.setDoc((prev) => ({
-        ...prev, footer: { enabled: true, text: '자동저장' },
+        ...prev, header: { ...prev.header, customTitle: '자동저장' },
       }))
     })
     expect(loadDoc(2026, 8)).toBeNull()
 
     flushAutosave()
-    expect(loadDoc(2026, 8)?.footer.text).toBe('자동저장')
+    expect(loadDoc(2026, 8)?.header.customTitle).toBe('자동저장')
   })
 
   it('월을 바꾸면 현재 작업을 즉시 저장하고 대상 월을 불러온다', () => {
     const { result } = renderHook(() => useScheduleDoc(2026, 8))
 
     act(() => {
-      result.current.setDoc((prev) => ({ ...prev, footer: { enabled: true, text: '8월분' } }))
+      result.current.setDoc((prev) => ({ ...prev, header: { ...prev.header, customTitle: '8월분' } }))
     })
     act(() => result.current.goToMonth(2026, 9))
 
-    expect(loadDoc(2026, 8)?.footer.text).toBe('8월분')
+    expect(loadDoc(2026, 8)?.header.customTitle).toBe('8월분')
     expect(result.current.doc.month).toBe(9)
-    expect(result.current.doc.footer.text).toBe('')
+    expect(result.current.doc.header.customTitle).toBe('')
   })
 
   it('돌아오면 아까 내용이 남아 있다', () => {
     const { result } = renderHook(() => useScheduleDoc(2026, 8))
     act(() => {
-      result.current.setDoc((prev) => ({ ...prev, footer: { enabled: true, text: '8월분' } }))
+      result.current.setDoc((prev) => ({ ...prev, header: { ...prev.header, customTitle: '8월분' } }))
     })
     act(() => result.current.goToMonth(2026, 9))
     act(() => result.current.goToMonth(2026, 8))
-    expect(result.current.doc.footer.text).toBe('8월분')
+    expect(result.current.doc.header.customTitle).toBe('8월분')
   })
 
   it('지난달 복사는 이전 달 문서를 현재 달로 가져온다', () => {
@@ -105,7 +105,7 @@ describe('useScheduleDoc', () => {
 
     const { result } = renderHook(() => useScheduleDoc(2026, 8))
     act(() => {
-      result.current.setDoc((prev) => ({ ...prev, footer: { enabled: true, text: 'x' } }))
+      result.current.setDoc((prev) => ({ ...prev, header: { ...prev.header, customTitle: 'x' } }))
     })
     flushAutosave()
 

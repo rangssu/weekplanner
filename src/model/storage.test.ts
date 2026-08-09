@@ -25,12 +25,12 @@ describe('saveDoc / loadDoc', () => {
 
   it('같은 달을 다시 저장하면 덮어쓴다', () => {
     const a = createEmptyDoc(2026, 8)
-    a.footer = { enabled: true, text: '첫 번째' }
+    a.header.customTitle = '첫 번째'
     saveDoc(a)
     const b = createEmptyDoc(2026, 8)
-    b.footer = { enabled: true, text: '두 번째' }
+    b.header.customTitle = '두 번째'
     saveDoc(b)
-    expect(loadDoc(2026, 8)?.footer.text).toBe('두 번째')
+    expect(loadDoc(2026, 8)?.header.customTitle).toBe('두 번째')
   })
 
   it('용량 초과를 quota로 보고한다', () => {
@@ -82,9 +82,9 @@ describe('migrateDoc', () => {
   it('빠진 선택 필드를 기본값으로 채운다', () => {
     const partial = createEmptyDoc(2026, 8) as unknown as Record<string, unknown>
     delete partial.stickers
-    delete partial.footer
+    delete partial.backgroundAssetId
     const out = migrateDoc(partial)
     expect(out?.stickers).toEqual([])
-    expect(out?.footer).toEqual({ enabled: false, text: '' })
+    expect(out?.backgroundAssetId).toBeNull()
   })
 })

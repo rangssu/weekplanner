@@ -59,11 +59,11 @@ describe('copyMonthDays', () => {
     expect(out.month).toBe(8)
   })
 
-  it('헤더·테마·폰트·하단 문구·스티커를 그대로 가져온다', () => {
+  it('헤더·테마·폰트·배경·스티커를 그대로 가져온다', () => {
     const src = createEmptyDoc(2026, 7)
     src.header.titleMode = 'custom'
     src.header.customTitle = '몬몬 스케줄'
-    src.footer = { enabled: true, text: '공지' }
+    src.header.showYearMonth = false
     src.themeId = 'mint'
     src.fontId = 'user-1'
     src.backgroundAssetId = 'bg-1'
@@ -72,7 +72,7 @@ describe('copyMonthDays', () => {
     const out = copyMonthDays(src, 2026, 8)
 
     expect(out.header.customTitle).toBe('몬몬 스케줄')
-    expect(out.footer).toEqual({ enabled: true, text: '공지' })
+    expect(out.header.showYearMonth).toBe(false)
     expect(out.themeId).toBe('mint')
     expect(out.fontId).toBe('user-1')
     expect(out.backgroundAssetId).toBe('bg-1')
