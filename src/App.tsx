@@ -1,7 +1,9 @@
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { EditorPanel } from './editor/EditorPanel'
 import { PreviewStage } from './editor/PreviewStage'
+import { StickerDragLayer } from './editor/StickerDragLayer'
 import { ScheduleCanvas } from './preview/ScheduleCanvas'
+import { useAssetUrl } from './state/useAssetUrl'
 import { useScheduleDoc } from './state/useScheduleDoc'
 import { fontFamilyFor, type FontOption, loadUserFonts } from './theme/fonts'
 
@@ -17,6 +19,10 @@ export default function App() {
   }, [])
 
   const fontFamily = fontFamilyFor(api.doc.fontId, userFonts)
+  const backgroundUrl = useAssetUrl(api.doc.backgroundAssetId)
+
+  const [previewScale, setPreviewScale] = useState(0)
+  const handleScaleChange = useCallback((next: number) => setPreviewScale(next), [])
 
   return (
     <div style={{ padding: 16, maxWidth: 2000, margin: '0 auto' }}>
@@ -39,9 +45,17 @@ export default function App() {
         }}
       >
         <div style={{ position: 'sticky', top: 16 }}>
-          <PreviewStage verticalChrome={90}>
-            <ScheduleCanvas ref={canvasRef} doc={api.doc} fontFamily={fontFamily} />
+          <div style={{ position: 'relative' }}>
+          <PreviewStage verticalChrome={90} onScaleChange={handleScaleChange}>
+            <ScheduleCanvas
+              ref={canvasRef}
+              doc={api.doc}
+              fontFamily={fontFamily}
+              backgroundUrl={backgroundUrl}
+            />
           </PreviewStage>
+          <StickerDragLayer api={api} scale={previewScale} />
+          </div>
         </div>
         <div style={{ maxHeight: 'calc(100vh - 90px)', overflowY: 'auto' }}>
           <EditorPanel api={api} userFonts={userFonts} onUserFontsChange={setUserFonts} />

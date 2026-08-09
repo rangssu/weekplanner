@@ -8,6 +8,11 @@ export type PreviewStageProps = {
    * 제목줄·패딩처럼 미리보기가 쓸 수 없는 세로 공간을 뜻한다.
    */
   verticalChrome?: number
+  /**
+   * 축소 배율이 바뀔 때 알린다. 스티커 드래그 좌표를 캔버스 좌표로
+   * 환산하는 데 필요하다. 매 렌더마다 재구독하지 않도록 useCallback으로 감싸 넘긴다.
+   */
+  onScaleChange?: (scale: number) => void
 }
 
 /**
@@ -22,7 +27,11 @@ export type PreviewStageProps = {
  * 높이는 CSS `aspect-ratio`가 폭으로부터 유도하게 두고, 상태로는 레이아웃에
  * 영향을 주지 않는 `transform`만 바꾼다.
  */
-export function PreviewStage({ children, verticalChrome = 140 }: PreviewStageProps) {
+export function PreviewStage({
+  children,
+  verticalChrome = 140,
+  onScaleChange,
+}: PreviewStageProps) {
   const hostRef = useRef<HTMLDivElement>(null)
   const [scale, setScale] = useState(0)
 
@@ -35,13 +44,14 @@ export function PreviewStage({ children, verticalChrome = 140 }: PreviewStagePro
       // 같은 값으로 setState하면 React가 렌더를 건너뛰지만,
       // 관찰 콜백이 매번 도는 것 자체를 줄이기 위해 명시적으로 거른다.
       setScale((prev) => (Math.abs(prev - next) < 0.0001 ? prev : next))
+      onScaleChange?.(next)
     }
     update()
 
     const observer = new ResizeObserver(update)
     observer.observe(host)
     return () => observer.disconnect()
-  }, [])
+  }, [onScaleChange])
 
   return (
     <div

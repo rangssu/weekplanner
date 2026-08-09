@@ -1,9 +1,11 @@
 import type { ScheduleDocApi } from '../state/useScheduleDoc'
 import type { FontOption } from '../theme/fonts'
+import { BackgroundPicker } from './BackgroundPicker'
 import { DayEditor } from './DayEditor'
 import { FontPicker } from './FontPicker'
 import { HeaderEditor } from './HeaderEditor'
 import { MonthPicker } from './MonthPicker'
+import { StickerManager } from './StickerManager'
 import { ThemePicker } from './ThemePicker'
 
 export type EditorPanelProps = {
@@ -17,6 +19,8 @@ export function EditorPanel({ api, userFonts, onUserFontsChange }: EditorPanelPr
     <div>
       <MonthPicker api={api} />
       <ThemePicker api={api} />
+      <BackgroundPicker api={api} />
+      <StickerManager api={api} />
       <FontPicker api={api} userFonts={userFonts} onUserFontsChange={onUserFontsChange} />
       <HeaderEditor api={api} />
       <DayEditor api={api} />
