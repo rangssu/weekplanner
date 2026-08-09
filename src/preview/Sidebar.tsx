@@ -13,8 +13,13 @@ const MEMO_HINT = '자유롭게 적어두는 칸입니다. 공지나 안내를 �
 /** 상자에 온전히 보이는 할 일 개수 */
 export const MAX_TODO_ITEMS = 5
 
-/** 제목이 비면 기본값으로 되돌린다. 박스 제목이 없으면 상자를 식별할 수 없다. */
-const boxLabel = (value: string, fallback: string): string =>
+/**
+ * 제목이 비면 기본값으로 되돌린다. 박스 제목이 없으면 상자를 식별할 수 없다.
+ *
+ * 배지에는 절대 쓰지 않는다 — 배지는 비우면 사라지는 게 요구사항이라 폴백이
+ * 있으면 안 된다. export하는 이유도 이 비대칭을 테스트로 못박기 위함이다.
+ */
+export const boxLabel = (value: string, fallback: string): string =>
   value.trim() === '' ? fallback : value
 
 function Hint({ text, theme }: { text: string; theme: Theme }) {
