@@ -1,5 +1,5 @@
 import type { Theme } from '../theme/themes'
-import { BORDER_WIDTH } from './layout'
+import { BORDER_WIDTH, MEMO_LABEL_SIZE, MEMO_TEXT_SIZE } from './layout'
 
 export type MemoBoxProps = {
   text: string
@@ -14,7 +14,9 @@ const MEMO_LINE_GAP = MEMO_BODY_HEIGHT / MEMO_LINE_COUNT
 export function MemoBox({ text, theme }: MemoBoxProps) {
   return (
     <div style={{ width: MEMO_WIDTH, display: 'flex', flexDirection: 'column', gap: 10 }}>
-      <div style={{ fontSize: 38, fontWeight: 800, color: theme.headerText }}>MEMO</div>
+      <div style={{ fontSize: MEMO_LABEL_SIZE, fontWeight: 800, color: theme.headerText }}>
+        MEMO
+      </div>
       <div style={{ position: 'relative', height: MEMO_BODY_HEIGHT }}>
         {Array.from({ length: MEMO_LINE_COUNT }, (_, i) => (
           <div
@@ -31,7 +33,7 @@ export function MemoBox({ text, theme }: MemoBoxProps) {
         ))}
         <div
           style={{
-            fontSize: 30,
+            fontSize: MEMO_TEXT_SIZE,
             lineHeight: `${MEMO_LINE_GAP}px`,
             color: theme.bodyText,
             whiteSpace: 'pre-wrap',

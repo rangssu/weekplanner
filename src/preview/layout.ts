@@ -40,13 +40,27 @@ export const CELL_WIDTH = GRID_INNER_WIDTH / GRID_COLUMNS // 541.43…
 export const CELL_HEIGHT = (GRID_INNER_HEIGHT - DOW_ROW_HEIGHT) / GRID_ROWS // 238.33…
 
 export const CELL_PADDING = 14
-export const DATE_NUMBER_SIZE = 34
-export const DATE_NUMBER_BLOCK = 46
+export const DATE_NUMBER_SIZE = 44
+export const DATE_NUMBER_BLOCK = 56
 
 /** 일정 텍스트가 쓸 수 있는 영역 */
 export const CELL_TEXT_WIDTH = CELL_WIDTH - CELL_PADDING * 2
 export const CELL_TEXT_HEIGHT = CELL_HEIGHT - CELL_PADDING * 2 - DATE_NUMBER_BLOCK
 
-export const CELL_TEXT_BASE_SIZE = 44
-export const CELL_TEXT_MIN_SIZE = 22
+/**
+ * 글자 크기는 **결과 이미지가 축소돼 보이는 상황**을 기준으로 잡는다.
+ *
+ * 4000px 이미지를 X 타임라인에 올리면 1200px 안팎으로 줄어 보인다.
+ * 배율이 0.3이므로 캔버스의 56px는 화면에서 약 17px이 된다.
+ * 44px로 두면 13px이 되어 폰에서 읽기 어렵다.
+ */
+export const CELL_TEXT_BASE_SIZE = 56
+export const CELL_TEXT_MIN_SIZE = 28
 export const CELL_TEXT_LINE_HEIGHT = 1.25
+
+export const DOW_LABEL_SIZE = 48
+export const FOOTER_TEXT_SIZE = 36
+export const MEMO_LABEL_SIZE = 42
+export const MEMO_TEXT_SIZE = 34
+export const TODO_LABEL_SIZE = 42
+export const TODO_TEXT_SIZE = 32

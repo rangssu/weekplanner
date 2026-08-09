@@ -3,6 +3,11 @@ import { CANVAS_HEIGHT, CANVAS_WIDTH } from '../preview/layout'
 
 export type PreviewStageProps = {
   children: ReactNode
+  /**
+   * 미리보기 위아래로 화면에서 빼둘 여백(px).
+   * 제목줄·패딩처럼 미리보기가 쓸 수 없는 세로 공간을 뜻한다.
+   */
+  verticalChrome?: number
 }
 
 /**
@@ -17,7 +22,7 @@ export type PreviewStageProps = {
  * 높이는 CSS `aspect-ratio`가 폭으로부터 유도하게 두고, 상태로는 레이아웃에
  * 영향을 주지 않는 `transform`만 바꾼다.
  */
-export function PreviewStage({ children }: PreviewStageProps) {
+export function PreviewStage({ children, verticalChrome = 140 }: PreviewStageProps) {
   const hostRef = useRef<HTMLDivElement>(null)
   const [scale, setScale] = useState(0)
 
@@ -43,6 +48,9 @@ export function PreviewStage({ children }: PreviewStageProps) {
       ref={hostRef}
       style={{
         width: '100%',
+        // 폭과 높이 중 더 빡빡한 쪽에 맞춘다. 폭에만 맞추면 세로로 긴 캔버스가
+        // 화면 아래로 잘려 나간다. editor/에서는 vh를 써도 된다.
+        maxWidth: `calc((100vh - ${verticalChrome}px) * ${CANVAS_WIDTH} / ${CANVAS_HEIGHT})`,
         aspectRatio: `${CANVAS_WIDTH} / ${CANVAS_HEIGHT}`,
         overflow: 'hidden',
       }}

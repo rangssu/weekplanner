@@ -2,7 +2,9 @@ import { buildMonthGrid, GRID_COLUMNS } from '../model/calendar'
 import type { ScheduleDoc } from '../model/types'
 import type { Theme } from '../theme/themes'
 import { DayCell } from './DayCell'
-import { BORDER_WIDTH, DOW_ROW_HEIGHT, GRID_AREA_HEIGHT, GRID_AREA_WIDTH } from './layout'
+import {
+  BORDER_WIDTH, DOW_LABEL_SIZE, DOW_ROW_HEIGHT, GRID_AREA_HEIGHT, GRID_AREA_WIDTH,
+} from './layout'
 
 export const DOW_LABELS = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'] as const
 
@@ -36,7 +38,7 @@ export function CalendarGrid({ doc, theme }: CalendarGridProps) {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              fontSize: 40,
+              fontSize: DOW_LABEL_SIZE,
               fontWeight: 800,
               letterSpacing: 2,
               background: theme.dowHeaderBackground,

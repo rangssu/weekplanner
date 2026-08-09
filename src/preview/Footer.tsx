@@ -1,5 +1,5 @@
 import type { Theme } from '../theme/themes'
-import { FOOTER_HEIGHT } from './layout'
+import { FOOTER_HEIGHT, FOOTER_TEXT_SIZE } from './layout'
 
 export type FooterProps = {
   text: string
@@ -14,7 +14,7 @@ export function Footer({ text, theme }: FooterProps) {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        fontSize: 30,
+        fontSize: FOOTER_TEXT_SIZE,
         color: theme.bodyText,
         whiteSpace: 'nowrap',
         overflow: 'hidden',
