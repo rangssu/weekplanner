@@ -56,8 +56,6 @@ function mergeHeader(base: HeaderConfig, raw: unknown): HeaderConfig {
   return {
     titleMode: raw.titleMode === 'custom' ? 'custom' : 'auto',
     customTitle: typeof raw.customTitle === 'string' ? raw.customTitle : base.customTitle,
-    showEnglishMonth:
-      typeof raw.showEnglishMonth === 'boolean' ? raw.showEnglishMonth : base.showEnglishMonth,
     goals: {
       enabled: typeof goals?.enabled === 'boolean' ? goals.enabled : base.goals.enabled,
       // 줄 수가 바뀌어도 항상 GOAL_LINE_COUNT에 맞춘다.

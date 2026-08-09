@@ -63,7 +63,7 @@ describe('copyMonthDays', () => {
     const src = createEmptyDoc(2026, 7)
     src.header.titleMode = 'custom'
     src.header.customTitle = '몬몬 스케줄'
-    src.header.showEnglishMonth = false
+    src.header.goals.enabled = false
     src.themeId = 'mint'
     src.fontId = 'user-1'
     src.backgroundAssetId = 'bg-1'
@@ -72,7 +72,7 @@ describe('copyMonthDays', () => {
     const out = copyMonthDays(src, 2026, 8)
 
     expect(out.header.customTitle).toBe('몬몬 스케줄')
-    expect(out.header.showEnglishMonth).toBe(false)
+    expect(out.header.goals.enabled).toBe(false)
     expect(out.themeId).toBe('mint')
     expect(out.fontId).toBe('user-1')
     expect(out.backgroundAssetId).toBe('bg-1')

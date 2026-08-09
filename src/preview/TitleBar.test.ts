@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { createEmptyDoc } from '../model/defaults'
 import type { HeaderConfig } from '../model/types'
-import { TITLE_EN_SIZE, TITLE_KO_SIZE, TITLE_ROW_HEIGHT } from './layout'
+import { TITLE_KO_SIZE, TITLE_ROW_HEIGHT } from './layout'
 import { titleKoSize, titleText } from './TitleBar'
 
 const header = (patch: Partial<HeaderConfig> = {}): HeaderConfig => ({
@@ -48,13 +48,12 @@ describe('titleKoSize', () => {
     expect(mid).toBeGreaterThan(long)
   })
 
-  it('아무리 길어도 영문 월 이름보다는 크다', () => {
-    // 작아지면 위계가 뒤집혀 오른쪽 AUGUST가 주인공처럼 보인다.
-    expect(titleKoSize('가'.repeat(200))).toBeGreaterThan(TITLE_EN_SIZE)
+  it('아무리 길어도 최소 크기 아래로는 내려가지 않는다', () => {
+    // 더 줄이면 사이드바 본문 글자(54)와 비슷해져 제목의 위계가 무너진다.
+    expect(titleKoSize('가'.repeat(200))).toBe(80)
   })
 
   it('가장 큰 제목도 제목 줄 높이 안에 들어간다', () => {
     expect(TITLE_KO_SIZE).toBeLessThanOrEqual(TITLE_ROW_HEIGHT)
-    expect(TITLE_EN_SIZE).toBeLessThanOrEqual(TITLE_ROW_HEIGHT)
   })
 })

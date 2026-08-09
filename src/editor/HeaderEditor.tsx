@@ -55,15 +55,6 @@ export function HeaderEditor({ api }: HeaderEditorProps) {
             onChange={(e) => patchHeader({ customTitle: e.target.value })}
           />
         )}
-
-        <label style={checkboxRowStyle}>
-          <input
-            type="checkbox"
-            checked={header.showEnglishMonth}
-            onChange={(e) => patchHeader({ showEnglishMonth: e.target.checked })}
-          />
-          오른쪽 위 영문 월 이름 표시
-        </label>
       </section>
 
       <section style={sectionStyle}>

@@ -1,7 +1,6 @@
-import { MONTH_NAMES_EN } from '../model/calendar'
 import type { HeaderConfig } from '../model/types'
 import type { Theme } from '../theme/themes'
-import { TITLE_EN_SIZE, TITLE_KO_SIZE_STEPS, TITLE_ROW_HEIGHT } from './layout'
+import { TITLE_KO_SIZE_STEPS, TITLE_ROW_HEIGHT } from './layout'
 
 /** 제목 길이에 따른 글자 크기. 단계가 완만해야 남는 여백이 튀지 않는다. */
 export function titleKoSize(title: string): number {
@@ -40,8 +39,6 @@ export function TitleBar({ header, month, theme }: TitleBarProps) {
         // 세로 중앙 정렬. 아래쪽 정렬로 두면 제목이 작아질 때 남는 공간이
         // 전부 위로 몰려 위쪽 여백만 도드라진다.
         alignItems: 'center',
-        justifyContent: 'space-between',
-        gap: 60,
         overflow: 'hidden',
       }}
     >
@@ -58,22 +55,6 @@ export function TitleBar({ header, month, theme }: TitleBarProps) {
       >
         {title}
       </div>
-
-      {header.showEnglishMonth && (
-        <div
-          style={{
-            fontSize: TITLE_EN_SIZE,
-            fontWeight: 400,
-            letterSpacing: 2,
-            lineHeight: 1,
-            color: theme.headerText,
-            whiteSpace: 'nowrap',
-            flexShrink: 0,
-          }}
-        >
-          {MONTH_NAMES_EN[month - 1]}
-        </div>
-      )}
     </div>
   )
 }

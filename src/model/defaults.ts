@@ -38,7 +38,6 @@ export function createEmptyDoc(year: number, month: number): ScheduleDoc {
     header: {
       titleMode: 'auto',
       customTitle: '',
-      showEnglishMonth: true,
       goals: { enabled: true, lines: Array.from({ length: GOAL_LINE_COUNT }, () => '') },
       todo: { enabled: true, items: [] },
       memo: { enabled: true, text: '' },

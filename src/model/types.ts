@@ -46,8 +46,6 @@ export type HeaderConfig = {
   /** auto = "8월"처럼 월 이름, custom = 자유 입력 */
   titleMode: 'auto' | 'custom'
   customTitle: string
-  /** 오른쪽 위 영문 월 이름(AUGUST) 표기 여부 */
-  showEnglishMonth: boolean
   /** 이번 달의 목표 — 길이는 항상 GOAL_LINE_COUNT */
   goals: { enabled: boolean; lines: string[] }
   /** 주요 할 일 */
