@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest'
 import {
-  BODY_HEIGHT, BORDER_WIDTH, CANVAS_CONTENT_HEIGHT, CANVAS_CONTENT_WIDTH, CANVAS_HEIGHT,
+  BORDER_WIDTH, CANVAS_CONTENT_HEIGHT, CANVAS_CONTENT_WIDTH, CANVAS_HEIGHT,
   CANVAS_WIDTH, CELL_HEIGHT, CELL_TEXT_HEIGHT, CELL_TEXT_WIDTH, CELL_WIDTH, COLUMN_GAP,
   DOW_ROW_HEIGHT, GRID_AREA_HEIGHT, GRID_AREA_WIDTH, GRID_INNER_HEIGHT, GRID_INNER_WIDTH,
-  OUTER_PADDING, SIDEBAR_WIDTH, TITLE_GAP, TITLE_ROW_HEIGHT,
+  OUTER_PADDING, SIDEBAR_HEIGHT, SIDEBAR_WIDTH, TITLE_GAP, TITLE_ROW_HEIGHT,
 } from './layout'
 
 describe('레이아웃 상수', () => {
@@ -16,8 +16,8 @@ describe('레이아웃 상수', () => {
     expect(CANVAS_WIDTH / CANVAS_HEIGHT).toBeCloseTo(16 / 9, 10)
   })
 
-  it('세로 구성 요소의 합이 캔버스 높이와 정확히 같다', () => {
-    const total = OUTER_PADDING * 2 + TITLE_ROW_HEIGHT + TITLE_GAP + BODY_HEIGHT
+  it('왼쪽 열 세로 구성 요소의 합이 캔버스 높이와 정확히 같다', () => {
+    const total = OUTER_PADDING * 2 + TITLE_ROW_HEIGHT + TITLE_GAP + SIDEBAR_HEIGHT
     expect(total).toBe(CANVAS_HEIGHT)
   })
 
@@ -36,8 +36,18 @@ describe('레이아웃 상수', () => {
     expect(GRID_INNER_HEIGHT).toBe(GRID_AREA_HEIGHT - BORDER_WIDTH * 2)
   })
 
-  it('사이드바와 격자가 같은 높이를 쓴다', () => {
-    expect(GRID_AREA_HEIGHT).toBe(BODY_HEIGHT)
+  it('달력이 캔버스 안쪽 세로를 전부 쓴다', () => {
+    // 제목이 왼쪽 열 안으로 들어갔으므로 달력은 위에서부터 끝까지 쓴다.
+    expect(GRID_AREA_HEIGHT).toBe(CANVAS_CONTENT_HEIGHT)
+  })
+
+  it('사이드바는 제목 높이만큼 달력보다 짧다', () => {
+    expect(GRID_AREA_HEIGHT - SIDEBAR_HEIGHT).toBe(TITLE_ROW_HEIGHT + TITLE_GAP)
+  })
+
+  it('칸이 세로로 커졌다', () => {
+    // 이 변경의 목적. 297에서 329로 커진다.
+    expect(CELL_HEIGHT).toBeCloseTo(329, 10)
   })
 
   it('칸 7개가 테두리 안쪽 폭을 채운다', () => {

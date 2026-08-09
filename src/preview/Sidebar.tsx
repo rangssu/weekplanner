@@ -1,8 +1,8 @@
 import { GOAL_LINE_COUNT, type HeaderConfig } from '../model/types'
 import type { Theme } from '../theme/themes'
 import {
-  BODY_HEIGHT, BORDER_WIDTH, BOX_CHECKBOX_SIZE, BOX_HINT_SIZE, BOX_TEXT_SIZE,
-  GOALS_BOX_RATIO, MEMO_BOX_RATIO, SIDEBAR_WIDTH, TODO_BOX_RATIO,
+  BORDER_WIDTH, BOX_CHECKBOX_SIZE, BOX_HINT_SIZE, BOX_TEXT_SIZE,
+  GOALS_BOX_RATIO, MEMO_BOX_RATIO, SIDEBAR_HEIGHT, SIDEBAR_WIDTH, TODO_BOX_RATIO,
 } from './layout'
 import { SidebarBox } from './SidebarBox'
 
@@ -33,7 +33,7 @@ export function Sidebar({ header, theme }: SidebarProps) {
   const ratios = [GOALS_BOX_RATIO, TODO_BOX_RATIO, MEMO_BOX_RATIO]
   const shownRatioSum = ratios.reduce((sum, r, i) => sum + (enabled[i] ? r : 0), 0)
   const heightOf = (index: number) =>
-    shownRatioSum === 0 ? 0 : Math.floor((BODY_HEIGHT * ratios[index]) / shownRatioSum)
+    shownRatioSum === 0 ? 0 : Math.floor((SIDEBAR_HEIGHT * ratios[index]) / shownRatioSum)
 
   if (shownCount === 0) return <div style={{ width: SIDEBAR_WIDTH, flexShrink: 0 }} />
 
@@ -44,7 +44,7 @@ export function Sidebar({ header, theme }: SidebarProps) {
     <div
       style={{
         width: SIDEBAR_WIDTH,
-        height: BODY_HEIGHT,
+        height: SIDEBAR_HEIGHT,
         flexShrink: 0,
         display: 'flex',
         flexDirection: 'column',

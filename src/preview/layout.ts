@@ -26,14 +26,21 @@ export const TITLE_ROW_HEIGHT = 160
 /** 제목 줄과 본문 사이 */
 export const TITLE_GAP = 32
 
-/** 본문(사이드바 + 격자)이 쓰는 세로 공간 */
-export const BODY_HEIGHT = CANVAS_CONTENT_HEIGHT - TITLE_ROW_HEIGHT - TITLE_GAP
+/**
+ * 사이드바가 쓰는 세로 공간. 제목이 왼쪽 열 위에 얹히므로 그만큼 짧다.
+ *
+ * 예전에는 이 값이 사이드바와 달력 모두의 높이였다(BODY_HEIGHT). 제목이
+ * 왼쪽 열로 들어가면서 두 값이 갈라졌고, 이름이 값을 설명하지 못하게 되어
+ * 둘로 나눴다.
+ */
+export const SIDEBAR_HEIGHT = CANVAS_CONTENT_HEIGHT - TITLE_ROW_HEIGHT - TITLE_GAP
 
 /** 왼쪽 사이드바와 오른쪽 격자 */
 export const SIDEBAR_WIDTH = 900
 export const COLUMN_GAP = 40
 export const GRID_AREA_WIDTH = CANVAS_CONTENT_WIDTH - SIDEBAR_WIDTH - COLUMN_GAP
-export const GRID_AREA_HEIGHT = BODY_HEIGHT
+/** 달력은 제목에 가리지 않으므로 캔버스 안쪽 세로를 전부 쓴다. */
+export const GRID_AREA_HEIGHT = CANVAS_CONTENT_HEIGHT
 
 /** 테두리 안쪽. 요일 행과 날짜 칸이 실제로 나눠 쓰는 공간. */
 export const GRID_INNER_WIDTH = GRID_AREA_WIDTH - BORDER_WIDTH * 2

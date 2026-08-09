@@ -1,6 +1,6 @@
 import type { HeaderConfig } from '../model/types'
 import type { Theme } from '../theme/themes'
-import { TITLE_KO_SIZE_STEPS, TITLE_ROW_HEIGHT } from './layout'
+import { SIDEBAR_WIDTH, TITLE_KO_SIZE_STEPS, TITLE_ROW_HEIGHT } from './layout'
 
 /** 제목 길이에 따른 글자 크기. 단계가 완만해야 남는 여백이 튀지 않는다. */
 export function titleKoSize(title: string): number {
@@ -33,6 +33,7 @@ export function TitleBar({ header, month, theme }: TitleBarProps) {
   return (
     <div
       style={{
+        width: SIDEBAR_WIDTH,
         height: TITLE_ROW_HEIGHT,
         flexShrink: 0,
         display: 'flex',
