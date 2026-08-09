@@ -56,6 +56,7 @@ describe('Sidebar — 제목과 배지의 비대칭', () => {
           memo: { ...header().memo, enabled: false },
         }),
         theme,
+        bgOpacity: 1,
       }),
     )
 
@@ -74,6 +75,7 @@ describe('Sidebar — 제목과 배지의 비대칭', () => {
           memo: { ...header().memo, enabled: false },
         }),
         theme,
+        bgOpacity: 1,
       }),
     )
 

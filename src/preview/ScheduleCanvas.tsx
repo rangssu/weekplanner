@@ -67,7 +67,7 @@ export const ScheduleCanvas = forwardRef<HTMLDivElement, ScheduleCanvasProps>(
           >
             <TitleBar header={doc.header} month={doc.month} theme={theme} />
             <div style={{ height: TITLE_GAP, flexShrink: 0 }} />
-            <Sidebar header={doc.header} theme={theme} />
+            <Sidebar header={doc.header} theme={theme} bgOpacity={doc.sidebarOpacity} />
           </div>
 
           <CalendarGrid doc={doc} theme={theme} />

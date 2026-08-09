@@ -1,6 +1,6 @@
 import type { GridCell } from '../model/calendar'
 import type { DayEntry } from '../model/types'
-import type { Theme } from '../theme/themes'
+import { withAlpha, type Theme } from '../theme/themes'
 import { AutoFitText } from './AutoFitText'
 import {
   BORDER_WIDTH, CELL_EXTRA_BASE_SIZE, CELL_EXTRA_MIN_SIZE, CELL_HEIGHT, CELL_PADDING, CELL_TEXT_BASE_SIZE,
@@ -31,9 +31,11 @@ export type DayCellProps = {
   cell: GridCell
   entry: DayEntry | undefined
   theme: Theme
+  /** 칸 배경 불투명도. 격자·글자는 이 값과 무관하게 항상 또렷하다. */
+  bgOpacity: number
 }
 
-export function DayCell({ cell, entry, theme }: DayCellProps) {
+export function DayCell({ cell, entry, theme, bgOpacity }: DayCellProps) {
   const text = cell.inMonth ? (entry?.text ?? '') : ''
   const extra = cell.inMonth ? (entry?.extra ?? '') : ''
   const { bodyHeight, extraHeight } = splitCellText(extra)
@@ -46,7 +48,10 @@ export function DayCell({ cell, entry, theme }: DayCellProps) {
         boxSizing: 'border-box',
         borderRight: `${BORDER_WIDTH}px solid ${theme.cellBorder}`,
         borderBottom: `${BORDER_WIDTH}px solid ${theme.cellBorder}`,
-        background: (cell.inMonth && entry?.cellFill) || theme.cellBackground,
+        background: withAlpha(
+          (cell.inMonth && entry?.cellFill) || theme.cellBackground,
+          bgOpacity,
+        ),
         padding: CELL_PADDING,
         display: 'flex',
         flexDirection: 'column',

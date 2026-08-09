@@ -74,5 +74,12 @@ export type ScheduleDoc = {
   fontId: string
   /** IndexedDB 에셋 참조. null이면 테마 기본 배경. */
   backgroundAssetId: string | null
+  /**
+   * 달력 칸 배경 불투명도. 1이면 지금과 같고, 0이면 배경 이미지가 그대로 비친다.
+   * 글자와 격자선은 이 값과 무관하게 항상 또렷하다.
+   */
+  gridOpacity: number
+  /** 사이드바 박스 배경 불투명도. */
+  sidebarOpacity: number
   stickers: Sticker[]
 }

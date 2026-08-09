@@ -118,4 +118,31 @@ describe('migrateDoc', () => {
     expect(out?.stickers).toEqual([])
     expect(out?.backgroundAssetId).toBeNull()
   })
+
+  it('투명도가 없으면 1로 채운다', () => {
+    const partial = createEmptyDoc(2026, 8) as unknown as Record<string, unknown>
+    delete partial.gridOpacity
+    delete partial.sidebarOpacity
+    const out = migrateDoc(partial)
+    expect(out?.gridOpacity).toBe(1)
+    expect(out?.sidebarOpacity).toBe(1)
+  })
+
+  it('저장된 투명도를 살린다', () => {
+    const doc = createEmptyDoc(2026, 8)
+    doc.gridOpacity = 0.4
+    doc.sidebarOpacity = 0.7
+    const out = migrateDoc(doc)
+    expect(out?.gridOpacity).toBe(0.4)
+    expect(out?.sidebarOpacity).toBe(0.7)
+  })
+
+  it('범위 밖이거나 숫자가 아닌 투명도는 1로 되돌린다', () => {
+    const broken = createEmptyDoc(2026, 8) as unknown as Record<string, unknown>
+    broken.gridOpacity = 5
+    broken.sidebarOpacity = '반투명'
+    const out = migrateDoc(broken)
+    expect(out?.gridOpacity).toBe(1)
+    expect(out?.sidebarOpacity).toBe(1)
+  })
 })

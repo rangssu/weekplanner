@@ -33,9 +33,11 @@ function Hint({ text, theme }: { text: string; theme: Theme }) {
 export type SidebarProps = {
   header: HeaderConfig
   theme: Theme
+  /** 사이드바 박스·배지 배경 불투명도. */
+  bgOpacity: number
 }
 
-export function Sidebar({ header, theme }: SidebarProps) {
+export function Sidebar({ header, theme, bgOpacity }: SidebarProps) {
   const enabled = [header.goals.enabled, header.todo.enabled, header.memo.enabled]
   const shownCount = enabled.filter(Boolean).length
   // 켜진 박스끼리 세로 공간을 나눠 갖는다. 하나만 켜면 그것이 다 쓴다.
@@ -66,6 +68,7 @@ export function Sidebar({ header, theme }: SidebarProps) {
           badge={header.goals.badge}
           height={heightOf(0)}
           theme={theme}
+          bgOpacity={bgOpacity}
         >
           {!hasGoalText && <Hint text={GOALS_HINT} theme={theme} />}
           <div
@@ -104,6 +107,7 @@ export function Sidebar({ header, theme }: SidebarProps) {
           badge={header.todo.badge}
           height={heightOf(1)}
           theme={theme}
+          bgOpacity={bgOpacity}
         >
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
             {Array.from({ length: MAX_TODO_ITEMS }, (_, index) => {
@@ -153,6 +157,7 @@ export function Sidebar({ header, theme }: SidebarProps) {
           badge={header.memo.badge}
           height={heightOf(2)}
           theme={theme}
+          bgOpacity={bgOpacity}
         >
           {header.memo.text.trim() === '' ? (
             <Hint text={MEMO_HINT} theme={theme} />

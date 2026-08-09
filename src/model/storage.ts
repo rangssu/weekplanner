@@ -40,6 +40,10 @@ export function listSavedMonthKeys(): string[] {
 const isObject = (v: unknown): v is Record<string, unknown> =>
   typeof v === 'object' && v !== null && !Array.isArray(v)
 
+/** 0~1 범위의 숫자만 받는다. 아니면 불투명(1)으로 되돌린다. */
+const opacity = (v: unknown): number =>
+  typeof v === 'number' && Number.isFinite(v) && v >= 0 && v <= 1 ? v : 1
+
 /**
  * 헤더도 알려진 필드만 골라 만든다.
  * 통째로 병합하면 없앤 기능(예전 `memo`)의 흔적이 계속 딸려 들어온다.
@@ -110,6 +114,8 @@ export function migrateDoc(raw: unknown): ScheduleDoc | null {
     fontId: typeof raw.fontId === 'string' ? raw.fontId : base.fontId,
     backgroundAssetId:
       typeof raw.backgroundAssetId === 'string' ? raw.backgroundAssetId : null,
+    gridOpacity: opacity(raw.gridOpacity),
+    sidebarOpacity: opacity(raw.sidebarOpacity),
     stickers: Array.isArray(raw.stickers) ? (raw.stickers as ScheduleDoc['stickers']) : [],
   }
 }

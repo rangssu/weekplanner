@@ -50,6 +50,8 @@ export function createEmptyDoc(year: number, month: number): ScheduleDoc {
     themeId: DEFAULT_THEME_ID,
     fontId: DEFAULT_FONT_ID,
     backgroundAssetId: null,
+    gridOpacity: 1,
+    sidebarOpacity: 1,
     stickers: [],
   }
 }
