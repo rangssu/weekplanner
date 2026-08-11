@@ -17,7 +17,7 @@ npm run dev
 ## 테스트
 
 ```
-npm test        # 327개, 전부 자동
+npm test        # 329개, 전부 자동
 npx tsc -b      # 타입 검사
 ```
 
