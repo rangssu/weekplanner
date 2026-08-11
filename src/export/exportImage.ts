@@ -19,6 +19,23 @@ export function exportFileName(year: number, month: number, key: ExportSizeKey):
 }
 
 /**
+ * 캡처하는 동안 CSS 전환을 끈다.
+ *
+ * html-to-image는 캡처 시점의 getComputedStyle을 읽는다. 글자색 전환이
+ * 진행 중이면 **중간 색이 PNG에 박힌다.** transition을 없애면 진행 중이던
+ * 전환이 취소되고 목표 색이 곧바로 계산값이 되므로 그 경로가 사라진다.
+ */
+async function withoutTransition<T>(node: HTMLElement, run: () => Promise<T>): Promise<T> {
+  const saved = node.style.transition
+  node.style.transition = 'none'
+  try {
+    return await run()
+  } finally {
+    node.style.transition = saved
+  }
+}
+
+/**
  * 미리보기 노드를 4000×2250 PNG data URL로 만든다.
  *
  * 두 번 렌더링하고 두 번째 결과를 쓴다. html-to-image는 첫 호출에서 폰트나
@@ -43,8 +60,10 @@ export async function renderCanvasPng(node: HTMLElement): Promise<string> {
     skipFonts: false,
   }
 
-  await toPng(node, options)
-  return toPng(node, options)
+  return withoutTransition(node, async () => {
+    await toPng(node, options)
+    return toPng(node, options)
+  })
 }
 
 /** 원본 PNG를 지정 크기로 줄인다. 모두 같은 16:9라 비율은 그대로다. */
