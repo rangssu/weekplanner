@@ -42,6 +42,24 @@ export function previousMonth(year: number, month: number): { year: number; mont
 }
 
 /**
+ * 날짜를 **그 달 안에서만** 옮긴다. 달을 넘어가면 null을 준다.
+ *
+ * 달 전환은 MonthPicker의 일이고 문서를 통째로 갈아끼우는 무거운 동작이라,
+ * 편집기의 화살표 한 번으로 일어나면 놀랍다.
+ */
+export function shiftDateWithinMonth(date: string, delta: number): string | null {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(date)
+  if (!m) return null
+  const year = Number(m[1])
+  const month = Number(m[2])
+  const day = Number(m[3]) + delta
+  // month를 그대로 넘기면 "다음 달 0일" = 이번 달 말일이 된다.
+  const lastDay = new Date(year, month, 0).getDate()
+  if (day < 1 || day > lastDay) return null
+  return dateKey(year, month, day)
+}
+
+/**
  * 년·월을 항상 42칸(7×6)의 격자로 펼친다.
  * 첫 칸은 그 달 1일이 속한 주의 일요일, 이후 42일 연속.
  * 시간대 버그를 피하기 위해 전 구간 UTC로 계산한다.

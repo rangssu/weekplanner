@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { DEFAULT_THEME_ID } from '../model/defaults'
 import { BORDER_WIDTH, MAX_CELL_BORDER_WIDTH } from '../preview/layout'
+import { LUMINANCE_THRESHOLD, hexLuminance } from '../model/luminance'
 import { ACCENT_COUNT, getTheme, THEMES, withAlpha } from './themes'
 
 const HEX = /^#[0-9a-f]{6}$/i
@@ -87,6 +88,34 @@ describe('다크 테마 격자선', () => {
     // 테마가 생기면 글자 상자가 실제보다 크게 잡혀 아래가 잘린다.
     for (const theme of THEMES) {
       expect(theme.cellBorderWidth).toBeLessThanOrEqual(MAX_CELL_BORDER_WIDTH)
+    }
+  })
+})
+
+describe('자동 글자색', () => {
+  it('모든 테마가 두 값을 갖는다', () => {
+    for (const theme of THEMES) {
+      expect(theme.autoTextOnLight, theme.id).toMatch(/^#[0-9a-f]{6}$/i)
+      expect(theme.autoTextOnDark, theme.id).toMatch(/^#[0-9a-f]{6}$/i)
+    }
+  })
+
+  it('두 값이 임계치를 사이에 두고 갈린다', () => {
+    for (const theme of THEMES) {
+      expect(hexLuminance(theme.autoTextOnLight), theme.id).toBeLessThan(LUMINANCE_THRESHOLD)
+      expect(hexLuminance(theme.autoTextOnDark), theme.id).toBeGreaterThan(LUMINANCE_THRESHOLD)
+    }
+  })
+
+  it('모든 테마가 제목과 본문 중 한쪽은 원래 색으로 버틴다', () => {
+    // 원래 색이 밝은 배경과 어두운 배경 중 한쪽에서는 읽혀야 한다.
+    // 양쪽 다 못 버티는 색(딱 임계치 근처의 회색)은 테마로 쓰지 않는다.
+    for (const theme of THEMES) {
+      for (const color of [theme.headerText, theme.bodyText]) {
+        const luma = hexLuminance(color)
+        expect(Math.abs(luma - LUMINANCE_THRESHOLD), `${theme.id} ${color}`)
+          .toBeGreaterThan(20)
+      }
     }
   })
 })

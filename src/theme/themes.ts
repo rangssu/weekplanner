@@ -35,6 +35,16 @@ export type Theme = {
   saturdayText: string
   dowHeaderBackground: string
   dowHeaderText: string
+  /**
+   * 배경 이미지가 밝을 때 얹을 어두운 글자색.
+   *
+   * 밝은 테마는 기존 bodyText와 같게 둔다 — 밝은 사진을 깔아도 지금과 같은
+   * 모습이 나오고, 「배경이 없으면 테마 기본색」 규칙과도 이어진다.
+   * 다크 테마는 bodyText가 이미 밝으므로 여기만 새로 정한다.
+   */
+  autoTextOnLight: string
+  /** 배경 이미지가 어두울 때 얹을 밝은 글자색. */
+  autoTextOnDark: string
   /** 칸 채우기·형광펜·날짜 색으로 고를 수 있는 색. 정확히 ACCENT_COUNT개. */
   accents: string[]
 }
@@ -62,6 +72,8 @@ export const THEMES: Theme[] = [
     saturdayText: '#4a7bd0',
     dowHeaderBackground: '#f7a8bd',
     dowHeaderText: '#ffffff',
+    autoTextOnLight: '#5b3a42',
+    autoTextOnDark: '#fff2f6',
     accents: ['#ffd6e0', '#ffe9a8', '#c9ecc3', '#c5ddf7', '#e3d0f5', '#ffd2b3'],
   },
   {
@@ -79,6 +91,8 @@ export const THEMES: Theme[] = [
     saturdayText: '#4a6fa5',
     dowHeaderBackground: '#e3d5bd',
     dowHeaderText: '#3d362c',
+    autoTextOnLight: '#3d362c',
+    autoTextOnDark: '#fdf8ef',
     accents: ['#ffe0b8', '#fff2b8', '#d9ecc6', '#c9e0ec', '#e6d5ef', '#f7cfc4'],
   },
   {
@@ -96,6 +110,8 @@ export const THEMES: Theme[] = [
     saturdayText: '#3f7bb5',
     dowHeaderBackground: '#8fd3c3',
     dowHeaderText: '#1f4a42',
+    autoTextOnLight: '#2f5b53',
+    autoTextOnDark: '#f2fbf7',
     accents: ['#c5f0e3', '#fff3bf', '#ffd6d6', '#cfe3ff', '#e6d9ff', '#ffe1c2'],
   },
   {
@@ -115,6 +131,8 @@ export const THEMES: Theme[] = [
     saturdayText: '#2563eb',
     dowHeaderBackground: '#f4f4f5',
     dowHeaderText: '#27272a',
+    autoTextOnLight: '#27272a',
+    autoTextOnDark: '#ffffff',
     accents: ['#ffe0e6', '#fff3c4', '#d9f2d0', '#d3e6fb', '#e6dcf7', '#ffe2cc'],
   },
   {
@@ -134,6 +152,8 @@ export const THEMES: Theme[] = [
     saturdayText: '#8ab6ff',
     dowHeaderBackground: '#3a3e58',
     dowHeaderText: '#f2f3f8',
+    autoTextOnLight: '#1c1c1f',
+    autoTextOnDark: '#e7e9f2',
     accents: ['#5c3f5e', '#5e563a', '#3a5a4c', '#3a4b6b', '#4b3f6b', '#6b4a3a'],
   },
 ]

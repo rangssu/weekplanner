@@ -1,8 +1,8 @@
 import { BOX_DEFAULTS, GOAL_LINE_COUNT, type HeaderConfig } from '../model/types'
-import type { Theme } from '../theme/themes'
+import { withAlpha, type Theme } from '../theme/themes'
 import {
   BORDER_WIDTH, BOX_CHECKBOX_SIZE, BOX_HINT_SIZE, BOX_TEXT_SIZE,
-  GOALS_BOX_RATIO, MEMO_BOX_RATIO, SIDEBAR_HEIGHT, SIDEBAR_WIDTH, TODO_BOX_RATIO,
+  sidebarBoxRects, SIDEBAR_HEIGHT, SIDEBAR_WIDTH,
 } from './layout'
 import { SidebarBox } from './SidebarBox'
 
@@ -22,9 +22,13 @@ export const MAX_TODO_ITEMS = 5
 export const boxLabel = (value: string, fallback: string): string =>
   value.trim() === '' ? fallback : value
 
-function Hint({ text, theme }: { text: string; theme: Theme }) {
+/** 비어 있을 때 보이는 안내 문구. 상자가 비면 이것만 화면에 남으므로, 그
+ * 영역의 자동 글자색을 흐리게 써서(0.55) 자동 글자색이 실제로 적용된 채로
+ * 남게 한다 — 고정색이면 배경이 바뀌어도 힌트가 안 따라와 그 상자만 안
+ * 읽히는 채로 남을 수 있다. */
+function Hint({ text, color }: { text: string; color: string }) {
   return (
-    <div style={{ fontSize: BOX_HINT_SIZE, color: theme.outsideMonthText, lineHeight: 1.4 }}>
+    <div style={{ fontSize: BOX_HINT_SIZE, color: withAlpha(color, 0.55), lineHeight: 1.4 }}>
       {text}
     </div>
   )
@@ -35,16 +39,19 @@ export type SidebarProps = {
   theme: Theme
   /** 사이드바 박스·배지 배경 불투명도. */
   bgOpacity: number
+  /** 상자별 본문 글자색. App이 계산해 넘긴다. */
+  textColors: { goal: string; todo: string; memo: string }
 }
 
-export function Sidebar({ header, theme, bgOpacity }: SidebarProps) {
-  const enabled = [header.goals.enabled, header.todo.enabled, header.memo.enabled]
+export function Sidebar({ header, theme, bgOpacity, textColors }: SidebarProps) {
+  const enabled: [boolean, boolean, boolean] = [
+    header.goals.enabled, header.todo.enabled, header.memo.enabled,
+  ]
   const shownCount = enabled.filter(Boolean).length
-  // 켜진 박스끼리 세로 공간을 나눠 갖는다. 하나만 켜면 그것이 다 쓴다.
-  const ratios = [GOALS_BOX_RATIO, TODO_BOX_RATIO, MEMO_BOX_RATIO]
-  const shownRatioSum = ratios.reduce((sum, r, i) => sum + (enabled[i] ? r : 0), 0)
-  const heightOf = (index: number) =>
-    shownRatioSum === 0 ? 0 : Math.floor((SIDEBAR_HEIGHT * ratios[index]) / shownRatioSum)
+  // 상자 높이는 layout.ts가 정한다. 배경 밝기를 재는 쪽과 같은 값을 써야
+  // 재는 자리와 그리는 자리가 어긋나지 않는다.
+  const rects = sidebarBoxRects(enabled)
+  const heightOf = (index: number) => rects[index]?.height ?? 0
 
   if (shownCount === 0) return <div style={{ width: SIDEBAR_WIDTH, flexShrink: 0 }} />
 
@@ -69,8 +76,9 @@ export function Sidebar({ header, theme, bgOpacity }: SidebarProps) {
           height={heightOf(0)}
           theme={theme}
           bgOpacity={bgOpacity}
+          textColor={textColors.goal}
         >
-          {!hasGoalText && <Hint text={GOALS_HINT} theme={theme} />}
+          {!hasGoalText && <Hint text={GOALS_HINT} color={textColors.goal} />}
           <div
             style={{
               marginTop: hasGoalText ? 0 : 34,
@@ -87,7 +95,7 @@ export function Sidebar({ header, theme, bgOpacity }: SidebarProps) {
                   paddingBottom: 10,
                   fontSize: BOX_TEXT_SIZE,
                   lineHeight: 1.2,
-                  color: theme.bodyText,
+                  color: textColors.goal,
                   whiteSpace: 'nowrap',
                   overflow: 'hidden',
                   textOverflow: 'ellipsis',
@@ -108,6 +116,7 @@ export function Sidebar({ header, theme, bgOpacity }: SidebarProps) {
           height={heightOf(1)}
           theme={theme}
           bgOpacity={bgOpacity}
+          textColor={textColors.todo}
         >
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
             {Array.from({ length: MAX_TODO_ITEMS }, (_, index) => {
@@ -128,7 +137,7 @@ export function Sidebar({ header, theme, bgOpacity }: SidebarProps) {
                       fontSize: BOX_CHECKBOX_SIZE - 10,
                       lineHeight: 1,
                       flexShrink: 0,
-                      color: theme.bodyText,
+                      color: textColors.todo,
                     }}
                   >
                     {item?.checked ? 'V' : ''}
@@ -136,7 +145,7 @@ export function Sidebar({ header, theme, bgOpacity }: SidebarProps) {
                   <span
                     style={{
                       fontSize: BOX_TEXT_SIZE,
-                      color: theme.bodyText,
+                      color: textColors.todo,
                       whiteSpace: 'nowrap',
                       overflow: 'hidden',
                       textOverflow: 'ellipsis',
@@ -158,14 +167,15 @@ export function Sidebar({ header, theme, bgOpacity }: SidebarProps) {
           height={heightOf(2)}
           theme={theme}
           bgOpacity={bgOpacity}
+          textColor={textColors.memo}
         >
           {header.memo.text.trim() === '' ? (
-            <Hint text={MEMO_HINT} theme={theme} />
+            <Hint text={MEMO_HINT} color={textColors.memo} />
           ) : (
             <div
               style={{
                 fontSize: BOX_TEXT_SIZE,
-                color: theme.bodyText,
+                color: textColors.memo,
                 lineHeight: 1.5,
                 whiteSpace: 'pre-wrap',
                 wordBreak: 'break-word',

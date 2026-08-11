@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest'
 import {
   BORDER_WIDTH, CANVAS_CONTENT_HEIGHT, CANVAS_CONTENT_WIDTH, CANVAS_HEIGHT,
-  CANVAS_WIDTH, CELL_EXTRA_HEIGHT, CELL_HEIGHT, CELL_ICON_SIZE, CELL_TEXT_HEIGHT,
+  CANVAS_WIDTH, CELL_AREA_HEIGHT, CELL_AREA_WIDTH, CELL_AREA_X, CELL_AREA_Y, CELL_EXTRA_HEIGHT, CELL_HEIGHT, CELL_ICON_SIZE, CELL_TEXT_HEIGHT,
   CELL_TEXT_WIDTH, CELL_WIDTH, COLUMN_GAP,
   DOW_ROW_HEIGHT, GRID_AREA_HEIGHT, GRID_AREA_WIDTH, GRID_INNER_HEIGHT, GRID_INNER_WIDTH,
-  OUTER_PADDING, SIDEBAR_HEIGHT, SIDEBAR_WIDTH, TITLE_GAP, TITLE_ROW_HEIGHT,
+  OUTER_PADDING, sidebarBoxRects, SIDEBAR_HEIGHT, SIDEBAR_WIDTH, TITLE_GAP, TITLE_ROW_HEIGHT,
 } from './layout'
 
 describe('레이아웃 상수', () => {
@@ -73,5 +73,71 @@ describe('레이아웃 상수', () => {
 
   it('아이콘이 칸 폭 안에 들어간다', () => {
     expect(CELL_ICON_SIZE).toBeLessThan(CELL_TEXT_WIDTH)
+  })
+})
+
+describe('날짜 칸 영역', () => {
+  it('칸 영역의 가로가 칸 7개와 정확히 같다', () => {
+    expect(CELL_AREA_WIDTH).toBeCloseTo(CELL_WIDTH * 7, 10)
+  })
+
+  it('칸 영역의 세로가 칸 6개와 정확히 같다', () => {
+    expect(CELL_AREA_HEIGHT).toBeCloseTo(CELL_HEIGHT * 6, 10)
+  })
+
+  it('칸 영역의 오른쪽 끝이 격자 테두리만큼 안쪽에 있다', () => {
+    expect(CELL_AREA_X + CELL_AREA_WIDTH + BORDER_WIDTH).toBeCloseTo(
+      CANVAS_WIDTH - OUTER_PADDING,
+      10,
+    )
+  })
+
+  it('칸 영역의 아래쪽 끝이 격자 테두리만큼 안쪽에 있다', () => {
+    expect(CELL_AREA_Y + CELL_AREA_HEIGHT + BORDER_WIDTH).toBeCloseTo(
+      CANVAS_HEIGHT - OUTER_PADDING,
+      10,
+    )
+  })
+
+  it('칸 영역이 요일 행 아래에서 시작한다', () => {
+    expect(CELL_AREA_Y).toBe(OUTER_PADDING + BORDER_WIDTH + DOW_ROW_HEIGHT)
+  })
+})
+
+describe('사이드바 상자 좌표', () => {
+  it('셋 다 켜면 세로 합이 사이드바 높이와 같다', () => {
+    const rects = sidebarBoxRects([true, true, true])
+    const total = rects.reduce((sum, r) => sum + (r?.height ?? 0), 0)
+    expect(total).toBeLessThanOrEqual(SIDEBAR_HEIGHT)
+    expect(total).toBeGreaterThan(SIDEBAR_HEIGHT - 3)
+  })
+
+  it('꺼진 상자는 null이다', () => {
+    const rects = sidebarBoxRects([true, false, true])
+    expect(rects[1]).toBeNull()
+    expect(rects[0]).not.toBeNull()
+    expect(rects[2]).not.toBeNull()
+  })
+
+  it('하나만 켜면 그것이 세로를 다 쓴다', () => {
+    const rects = sidebarBoxRects([false, true, false])
+    expect(rects[1]?.height).toBeGreaterThan(SIDEBAR_HEIGHT - 3)
+  })
+
+  it('아무것도 안 켜면 전부 null이다', () => {
+    expect(sidebarBoxRects([false, false, false])).toEqual([null, null, null])
+  })
+
+  it('상자가 위에서부터 차례로 쌓인다', () => {
+    const rects = sidebarBoxRects([true, true, true])
+    expect(rects[1]!.y).toBeCloseTo(rects[0]!.y + rects[0]!.height, 5)
+    expect(rects[2]!.y).toBeCloseTo(rects[1]!.y + rects[1]!.height, 5)
+  })
+
+  it('첫 상자가 제목 아래에서 시작한다', () => {
+    const rects = sidebarBoxRects([true, true, true])
+    expect(rects[0]!.y).toBe(OUTER_PADDING + TITLE_ROW_HEIGHT + TITLE_GAP)
+    expect(rects[0]!.x).toBe(OUTER_PADDING)
+    expect(rects[0]!.width).toBe(SIDEBAR_WIDTH)
   })
 })

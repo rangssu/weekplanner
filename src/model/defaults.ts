@@ -1,4 +1,12 @@
-import { BOX_DEFAULTS, GOAL_LINE_COUNT, type DayEntry, type ScheduleDoc } from './types'
+import {
+  BOX_DEFAULTS,
+  GOAL_LINE_COUNT,
+  TEXT_COLOR_AREAS,
+  type DayEntry,
+  type ScheduleDoc,
+  type TextColorArea,
+  type TextColorSetting,
+} from './types'
 
 export const DOC_VERSION = 1 as const
 
@@ -31,6 +39,13 @@ export function isBlankDayEntry(entry: DayEntry): boolean {
   )
 }
 
+/** 전 영역 자동. 배경 이미지가 없으면 자동은 테마 기본색을 뜻한다. */
+export function createEmptyTextColors(): Record<TextColorArea, TextColorSetting> {
+  return Object.fromEntries(
+    TEXT_COLOR_AREAS.map((area) => [area, { mode: 'auto' as const, color: null }]),
+  ) as Record<TextColorArea, TextColorSetting>
+}
+
 export function createEmptyDoc(year: number, month: number): ScheduleDoc {
   return {
     version: DOC_VERSION,
@@ -54,5 +69,6 @@ export function createEmptyDoc(year: number, month: number): ScheduleDoc {
     gridOpacity: 1,
     sidebarOpacity: 1,
     stickers: [],
+    textColors: createEmptyTextColors(),
   }
 }

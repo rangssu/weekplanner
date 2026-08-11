@@ -57,6 +57,7 @@ describe('Sidebar — 제목과 배지의 비대칭', () => {
         }),
         theme,
         bgOpacity: 1,
+        textColors: { goal: theme.bodyText, todo: theme.bodyText, memo: theme.bodyText },
       }),
     )
 
@@ -76,6 +77,7 @@ describe('Sidebar — 제목과 배지의 비대칭', () => {
         }),
         theme,
         bgOpacity: 1,
+        textColors: { goal: theme.bodyText, todo: theme.bodyText, memo: theme.bodyText },
       }),
     )
 

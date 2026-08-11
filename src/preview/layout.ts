@@ -50,6 +50,19 @@ export const DOW_ROW_HEIGHT = 90
 export const CELL_WIDTH = GRID_INNER_WIDTH / GRID_COLUMNS
 export const CELL_HEIGHT = (GRID_INNER_HEIGHT - DOW_ROW_HEIGHT) / GRID_ROWS
 
+/**
+ * 날짜 칸 42개가 차지하는 사각형. 캔버스 좌표 기준이다.
+ *
+ * 미리보기 위에 겹치는 오버레이(editor/DayClickLayer)가 격자와 정확히
+ * 포개지려면 이 네 값만 있으면 된다. 안쪽 7×6 분할은 오버레이도 CSS 그리드로
+ * 하므로 브라우저가 CalendarGrid와 똑같이 나눈다. 칸마다 좌표를 따로 계산하면
+ * CalendarGrid와 따로 노는 두 번째 계산이 생겨 조용히 어긋난다.
+ */
+export const CELL_AREA_X = OUTER_PADDING + SIDEBAR_WIDTH + COLUMN_GAP + BORDER_WIDTH
+export const CELL_AREA_Y = OUTER_PADDING + BORDER_WIDTH + DOW_ROW_HEIGHT
+export const CELL_AREA_WIDTH = GRID_INNER_WIDTH
+export const CELL_AREA_HEIGHT = GRID_INNER_HEIGHT - DOW_ROW_HEIGHT
+
 export const CELL_PADDING = 14
 export const DATE_NUMBER_SIZE = 40
 export const DATE_NUMBER_BLOCK = 52
@@ -169,3 +182,35 @@ export const BOX_CHECKBOX_SIZE = 44
 export const GOALS_BOX_RATIO = 0.38
 export const TODO_BOX_RATIO = 0.34
 export const MEMO_BOX_RATIO = 0.28
+
+export type BoxRect = { x: number; y: number; width: number; height: number }
+
+/**
+ * 사이드바 상자 3개가 캔버스에서 차지하는 자리. 꺼진 상자는 null이다.
+ *
+ * 켜진 상자끼리 세로를 나눠 갖는다. 하나만 켜면 그것이 다 쓴다.
+ *
+ * **Sidebar.tsx가 이 함수를 쓴다.** 배경 밝기를 재는 쪽이 같은 계산을 따로
+ * 하면 두 번째 계산이 생겨 조용히 어긋나므로, 그리는 쪽과 재는 쪽이 하나를
+ * 같이 쓴다.
+ */
+export function sidebarBoxRects(
+  enabled: [boolean, boolean, boolean],
+): [BoxRect | null, BoxRect | null, BoxRect | null] {
+  const ratios = [GOALS_BOX_RATIO, TODO_BOX_RATIO, MEMO_BOX_RATIO]
+  const shownRatioSum = ratios.reduce((sum, r, i) => sum + (enabled[i] ? r : 0), 0)
+
+  const top = OUTER_PADDING + TITLE_ROW_HEIGHT + TITLE_GAP
+  let y = top
+
+  const rects = ratios.map((ratio, index) => {
+    if (!enabled[index] || shownRatioSum === 0) return null
+    // Sidebar가 flex로 쌓을 때와 같은 값이어야 하므로 내림도 그대로 맞춘다.
+    const height = Math.floor((SIDEBAR_HEIGHT * ratio) / shownRatioSum)
+    const rect: BoxRect = { x: OUTER_PADDING, y, width: SIDEBAR_WIDTH, height }
+    y += height
+    return rect
+  })
+
+  return rects as [BoxRect | null, BoxRect | null, BoxRect | null]
+}

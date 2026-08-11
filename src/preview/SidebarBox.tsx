@@ -13,6 +13,10 @@ export type SidebarBoxProps = {
   theme: Theme
   /** 박스·배지 배경 불투명도. */
   bgOpacity: number
+  /** 상자 라벨·배지 글자색. App이 계산해 넘긴다. 배지 배경도 bgOpacity로 함께
+   * 투명해지므로(theme.dowHeaderBackground에 withAlpha) 고정색으로 두면
+   * 불투명도가 낮을 때 배경과 함께 흐려져 안 보인다. */
+  textColor: string
   children: ReactNode
 }
 
@@ -21,7 +25,9 @@ export type SidebarBoxProps = {
  * 위쪽 제목 행(한글 제목 + 영문 배지)과 아래쪽 본문으로 나뉜다.
  * 세 박스가 모두 같은 꼴이라 여기서 한 번만 정의한다.
  */
-export function SidebarBox({ label, badge, height, theme, bgOpacity, children }: SidebarBoxProps) {
+export function SidebarBox({
+  label, badge, height, theme, bgOpacity, textColor, children,
+}: SidebarBoxProps) {
   return (
     <div
       style={{
@@ -50,7 +56,7 @@ export function SidebarBox({ label, badge, height, theme, bgOpacity, children }:
           style={{
             fontSize: BOX_LABEL_KO_SIZE,
             fontWeight: 800,
-            color: theme.bodyText,
+            color: textColor,
             whiteSpace: 'nowrap',
           }}
         >
@@ -62,7 +68,7 @@ export function SidebarBox({ label, badge, height, theme, bgOpacity, children }:
               fontSize: BOX_BADGE_SIZE,
               fontWeight: 900,
               letterSpacing: 0.5,
-              color: theme.bodyText,
+              color: textColor,
               background: withAlpha(theme.dowHeaderBackground, bgOpacity),
               padding: '6px 14px',
               whiteSpace: 'nowrap',

@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { createEmptyDoc } from './defaults'
 import { DOC_KEY_PREFIX, listSavedMonthKeys, loadDoc, migrateDoc, saveDoc } from './storage'
+import { TEXT_COLOR_AREAS } from './types'
 
 beforeEach(() => {
   localStorage.clear()
@@ -169,5 +170,37 @@ describe('migrateDoc', () => {
     const out = migrateDoc(broken)
     expect(out?.gridOpacity).toBe(1)
     expect(out?.sidebarOpacity).toBe(1)
+  })
+})
+
+describe('글자색 마이그레이션', () => {
+  it('textColors가 없는 예전 문서는 전 영역 auto로 채워진다', () => {
+    const old = { ...createEmptyDoc(2026, 8) } as Record<string, unknown>
+    delete old.textColors
+
+    const migrated = migrateDoc(old)
+
+    expect(migrated).not.toBeNull()
+    for (const area of TEXT_COLOR_AREAS) {
+      expect(migrated!.textColors![area]).toEqual({ mode: 'auto', color: null })
+    }
+  })
+
+  it('저장된 수동 색을 그대로 읽는다', () => {
+    const doc = createEmptyDoc(2026, 8)
+    doc.textColors!.calendar = { mode: 'manual', color: '#ff0000' }
+
+    const migrated = migrateDoc(JSON.parse(JSON.stringify(doc)))
+
+    expect(migrated!.textColors!.calendar).toEqual({ mode: 'manual', color: '#ff0000' })
+  })
+
+  it('모르는 모드가 들어 있으면 auto로 떨어진다', () => {
+    const doc = createEmptyDoc(2026, 8) as unknown as Record<string, unknown>
+    ;(doc.textColors as Record<string, unknown>).memo = { mode: 'nonsense', color: 123 }
+
+    const migrated = migrateDoc(JSON.parse(JSON.stringify(doc)))
+
+    expect(migrated!.textColors!.memo).toEqual({ mode: 'auto', color: null })
   })
 })

@@ -66,3 +66,28 @@ body {
   background: #f4f4f5;
   color: #18181b;
 }
+
+/*
+  미리보기 위 날짜 클릭 오버레이.
+  테두리 두께는 축소 배율에 따라 달라지므로 인라인 커스텀 속성으로 받는다.
+  border 대신 inset box-shadow를 쓰는 이유는 테두리가 칸 크기를 바꾸지
+  않아야 격자와 계속 포개지기 때문이다.
+*/
+.wp-day-hit {
+  background: transparent;
+  border: none;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  pointer-events: auto;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.wp-day-hit:hover {
+  box-shadow: inset 0 0 0 var(--wp-hit-border, 4px) rgba(37, 99, 235, 0.45);
+}
+
+.wp-day-hit.is-selected,
+.wp-day-hit.is-selected:hover {
+  box-shadow: inset 0 0 0 var(--wp-hit-border, 4px) #2563eb;
+}

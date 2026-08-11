@@ -10,22 +10,25 @@ import {
 } from './layout'
 
 /**
- * 날짜 숫자 색을 정한다. 우선순위:
- * 1) 앞뒤 달 칸이면 무조건 흐린 색
- * 2) 항목에 지정한 색이 있으면 그 색 (요일 기본 규칙보다 우선)
- * 3) 일요일/토요일 기본 색
- * 4) 본문 색
+ * 날짜 숫자 색.
+ *
+ * 마지막 폴백만 영역 글자색으로 바뀐다. 앞의 네 줄은 그대로다 —
+ * 일요일 빨강·토요일 파랑·날짜별 지정색을 덮으면 안 된다.
+ *
+ * 폴백을 안 바꾸면 어두운 사진 위에서 일정 글자는 밝아지는데 평일 숫자만
+ * 어두운 채로 남아 안 보인다.
  */
 export function dateNumberColor(
   cell: GridCell,
   entry: DayEntry | undefined,
   theme: Theme,
+  calendarTextColor: string,
 ): string {
   if (!cell.inMonth) return theme.outsideMonthText
   if (entry?.dateColor) return entry.dateColor
   if (cell.dow === 0) return theme.sundayText
   if (cell.dow === 6) return theme.saturdayText
-  return theme.bodyText
+  return calendarTextColor
 }
 
 export type DayCellProps = {
@@ -34,9 +37,11 @@ export type DayCellProps = {
   theme: Theme
   /** 칸 배경 불투명도. 격자·글자는 이 값과 무관하게 항상 또렷하다. */
   bgOpacity: number
+  /** 달력 영역 글자색. App이 계산해 넘긴다 — preview/는 계산을 모른다. */
+  textColor: string
 }
 
-export function DayCell({ cell, entry, theme, bgOpacity }: DayCellProps) {
+export function DayCell({ cell, entry, theme, bgOpacity, textColor }: DayCellProps) {
   const text = cell.inMonth ? (entry?.text ?? '') : ''
   const extra = cell.inMonth ? (entry?.extra ?? '') : ''
   const { bodyHeight, extraHeight } = splitCellText(extra)
@@ -68,7 +73,7 @@ export function DayCell({ cell, entry, theme, bgOpacity }: DayCellProps) {
           fontSize: DATE_NUMBER_SIZE,
           fontWeight: 600,
           lineHeight: 1,
-          color: dateNumberColor(cell, entry, theme),
+          color: dateNumberColor(cell, entry, theme, textColor),
           flexShrink: 0,
         }}
       >
@@ -84,7 +89,7 @@ export function DayCell({ cell, entry, theme, bgOpacity }: DayCellProps) {
           baseSize={CELL_TEXT_BASE_SIZE}
           minSize={CELL_TEXT_MIN_SIZE}
           lineHeight={CELL_TEXT_LINE_HEIGHT}
-          color={cell.inMonth ? theme.bodyText : theme.outsideMonthText}
+          color={cell.inMonth ? textColor : theme.outsideMonthText}
           markerColor={cell.inMonth ? (entry?.marker ?? null) : null}
         />
       ) : (
@@ -122,7 +127,7 @@ export function DayCell({ cell, entry, theme, bgOpacity }: DayCellProps) {
               baseSize={CELL_TEXT_BASE_SIZE}
               minSize={CELL_TEXT_MIN_SIZE}
               lineHeight={CELL_TEXT_LINE_HEIGHT}
-              color={cell.inMonth ? theme.bodyText : theme.outsideMonthText}
+              color={cell.inMonth ? textColor : theme.outsideMonthText}
               markerColor={cell.inMonth ? (entry?.marker ?? null) : null}
             />
           </div>
@@ -137,7 +142,7 @@ export function DayCell({ cell, entry, theme, bgOpacity }: DayCellProps) {
           baseSize={CELL_EXTRA_BASE_SIZE}
           minSize={CELL_EXTRA_MIN_SIZE}
           lineHeight={CELL_TEXT_LINE_HEIGHT}
-          color={theme.bodyText}
+          color={textColor}
           // 형광펜은 본문에만 건다. 강조 수단이 둘로 늘면 조합만 복잡해지고
           // 지금 요구에는 없다.
           markerColor={null}

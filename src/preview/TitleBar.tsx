@@ -1,5 +1,4 @@
 import type { HeaderConfig } from '../model/types'
-import type { Theme } from '../theme/themes'
 import { SIDEBAR_WIDTH, TITLE_KO_SIZE_STEPS, TITLE_ROW_HEIGHT } from './layout'
 
 /** 제목 길이에 따른 글자 크기. 단계가 완만해야 남는 여백이 튀지 않는다. */
@@ -23,10 +22,11 @@ export function titleText(header: HeaderConfig, month: number): string {
 export type TitleBarProps = {
   header: HeaderConfig
   month: number
-  theme: Theme
+  /** 제목 글자색. App이 계산해 넘긴다. */
+  textColor: string
 }
 
-export function TitleBar({ header, month, theme }: TitleBarProps) {
+export function TitleBar({ header, month, textColor }: TitleBarProps) {
   const title = titleText(header, month)
   const koSize = titleKoSize(title)
 
@@ -48,7 +48,7 @@ export function TitleBar({ header, month, theme }: TitleBarProps) {
           fontSize: koSize,
           fontWeight: 900,
           lineHeight: 1,
-          color: theme.headerText,
+          color: textColor,
           whiteSpace: 'nowrap',
           overflow: 'hidden',
           textOverflow: 'ellipsis',

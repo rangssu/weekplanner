@@ -68,6 +68,23 @@ export type HeaderConfig = {
   memo: { enabled: boolean; label: string; badge: string; text: string }
 }
 
+/** 글자색을 따로 정할 수 있는 영역. */
+export type TextColorArea = 'title' | 'goal' | 'todo' | 'memo' | 'calendar'
+
+export const TEXT_COLOR_AREAS: readonly TextColorArea[] = [
+  'title', 'goal', 'todo', 'memo', 'calendar',
+]
+
+export type TextColorSetting = {
+  /**
+   * 'auto'면 배경 이미지 밝기로 정한다. **배경 이미지가 없으면 계산하지
+   * 않고 테마 기본색을 쓴다** — 계산하면 저장된 모든 문서의 모습이 바뀐다.
+   */
+  mode: 'auto' | 'manual'
+  /** mode가 'manual'일 때만 의미가 있다. */
+  color: string | null
+}
+
 /** 한 달치 문서. 저장 단위이자 preview/의 유일한 입력. */
 export type ScheduleDoc = {
   version: 1
@@ -89,4 +106,10 @@ export type ScheduleDoc = {
   /** 사이드바 박스 배경 불투명도. */
   sidebarOpacity: number
   stickers: Sticker[]
+  /**
+   * 영역별 글자색. extra·icon과 같이 **선택 필드**다.
+   * migrateDoc이 없는 문서에 기본값을 채우므로, 필수로 선언하면 타입이
+   * 런타임 값과 어긋난다.
+   */
+  textColors?: Record<TextColorArea, TextColorSetting>
 }

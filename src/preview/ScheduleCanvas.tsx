@@ -1,4 +1,5 @@
 import { forwardRef } from 'react'
+import type { ResolvedTextColors } from '../model/textColors'
 import type { ScheduleDoc } from '../model/types'
 import { getTheme } from '../theme/themes'
 import { CalendarGrid } from './CalendarGrid'
@@ -16,6 +17,8 @@ export type ScheduleCanvasProps = {
   fontFamily: string
   /** 배경 이미지 data URL. null이면 테마 배경만 쓴다. */
   backgroundUrl: string | null
+  /** 영역별 글자색 5개. App이 resolveTextColors()로 계산해 넘긴다. */
+  textColors: ResolvedTextColors
 }
 
 /**
@@ -28,7 +31,7 @@ export type ScheduleCanvasProps = {
  * 안으로 들어간 덕에 달력이 캔버스 세로 전체를 쓴다.
  */
 export const ScheduleCanvas = forwardRef<HTMLDivElement, ScheduleCanvasProps>(
-  function ScheduleCanvas({ doc, fontFamily, backgroundUrl }, ref) {
+  function ScheduleCanvas({ doc, fontFamily, backgroundUrl, textColors }, ref) {
     const theme = getTheme(doc.themeId)
 
     return (
@@ -70,12 +73,21 @@ export const ScheduleCanvas = forwardRef<HTMLDivElement, ScheduleCanvasProps>(
               flexDirection: 'column',
             }}
           >
-            <TitleBar header={doc.header} month={doc.month} theme={theme} />
+            <TitleBar
+              header={doc.header}
+              month={doc.month}
+              textColor={textColors.title}
+            />
             <div style={{ height: TITLE_GAP, flexShrink: 0 }} />
-            <Sidebar header={doc.header} theme={theme} bgOpacity={doc.sidebarOpacity} />
+            <Sidebar
+              header={doc.header}
+              theme={theme}
+              bgOpacity={doc.sidebarOpacity}
+              textColors={{ goal: textColors.goal, todo: textColors.todo, memo: textColors.memo }}
+            />
           </div>
 
-          <CalendarGrid doc={doc} theme={theme} />
+          <CalendarGrid doc={doc} theme={theme} textColor={textColors.calendar} />
         </div>
 
         <StickerLayer stickers={doc.stickers} />

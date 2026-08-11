@@ -1,6 +1,12 @@
 import { monthKey } from './calendar'
-import { createEmptyDoc, DOC_VERSION } from './defaults'
-import type { HeaderConfig, ScheduleDoc } from './types'
+import { createEmptyDoc, createEmptyTextColors, DOC_VERSION } from './defaults'
+import {
+  TEXT_COLOR_AREAS,
+  type HeaderConfig,
+  type ScheduleDoc,
+  type TextColorArea,
+  type TextColorSetting,
+} from './types'
 
 export const DOC_KEY_PREFIX = 'weekplanner:doc:'
 
@@ -91,6 +97,24 @@ function mergeHeader(base: HeaderConfig, raw: unknown): HeaderConfig {
 }
 
 /**
+ * 알려진 영역과 모드만 골라 담는다. 통째로 병합하면 없앤 영역의 흔적이
+ * 계속 딸려 들어온다.
+ */
+function mergeTextColors(raw: unknown): Record<TextColorArea, TextColorSetting> {
+  const base = createEmptyTextColors()
+  if (!isObject(raw)) return base
+
+  for (const area of TEXT_COLOR_AREAS) {
+    const value = raw[area]
+    if (!isObject(value)) continue
+    if (value.mode !== 'manual') continue
+    if (typeof value.color !== 'string') continue
+    base[area] = { mode: 'manual', color: value.color }
+  }
+  return base
+}
+
+/**
  * 저장된 데이터를 현재 문서 형태로 맞춘다.
  * 되살릴 수 없으면 null을 준다. 호출부는 null을 "새 문서로 시작"으로 처리한다.
  *
@@ -117,5 +141,6 @@ export function migrateDoc(raw: unknown): ScheduleDoc | null {
     gridOpacity: opacity(raw.gridOpacity),
     sidebarOpacity: opacity(raw.sidebarOpacity),
     stickers: Array.isArray(raw.stickers) ? (raw.stickers as ScheduleDoc['stickers']) : [],
+    textColors: mergeTextColors(raw.textColors),
   }
 }
