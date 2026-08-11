@@ -2,7 +2,7 @@ import { BOX_DEFAULTS, GOAL_LINE_COUNT, type HeaderConfig } from '../model/types
 import type { Theme } from '../theme/themes'
 import {
   BORDER_WIDTH, BOX_CHECKBOX_SIZE, BOX_HINT_SIZE, BOX_TEXT_SIZE,
-  GOALS_BOX_RATIO, MEMO_BOX_RATIO, SIDEBAR_HEIGHT, SIDEBAR_WIDTH, TODO_BOX_RATIO,
+  sidebarBoxRects, SIDEBAR_HEIGHT, SIDEBAR_WIDTH,
 } from './layout'
 import { SidebarBox } from './SidebarBox'
 
@@ -38,13 +38,14 @@ export type SidebarProps = {
 }
 
 export function Sidebar({ header, theme, bgOpacity }: SidebarProps) {
-  const enabled = [header.goals.enabled, header.todo.enabled, header.memo.enabled]
+  const enabled: [boolean, boolean, boolean] = [
+    header.goals.enabled, header.todo.enabled, header.memo.enabled,
+  ]
   const shownCount = enabled.filter(Boolean).length
-  // 켜진 박스끼리 세로 공간을 나눠 갖는다. 하나만 켜면 그것이 다 쓴다.
-  const ratios = [GOALS_BOX_RATIO, TODO_BOX_RATIO, MEMO_BOX_RATIO]
-  const shownRatioSum = ratios.reduce((sum, r, i) => sum + (enabled[i] ? r : 0), 0)
-  const heightOf = (index: number) =>
-    shownRatioSum === 0 ? 0 : Math.floor((SIDEBAR_HEIGHT * ratios[index]) / shownRatioSum)
+  // 상자 높이는 layout.ts가 정한다. 배경 밝기를 재는 쪽과 같은 값을 써야
+  // 재는 자리와 그리는 자리가 어긋나지 않는다.
+  const rects = sidebarBoxRects(enabled)
+  const heightOf = (index: number) => rects[index]?.height ?? 0
 
   if (shownCount === 0) return <div style={{ width: SIDEBAR_WIDTH, flexShrink: 0 }} />
 
