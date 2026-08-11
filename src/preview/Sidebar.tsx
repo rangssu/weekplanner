@@ -1,5 +1,5 @@
 import { BOX_DEFAULTS, GOAL_LINE_COUNT, type HeaderConfig } from '../model/types'
-import type { Theme } from '../theme/themes'
+import { withAlpha, type Theme } from '../theme/themes'
 import {
   BORDER_WIDTH, BOX_CHECKBOX_SIZE, BOX_HINT_SIZE, BOX_TEXT_SIZE,
   sidebarBoxRects, SIDEBAR_HEIGHT, SIDEBAR_WIDTH,
@@ -22,9 +22,13 @@ export const MAX_TODO_ITEMS = 5
 export const boxLabel = (value: string, fallback: string): string =>
   value.trim() === '' ? fallback : value
 
-function Hint({ text, theme }: { text: string; theme: Theme }) {
+/** 비어 있을 때 보이는 안내 문구. 상자가 비면 이것만 화면에 남으므로, 그
+ * 영역의 자동 글자색을 흐리게 써서(0.55) 자동 글자색이 실제로 적용된 채로
+ * 남게 한다 — 고정색이면 배경이 바뀌어도 힌트가 안 따라와 그 상자만 안
+ * 읽히는 채로 남을 수 있다. */
+function Hint({ text, color }: { text: string; color: string }) {
   return (
-    <div style={{ fontSize: BOX_HINT_SIZE, color: theme.outsideMonthText, lineHeight: 1.4 }}>
+    <div style={{ fontSize: BOX_HINT_SIZE, color: withAlpha(color, 0.55), lineHeight: 1.4 }}>
       {text}
     </div>
   )
@@ -74,7 +78,7 @@ export function Sidebar({ header, theme, bgOpacity, textColors }: SidebarProps) 
           bgOpacity={bgOpacity}
           textColor={textColors.goal}
         >
-          {!hasGoalText && <Hint text={GOALS_HINT} theme={theme} />}
+          {!hasGoalText && <Hint text={GOALS_HINT} color={textColors.goal} />}
           <div
             style={{
               marginTop: hasGoalText ? 0 : 34,
@@ -166,7 +170,7 @@ export function Sidebar({ header, theme, bgOpacity, textColors }: SidebarProps) 
           textColor={textColors.memo}
         >
           {header.memo.text.trim() === '' ? (
-            <Hint text={MEMO_HINT} theme={theme} />
+            <Hint text={MEMO_HINT} color={textColors.memo} />
           ) : (
             <div
               style={{

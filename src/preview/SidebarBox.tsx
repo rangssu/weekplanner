@@ -13,7 +13,9 @@ export type SidebarBoxProps = {
   theme: Theme
   /** 박스·배지 배경 불투명도. */
   bgOpacity: number
-  /** 상자 라벨 글자색. App이 계산해 넘긴다. 배지는 자기 배경색 위에 있어 그대로 둔다. */
+  /** 상자 라벨·배지 글자색. App이 계산해 넘긴다. 배지 배경도 bgOpacity로 함께
+   * 투명해지므로(theme.dowHeaderBackground에 withAlpha) 고정색으로 두면
+   * 불투명도가 낮을 때 배경과 함께 흐려져 안 보인다. */
   textColor: string
   children: ReactNode
 }
@@ -66,7 +68,7 @@ export function SidebarBox({
               fontSize: BOX_BADGE_SIZE,
               fontWeight: 900,
               letterSpacing: 0.5,
-              color: theme.bodyText,
+              color: textColor,
               background: withAlpha(theme.dowHeaderBackground, bgOpacity),
               padding: '6px 14px',
               whiteSpace: 'nowrap',

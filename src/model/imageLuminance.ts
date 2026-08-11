@@ -30,6 +30,11 @@ function loadImage(dataUrl: string, timeoutMs: number): Promise<HTMLImageElement
  * useAssetUrl이 data URL로 바꿔 준다. 외부 URL도 프리셋도 없어 캔버스가
  * 오염될 경로가 없다. 실패는 손상된 파일이나 디코딩 실패다.
  *
+ * background로 캔버스를 먼저 채우고 그 위에 이미지를 그린다. PNG의 투명
+ * 픽셀은 화면에서 `theme.pageBackground`가 비쳐 보이는데, 빈 캔버스(기본값
+ * 검정 투명) 위에 그대로 합성하면 투명 픽셀이 검정으로 집계되어 실제
+ * 렌더링과 반대로 판정된다. 먼저 채우면 실제 합성과 정확히 같아진다.
+ *
  * timeoutMs를 인자로 받는 이유: jsdom은 이미지 load/error 이벤트를 아예 쏘지
  * 않는다. 테스트가 실제 앱 타임아웃(5초)을 그대로 기다리지 않도록 짧은 값을
  * 넘길 수 있게 열어 둔다.
@@ -37,6 +42,7 @@ function loadImage(dataUrl: string, timeoutMs: number): Promise<HTMLImageElement
 export async function measureRegions(
   dataUrl: string,
   regions: Record<string, BoxRect>,
+  background: string,
   timeoutMs: number = LOAD_TIMEOUT_MS,
 ): Promise<Record<string, number> | null> {
   if (dataUrl === '') return null
@@ -54,6 +60,8 @@ export async function measureRegions(
     canvas.height = height
     const context = canvas.getContext('2d')
     if (context === null) return null
+    context.fillStyle = background
+    context.fillRect(0, 0, width, height)
     context.drawImage(image, 0, 0)
 
     const scaleX = width / CANVAS_WIDTH

@@ -52,13 +52,17 @@ export function useAutoTextColors({
     }
     let alive = true
     const enabled = enabledKey.split(',').map((v) => v === 'true') as [boolean, boolean, boolean]
-    void measureRegions(backgroundUrl, regionsFor(enabled)).then((result) => {
+    void measureRegions(backgroundUrl, regionsFor(enabled), theme.pageBackground).then((result) => {
       if (alive) setRaw(result)
     })
     return () => {
       alive = false
     }
-  }, [backgroundUrl, enabledKey])
+    // theme.pageBackground가 바뀌면 투명 픽셀 뒤에 비치는 색이 달라지므로
+    // 다시 재야 한다. theme 객체 전체가 아니라 이 필드만 의존성으로 둔다 —
+    // 다른 테마 필드(글자색 등)가 바뀌어도 이미지 자체는 그대로라 재측정할
+    // 이유가 없다.
+  }, [backgroundUrl, enabledKey, theme.pageBackground])
 
   return useMemo(() => {
     if (raw === null) return null

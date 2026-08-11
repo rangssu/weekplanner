@@ -58,9 +58,6 @@ export const ScheduleCanvas = forwardRef<HTMLDivElement, ScheduleCanvasProps>(
           position: 'relative',
           color: theme.bodyText,
           fontFamily,
-          // 불투명도 슬라이더를 임계치 근처에서 끌 때 글자색이 톡톡 튀는 것을
-          // 눌러 준다. 내보내기 직전에는 exportImage가 이 전환을 끈다.
-          transition: 'color 150ms linear',
         }}
       >
         {/*
@@ -79,7 +76,6 @@ export const ScheduleCanvas = forwardRef<HTMLDivElement, ScheduleCanvasProps>(
             <TitleBar
               header={doc.header}
               month={doc.month}
-              theme={theme}
               textColor={textColors.title}
             />
             <div style={{ height: TITLE_GAP, flexShrink: 0 }} />
