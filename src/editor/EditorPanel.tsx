@@ -1,8 +1,9 @@
-import type { RefObject } from 'react'
+import { useState, type RefObject } from 'react'
 import type { RecurringRulesApi } from '../state/useRecurringRules'
 import type { ScheduleDocApi } from '../state/useScheduleDoc'
 import type { FontOption } from '../theme/fonts'
 import { BackgroundPicker } from './BackgroundPicker'
+import { EditorTabs, loadEditorTab, saveEditorTab, type EditorTabId } from './EditorTabs'
 import { ExportPanel } from './ExportPanel'
 import { FontPicker } from './FontPicker'
 import { HeaderEditor } from './HeaderEditor'
@@ -20,20 +21,50 @@ export type EditorPanelProps = {
   rulesApi: RecurringRulesApi
 }
 
+/**
+ * 설정 13개를 탭 3개로 접는다.
+ *
+ * 이미지 저장은 탭에 넣지 않는다 — 가장 자주 쓰는 기능이라 지금까지
+ * 맨 위에 있었고, 탭 뒤로 보내면 매번 한 번 더 눌러야 한다. 탭의 약점이
+ * "안 보이는 탭에 뭐가 있는지 모른다"는 것이라, 매번 쓰는 것을 밖에 꺼내
+ * 두면 그 약점이 닿는 범위가 줄어든다.
+ *
+ * 날짜별 일정은 여기 없다. 미리보기 달력 칸을 클릭해 편집한다.
+ */
 export function EditorPanel({
   api, userFonts, onUserFontsChange, canvasRef, rulesApi,
 }: EditorPanelProps) {
+  const [tab, setTab] = useState<EditorTabId>(loadEditorTab)
+
+  const changeTab = (id: EditorTabId) => {
+    setTab(id)
+    saveEditorTab(id)
+  }
+
   return (
     <div>
-      {/* 가장 자주 쓰는 기능이라 맨 위에 둔다. */}
       <ExportPanel api={api} canvasRef={canvasRef} />
-      <MonthPicker api={api} />
-      <ThemePicker api={api} />
-      <BackgroundPicker api={api} />
-      <StickerManager api={api} />
-      <FontPicker api={api} userFonts={userFonts} onUserFontsChange={onUserFontsChange} />
-      <HeaderEditor api={api} />
-      <RecurringEditor api={api} rulesApi={rulesApi} />
+
+      <EditorTabs value={tab} onChange={changeTab} />
+
+      {tab === 'calendar' && (
+        <>
+          <MonthPicker api={api} />
+          <RecurringEditor api={api} rulesApi={rulesApi} />
+        </>
+      )}
+
+      {tab === 'decorate' && (
+        <>
+          <ThemePicker api={api} />
+          <BackgroundPicker api={api} />
+          <FontPicker api={api} userFonts={userFonts} onUserFontsChange={onUserFontsChange} />
+          <StickerManager api={api} />
+        </>
+      )}
+
+      {tab === 'sidebar' && <HeaderEditor api={api} />}
+
       <StorageStatus api={api} />
     </div>
   )
