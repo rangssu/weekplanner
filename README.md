@@ -17,7 +17,7 @@ npm run dev
 ## 테스트
 
 ```
-npm test        # 156개, 전부 자동
+npm test        # 272개, 전부 자동
 npx tsc -b      # 타입 검사
 ```
 
@@ -62,12 +62,17 @@ npm run build
 
 - 년·월 선택 시 달력 격자 자동 생성 (항상 7열 × 6행)
 - 날짜별 일정 텍스트, 칸이 넘치면 글자 크기 자동 조절
+- 일정 아래에 얹는 추가 문구 (`12h` 같은 것), 날짜 칸 아이콘 9종
 - 강조 3종 — 칸 배경 채우기 / 텍스트 형광펜 / 날짜 숫자 색
-- 헤더 — 제목(자동·직접 입력), 년월 표기, MEMO, To Do List (각각 on/off)
-- 색상 테마 4종, 배경 이미지 업로드, 폰트 파일 업로드
+- 요일 반복 규칙 — 한 번에 뿌리고 한 번에 되돌린다
+- 사이드바 — 제목, 이번 달의 목표 / 주요 할 일 / 메모 (각각 on/off, 제목·배지 편집)
+- 색상 테마 5종, 배경 이미지 업로드, 폰트 파일 업로드
+- 배경 이미지 위 투명도 조절 (달력용·사이드바용 따로)
 - 스티커 자유 배치 (드래그·크기·회전·순서)
 - 월별 자동 저장, 지난달 내용 가져오기
 - 4단계 크기 PNG 내보내기 (원본 / 4K / Full HD / HD)
+
+기능·구조·제약을 한 장에 정리한 것은 [`docs/현재-상태.md`](docs/현재-상태.md)에 있다.
 
 ## 구조
 
@@ -129,9 +134,10 @@ flex에 눌려 압축되는데, `overflow: hidden` 때문에 화면상 티가 �
 
 ## 문서
 
-- 설계: [`docs/superpowers/specs/2026-08-08-monthly-schedule-image-editor-design.md`](docs/superpowers/specs/2026-08-08-monthly-schedule-image-editor-design.md)
-- 구현 계획: [`docs/superpowers/plans/2026-08-08-monthly-schedule-image-editor.md`](docs/superpowers/plans/2026-08-08-monthly-schedule-image-editor.md)
+- **현재 상태**: [`docs/현재-상태.md`](docs/현재-상태.md) — 기능 전체, 데이터 모델, 제약, 남은 일
+- 작업 기록: [`docs/2026-08-10-작업-기록.md`](docs/2026-08-10-작업-기록.md) — 무엇을 왜 그렇게 했는지
 - 수동 검증: [`docs/manual-checklist.md`](docs/manual-checklist.md)
+- 설계·구현 계획: `docs/superpowers/specs/`, `docs/superpowers/plans/` (각 4건)
 
 ## 아직 안 한 것
 
