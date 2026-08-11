@@ -7,6 +7,7 @@ import {
   monthKey,
   parseMonthKey,
   previousMonth,
+  shiftDateWithinMonth,
 } from './calendar'
 
 describe('buildMonthGrid', () => {
@@ -121,5 +122,37 @@ describe('MONTH_NAMES_EN', () => {
     expect(MONTH_NAMES_EN).toHaveLength(12)
     expect(MONTH_NAMES_EN[0]).toBe('JANUARY')
     expect(MONTH_NAMES_EN[11]).toBe('DECEMBER')
+  })
+})
+
+describe('shiftDateWithinMonth', () => {
+  it('하루 뒤로 옮긴다', () => {
+    expect(shiftDateWithinMonth('2026-08-08', 1)).toBe('2026-08-09')
+  })
+
+  it('하루 앞으로 옮긴다', () => {
+    expect(shiftDateWithinMonth('2026-08-08', -1)).toBe('2026-08-07')
+  })
+
+  it('1일에서 앞으로 가면 null이다', () => {
+    expect(shiftDateWithinMonth('2026-08-01', -1)).toBeNull()
+  })
+
+  it('말일에서 뒤로 가면 null이다', () => {
+    expect(shiftDateWithinMonth('2026-08-31', 1)).toBeNull()
+  })
+
+  it('30일까지인 달의 말일을 안다', () => {
+    expect(shiftDateWithinMonth('2026-09-30', 1)).toBeNull()
+    expect(shiftDateWithinMonth('2026-09-29', 1)).toBe('2026-09-30')
+  })
+
+  it('윤년 2월 29일을 안다', () => {
+    expect(shiftDateWithinMonth('2028-02-28', 1)).toBe('2028-02-29')
+    expect(shiftDateWithinMonth('2028-02-29', 1)).toBeNull()
+  })
+
+  it('형식이 틀리면 null이다', () => {
+    expect(shiftDateWithinMonth('2026-8-8', 1)).toBeNull()
   })
 })
