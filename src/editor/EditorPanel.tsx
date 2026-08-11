@@ -11,6 +11,7 @@ import { MonthPicker } from './MonthPicker'
 import { RecurringEditor } from './RecurringEditor'
 import { StickerManager } from './StickerManager'
 import { StorageStatus } from './StorageStatus'
+import { TextColorPicker } from './TextColorPicker'
 import { ThemePicker } from './ThemePicker'
 
 export type EditorPanelProps = {
@@ -57,6 +58,7 @@ export function EditorPanel({
       {tab === 'decorate' && (
         <>
           <ThemePicker api={api} />
+          <TextColorPicker api={api} />
           <BackgroundPicker api={api} />
           <FontPicker api={api} userFonts={userFonts} onUserFontsChange={onUserFontsChange} />
           <StickerManager api={api} />
