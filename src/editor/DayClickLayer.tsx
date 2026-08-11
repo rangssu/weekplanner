@@ -66,7 +66,8 @@ export function DayClickLayer({
             <button
               key={cell.date}
               type="button"
-              aria-label={`${cell.date} 편집`}
+              aria-label={`${month}월 ${cell.day}일 편집`}
+              aria-pressed={cell.date === selectedDate}
               className={`wp-day-hit${cell.date === selectedDate ? ' is-selected' : ''}`}
               onClick={() => onSelect(cell.date)}
               style={{ '--wp-hit-border': `${hitBorder}px` } as CSSProperties}

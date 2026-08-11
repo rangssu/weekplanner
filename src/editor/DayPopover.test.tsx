@@ -79,4 +79,30 @@ describe('DayPopover', () => {
 
     expect(onClose).not.toHaveBeenCalled()
   })
+
+  it('날짜 칸 버튼을 누른 것은 바깥 클릭으로 치지 않는다', () => {
+    const onClose = vi.fn()
+    // 칸 버튼과 같은 클래스를 가진 요소를 팝오버 바깥에 둔다.
+    const cell = document.createElement('button')
+    cell.className = 'wp-day-hit'
+    document.body.appendChild(cell)
+
+    renderPopover({ onClose })
+    fireEvent.pointerDown(cell)
+
+    expect(onClose).not.toHaveBeenCalled()
+    cell.remove()
+  })
+
+  it('컨테이너가 낮으면 팝오버가 세로 범위 안에 머문다', () => {
+    renderPopover({
+      anchor: { x: 100, y: 400, width: 170, height: 100 },
+      placement: { horizontal: 'right', vertical: 'below' },
+      containerHeight: 495,
+    })
+    const box = screen.getByRole('dialog')
+    // 내용이 넘치면 안에서 스크롤한다.
+    expect(box.style.overflowY).toBe('auto')
+    expect(parseFloat(box.style.maxHeight)).toBeLessThanOrEqual(495)
+  })
 })

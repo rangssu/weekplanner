@@ -35,12 +35,27 @@ export default function App() {
   const [previewScale, setPreviewScale] = useState(0)
   const handleScaleChange = useCallback((next: number) => setPreviewScale(next), [])
 
-  const [selectedDate, setSelectedDate] = useState<string | null>(null)
-
-  // 달을 옮기면 선택을 푼다. 8월 8일을 고른 채 9월로 넘어갔을 때
-  // 9월 8일이 선택돼 있는 것은 자연스럽지 않다.
+  const [rawSelectedDate, setSelectedDate] = useState<string | null>(null)
   const { year, month } = api.doc
-  useEffect(() => setSelectedDate(null), [year, month])
+
+  /**
+   * 달을 옮기면 선택을 읽는 쪽에서 거른다. 8월 8일을 고른 채 9월로 넘어갔을 때
+   * 9월 8일이 선택돼 있는 것은 자연스럽지 않다.
+   *
+   * 예전에는 `useEffect(() => setSelectedDate(null), [year, month])`로
+   * 지웠다. 하지만 effect는 커밋 **뒤에** 돈다 — 그 사이 렌더에서
+   * buildMonthGrid(새 달)의 앞뒤 달 채움칸이 우연히 옛 selectedDate와 같은
+   * 문자열을 가지면(8/31을 고른 채 9월로 가면 9월 격자 첫 줄에 8/31이 있다)
+   * DayPopover는 뜨는데 SelectedDayEditor는 달 불일치로 null을 반환해
+   * 테두리만 있는 빈 상자가 한 프레임 깜빡였다. 원본 상태는 그대로 두고
+   * 파생값에서 걸러야 effect도 그 프레임도 함께 사라진다.
+   */
+  const selectedDate = useMemo(() => {
+    if (rawSelectedDate === null) return null
+    const parsed = /^(\d{4})-(\d{2})-/.exec(rawSelectedDate)
+    if (!parsed) return null
+    return Number(parsed[1]) === year && Number(parsed[2]) === month ? rawSelectedDate : null
+  }, [rawSelectedDate, year, month])
 
   // 같은 칸을 다시 누르면 해제한다.
   const handleSelect = useCallback((date: string) => {
