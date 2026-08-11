@@ -14,32 +14,63 @@ const entry = (dateColor: string | null): DayEntry => ({
 })
 
 describe('dateNumberColor', () => {
+  // 네 번째 인자(영역 글자색)는 평일 폴백에만 쓰인다. 여기서는 옛 기본값인
+  // theme.bodyText를 그대로 넘겨서 이 테스트들이 기존 동작을 계속 고정한다.
   it('일요일은 기본으로 일요일 색이다', () => {
-    expect(dateNumberColor(cell(0), undefined, theme)).toBe(theme.sundayText)
+    expect(dateNumberColor(cell(0), undefined, theme, theme.bodyText)).toBe(theme.sundayText)
   })
 
   it('토요일은 기본으로 토요일 색이다', () => {
-    expect(dateNumberColor(cell(6), undefined, theme)).toBe(theme.saturdayText)
+    expect(dateNumberColor(cell(6), undefined, theme, theme.bodyText)).toBe(theme.saturdayText)
   })
 
   it('평일은 기본 본문 색이다', () => {
-    expect(dateNumberColor(cell(3), undefined, theme)).toBe(theme.bodyText)
+    expect(dateNumberColor(cell(3), undefined, theme, theme.bodyText)).toBe(theme.bodyText)
   })
 
   it('앞뒤 달 날짜는 흐린 색이며 요일 규칙보다 우선한다', () => {
-    expect(dateNumberColor(cell(0, false), undefined, theme)).toBe(theme.outsideMonthText)
+    expect(dateNumberColor(cell(0, false), undefined, theme, theme.bodyText)).toBe(theme.outsideMonthText)
   })
 
   it('지정한 색이 요일 기본 규칙을 이긴다', () => {
-    expect(dateNumberColor(cell(0), entry('#00ff00'), theme)).toBe('#00ff00')
+    expect(dateNumberColor(cell(0), entry('#00ff00'), theme, theme.bodyText)).toBe('#00ff00')
   })
 
   it('색을 지정하지 않은 항목은 요일 규칙을 따른다', () => {
-    expect(dateNumberColor(cell(0), entry(null), theme)).toBe(theme.sundayText)
+    expect(dateNumberColor(cell(0), entry(null), theme, theme.bodyText)).toBe(theme.sundayText)
   })
 
   it('앞뒤 달 칸은 지정 색이 있어도 흐린 색이다', () => {
-    expect(dateNumberColor(cell(0, false), entry('#00ff00'), theme)).toBe(theme.outsideMonthText)
+    expect(dateNumberColor(cell(0, false), entry('#00ff00'), theme, theme.bodyText)).toBe(theme.outsideMonthText)
+  })
+})
+
+describe('dateNumberColor와 영역 글자색', () => {
+  const theme = getTheme('pink')
+  const weekday = { date: '2026-08-05', day: 5, dow: 3, inMonth: true }
+  const sunday = { date: '2026-08-02', day: 2, dow: 0, inMonth: true }
+  const saturday = { date: '2026-08-01', day: 1, dow: 6, inMonth: true }
+  const outside = { date: '2026-07-31', day: 31, dow: 5, inMonth: false }
+
+  it('평일 숫자는 영역 글자색을 따라간다', () => {
+    expect(dateNumberColor(weekday, undefined, theme, '#ffffff')).toBe('#ffffff')
+  })
+
+  it('일요일 빨강은 덮지 않는다', () => {
+    expect(dateNumberColor(sunday, undefined, theme, '#ffffff')).toBe(theme.sundayText)
+  })
+
+  it('토요일 파랑은 덮지 않는다', () => {
+    expect(dateNumberColor(saturday, undefined, theme, '#ffffff')).toBe(theme.saturdayText)
+  })
+
+  it('날짜별로 고른 색은 덮지 않는다', () => {
+    const entry = { text: '', dateColor: '#00ff00', cellFill: null, marker: null }
+    expect(dateNumberColor(weekday, entry, theme, '#ffffff')).toBe('#00ff00')
+  })
+
+  it('앞뒤 달 흐린 색은 덮지 않는다', () => {
+    expect(dateNumberColor(outside, undefined, theme, '#ffffff')).toBe(theme.outsideMonthText)
   })
 })
 

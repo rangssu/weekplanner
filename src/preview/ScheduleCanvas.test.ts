@@ -16,6 +16,10 @@ function canvasRoot(container: HTMLElement): HTMLElement {
 
 const BG = 'data:image/png;base64,iVBORw0KGgo='
 
+// 이 파일은 배경 이미지 스타일 배선만 확인하므로 색 계산 결과는 중요치 않다 —
+// 다섯 영역 모두 같은 값으로 채운다.
+const TEXT_COLORS = { title: '#000000', goal: '#000000', todo: '#000000', memo: '#000000', calendar: '#000000' }
+
 describe('ScheduleCanvas 배경', () => {
   it('배경 이미지를 스타일에 넣는다', () => {
     const { container } = render(
@@ -23,6 +27,7 @@ describe('ScheduleCanvas 배경', () => {
         doc: createEmptyDoc(2026, 8),
         fontFamily: 'sans-serif',
         backgroundUrl: BG,
+        textColors: TEXT_COLORS,
       }),
     )
     expect(canvasRoot(container).style.backgroundImage).toContain(BG)
@@ -38,6 +43,7 @@ describe('ScheduleCanvas 배경', () => {
         doc: { ...createEmptyDoc(2026, 8), themeId: 'white' },
         fontFamily: 'sans-serif',
         backgroundUrl: BG,
+        textColors: TEXT_COLORS,
       }),
     )
     expect(canvasRoot(container).style.backgroundImage).toContain(BG)
@@ -47,6 +53,7 @@ describe('ScheduleCanvas 배경', () => {
         doc: { ...createEmptyDoc(2026, 8), themeId: 'dark' },
         fontFamily: 'sans-serif',
         backgroundUrl: BG,
+        textColors: TEXT_COLORS,
       }),
     )
 
@@ -63,6 +70,7 @@ describe('ScheduleCanvas 배경', () => {
         doc: createEmptyDoc(2026, 8),
         fontFamily: 'sans-serif',
         backgroundUrl: null,
+        textColors: TEXT_COLORS,
       }),
     )
     expect(canvasRoot(container).style.backgroundImage).toBe('')

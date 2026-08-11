@@ -11,9 +11,11 @@ export const DOW_LABELS = ['일요일', '월요일', '화요일', '수요일', '
 export type CalendarGridProps = {
   doc: ScheduleDoc
   theme: Theme
+  /** 달력 영역 글자색. App이 계산해 넘긴다. */
+  textColor: string
 }
 
-export function CalendarGrid({ doc, theme }: CalendarGridProps) {
+export function CalendarGrid({ doc, theme, textColor }: CalendarGridProps) {
   const cells = buildMonthGrid(doc.year, doc.month)
 
   return (
@@ -68,6 +70,7 @@ export function CalendarGrid({ doc, theme }: CalendarGridProps) {
             entry={doc.days[cell.date]}
             theme={theme}
             bgOpacity={doc.gridOpacity}
+            textColor={textColor}
           />
         ))}
       </div>

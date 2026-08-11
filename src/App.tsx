@@ -9,12 +9,15 @@ import { StickerDragLayer } from './editor/StickerDragLayer'
 import { cellScreenRect, popoverPlacement } from './editor/cellGeometry'
 import { useIsNarrow } from './editor/useIsNarrow'
 import { buildMonthGrid } from './model/calendar'
+import { resolveTextColors } from './model/textColors'
 import { ScheduleCanvas } from './preview/ScheduleCanvas'
 import { CANVAS_HEIGHT, CANVAS_WIDTH } from './preview/layout'
 import { useAssetUrl } from './state/useAssetUrl'
+import { useAutoTextColors } from './state/useAutoTextColors'
 import { useRecurringRules } from './state/useRecurringRules'
 import { useScheduleDoc } from './state/useScheduleDoc'
 import { fontFamilyFor, type FontOption, loadUserFonts } from './theme/fonts'
+import { getTheme } from './theme/themes'
 
 const today = new Date()
 
@@ -31,6 +34,21 @@ export default function App() {
 
   const fontFamily = fontFamilyFor(api.doc.fontId, userFonts)
   const backgroundUrl = useAssetUrl(api.doc.backgroundAssetId)
+
+  const theme = getTheme(api.doc.themeId)
+  const boxesEnabled: [boolean, boolean, boolean] = [
+    api.doc.header.goals.enabled,
+    api.doc.header.todo.enabled,
+    api.doc.header.memo.enabled,
+  ]
+  const tones = useAutoTextColors({
+    backgroundUrl,
+    theme,
+    boxesEnabled,
+    gridOpacity: api.doc.gridOpacity,
+    sidebarOpacity: api.doc.sidebarOpacity,
+  })
+  const textColors = resolveTextColors(api.doc.textColors, theme, tones)
 
   const [previewScale, setPreviewScale] = useState(0)
   const handleScaleChange = useCallback((next: number) => setPreviewScale(next), [])
@@ -99,6 +117,7 @@ export default function App() {
                 doc={api.doc}
                 fontFamily={fontFamily}
                 backgroundUrl={backgroundUrl}
+                textColors={textColors}
               />
             </PreviewStage>
 

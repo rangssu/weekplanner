@@ -19,7 +19,7 @@ const entry = (icon: string | undefined): DayEntry => ({
 describe('DayCell 아이콘 렌더링', () => {
   it('icon이 있으면 이미지를 정확히 하나 그린다', () => {
     const { container } = render(
-      createElement(DayCell, { cell, entry: entry('star'), theme, bgOpacity: 1 }),
+      createElement(DayCell, { cell, entry: entry('star'), theme, bgOpacity: 1, textColor: theme.bodyText }),
     )
     expect(container.querySelectorAll('img')).toHaveLength(1)
   })
@@ -27,14 +27,14 @@ describe('DayCell 아이콘 렌더링', () => {
   it('icon이 없으면 이미지를 그리지 않는다', () => {
     // 아이콘 기능이 들어오기 전과 똑같이, 이미지가 하나도 없어야 한다.
     const { container } = render(
-      createElement(DayCell, { cell, entry: entry(undefined), theme, bgOpacity: 1 }),
+      createElement(DayCell, { cell, entry: entry(undefined), theme, bgOpacity: 1, textColor: theme.bodyText }),
     )
     expect(container.querySelectorAll('img')).toHaveLength(0)
   })
 
   it('모르는 id면 깨진 이미지 대신 아무것도 그리지 않는다', () => {
     const { container } = render(
-      createElement(DayCell, { cell, entry: entry('없는아이콘'), theme, bgOpacity: 1 }),
+      createElement(DayCell, { cell, entry: entry('없는아이콘'), theme, bgOpacity: 1, textColor: theme.bodyText }),
     )
     expect(container.querySelectorAll('img')).toHaveLength(0)
   })

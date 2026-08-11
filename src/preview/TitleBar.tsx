@@ -24,9 +24,11 @@ export type TitleBarProps = {
   header: HeaderConfig
   month: number
   theme: Theme
+  /** 제목 글자색. App이 계산해 넘긴다. */
+  textColor: string
 }
 
-export function TitleBar({ header, month, theme }: TitleBarProps) {
+export function TitleBar({ header, month, textColor }: TitleBarProps) {
   const title = titleText(header, month)
   const koSize = titleKoSize(title)
 
@@ -48,7 +50,7 @@ export function TitleBar({ header, month, theme }: TitleBarProps) {
           fontSize: koSize,
           fontWeight: 900,
           lineHeight: 1,
-          color: theme.headerText,
+          color: textColor,
           whiteSpace: 'nowrap',
           overflow: 'hidden',
           textOverflow: 'ellipsis',
