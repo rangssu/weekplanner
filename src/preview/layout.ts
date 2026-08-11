@@ -50,6 +50,19 @@ export const DOW_ROW_HEIGHT = 90
 export const CELL_WIDTH = GRID_INNER_WIDTH / GRID_COLUMNS
 export const CELL_HEIGHT = (GRID_INNER_HEIGHT - DOW_ROW_HEIGHT) / GRID_ROWS
 
+/**
+ * 날짜 칸 42개가 차지하는 사각형. 캔버스 좌표 기준이다.
+ *
+ * 미리보기 위에 겹치는 오버레이(editor/DayClickLayer)가 격자와 정확히
+ * 포개지려면 이 네 값만 있으면 된다. 안쪽 7×6 분할은 오버레이도 CSS 그리드로
+ * 하므로 브라우저가 CalendarGrid와 똑같이 나눈다. 칸마다 좌표를 따로 계산하면
+ * CalendarGrid와 따로 노는 두 번째 계산이 생겨 조용히 어긋난다.
+ */
+export const CELL_AREA_X = OUTER_PADDING + SIDEBAR_WIDTH + COLUMN_GAP + BORDER_WIDTH
+export const CELL_AREA_Y = OUTER_PADDING + BORDER_WIDTH + DOW_ROW_HEIGHT
+export const CELL_AREA_WIDTH = GRID_INNER_WIDTH
+export const CELL_AREA_HEIGHT = GRID_INNER_HEIGHT - DOW_ROW_HEIGHT
+
 export const CELL_PADDING = 14
 export const DATE_NUMBER_SIZE = 40
 export const DATE_NUMBER_BLOCK = 52

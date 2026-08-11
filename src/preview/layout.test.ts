@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import {
   BORDER_WIDTH, CANVAS_CONTENT_HEIGHT, CANVAS_CONTENT_WIDTH, CANVAS_HEIGHT,
-  CANVAS_WIDTH, CELL_EXTRA_HEIGHT, CELL_HEIGHT, CELL_ICON_SIZE, CELL_TEXT_HEIGHT,
+  CANVAS_WIDTH, CELL_AREA_HEIGHT, CELL_AREA_WIDTH, CELL_AREA_X, CELL_AREA_Y, CELL_EXTRA_HEIGHT, CELL_HEIGHT, CELL_ICON_SIZE, CELL_TEXT_HEIGHT,
   CELL_TEXT_WIDTH, CELL_WIDTH, COLUMN_GAP,
   DOW_ROW_HEIGHT, GRID_AREA_HEIGHT, GRID_AREA_WIDTH, GRID_INNER_HEIGHT, GRID_INNER_WIDTH,
   OUTER_PADDING, SIDEBAR_HEIGHT, SIDEBAR_WIDTH, TITLE_GAP, TITLE_ROW_HEIGHT,
@@ -73,5 +73,33 @@ describe('레이아웃 상수', () => {
 
   it('아이콘이 칸 폭 안에 들어간다', () => {
     expect(CELL_ICON_SIZE).toBeLessThan(CELL_TEXT_WIDTH)
+  })
+})
+
+describe('날짜 칸 영역', () => {
+  it('칸 영역의 가로가 칸 7개와 정확히 같다', () => {
+    expect(CELL_AREA_WIDTH).toBeCloseTo(CELL_WIDTH * 7, 10)
+  })
+
+  it('칸 영역의 세로가 칸 6개와 정확히 같다', () => {
+    expect(CELL_AREA_HEIGHT).toBeCloseTo(CELL_HEIGHT * 6, 10)
+  })
+
+  it('칸 영역의 오른쪽 끝이 격자 테두리만큼 안쪽에 있다', () => {
+    expect(CELL_AREA_X + CELL_AREA_WIDTH + BORDER_WIDTH).toBeCloseTo(
+      CANVAS_WIDTH - OUTER_PADDING,
+      10,
+    )
+  })
+
+  it('칸 영역의 아래쪽 끝이 격자 테두리만큼 안쪽에 있다', () => {
+    expect(CELL_AREA_Y + CELL_AREA_HEIGHT + BORDER_WIDTH).toBeCloseTo(
+      CANVAS_HEIGHT - OUTER_PADDING,
+      10,
+    )
+  })
+
+  it('칸 영역이 요일 행 아래에서 시작한다', () => {
+    expect(CELL_AREA_Y).toBe(OUTER_PADDING + BORDER_WIDTH + DOW_ROW_HEIGHT)
   })
 })
