@@ -3,7 +3,6 @@ import type { RecurringRulesApi } from '../state/useRecurringRules'
 import type { ScheduleDocApi } from '../state/useScheduleDoc'
 import type { FontOption } from '../theme/fonts'
 import { BackgroundPicker } from './BackgroundPicker'
-import { DayEditor } from './DayEditor'
 import { ExportPanel } from './ExportPanel'
 import { FontPicker } from './FontPicker'
 import { HeaderEditor } from './HeaderEditor'
@@ -35,7 +34,6 @@ export function EditorPanel({
       <FontPicker api={api} userFonts={userFonts} onUserFontsChange={onUserFontsChange} />
       <HeaderEditor api={api} />
       <RecurringEditor api={api} rulesApi={rulesApi} />
-      <DayEditor api={api} />
       <StorageStatus api={api} />
     </div>
   )
