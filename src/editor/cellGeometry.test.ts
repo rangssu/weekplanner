@@ -29,6 +29,16 @@ describe('cellScreenRect', () => {
     }
   })
 
+  it('아래 행의 위 모서리가 윗 행의 아래 모서리와 맞물린다', () => {
+    // cellScreenRect는 CalendarGrid의 CSS 그리드와 따로 노는 두 번째 계산이다.
+    // 가로만 검사하면 행 사이가 어긋나도 그물에 안 걸린다.
+    for (let i = 0; i < GRID_CELL_COUNT - GRID_COLUMNS; i++) {
+      const rect = cellScreenRect(i, 1)
+      const below = cellScreenRect(i + GRID_COLUMNS, 1)
+      expect(below.y).toBeCloseTo(rect.y + rect.height, 10)
+    }
+  })
+
   it('배율을 곱하면 좌표와 크기가 같은 비율로 줄어든다', () => {
     const full = cellScreenRect(15, 1)
     const half = cellScreenRect(15, 0.5)
