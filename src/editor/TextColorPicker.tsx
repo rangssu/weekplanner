@@ -1,8 +1,7 @@
 import { createEmptyTextColors } from '../model/defaults'
-import { themeTextColor } from '../model/textColors'
+import type { ResolvedTextColors } from '../model/textColors'
 import { TEXT_COLOR_AREAS, type TextColorArea } from '../model/types'
 import type { ScheduleDocApi } from '../state/useScheduleDoc'
-import { getTheme } from '../theme/themes'
 import { buttonStyle, sectionStyle, sectionTitleStyle } from './controls'
 
 const AREA_LABELS: Record<TextColorArea, string> = {
@@ -18,10 +17,17 @@ const AREA_LABELS: Record<TextColorArea, string> = {
  *
  * 목표·할 일·메모가 「사이드바」 탭과 관련이 깊지만 여기 둔다 — 5영역을
  * 서로 비교하면서 정하는 일이라 흩어 놓으면 탭을 오가야 한다.
+ *
+ * `resolved`는 **지금 미리보기에 실제로 칠해지는 색**이다. 자동 모드의 견본을
+ * 여기서 다시 계산하면 안 된다 — 테마 기본색만으로는 배경 밝기에 따라 갈리는
+ * autoTextOnLight/autoTextOnDark를 알 수 없어, 어두운 사진 위에서 흰 글자가
+ * 그려지는 동안 견본은 검정을 보여주게 된다. 사용자가 그 견본을 그대로
+ * 확정하면 글자가 배경에 묻힌다.
  */
-export function TextColorPicker({ api }: { api: ScheduleDocApi }) {
+export function TextColorPicker(
+  { api, resolved }: { api: ScheduleDocApi; resolved: ResolvedTextColors },
+) {
   const { doc, setDoc } = api
-  const theme = getTheme(doc.themeId)
   const settings = doc.textColors ?? createEmptyTextColors()
 
   const setArea = (area: TextColorArea, color: string | null) => {
@@ -49,7 +55,8 @@ export function TextColorPicker({ api }: { api: ScheduleDocApi }) {
       {TEXT_COLOR_AREAS.map((area) => {
         const setting = settings[area]
         const isAuto = setting.mode !== 'manual' || setting.color === null
-        const shown = isAuto ? themeTextColor(area, theme) : setting.color!
+        // 수동일 때 resolveTextColors는 고른 색을 그대로 돌려주므로 분기가 없다.
+        const shown = resolved[area]
 
         return (
           <div

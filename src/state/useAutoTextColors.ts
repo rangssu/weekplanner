@@ -36,11 +36,19 @@ function regionsFor(boxesEnabled: [boolean, boolean, boolean]): Record<string, B
  *
  * 이미지 샘플링은 배경이 바뀔 때만 돈다. 불투명도나 테마만 바뀌면 재지 않고
  * 합성만 다시 한다 — 4000×2250을 다시 읽으면 슬라이더를 끌 때마다 멈춘다.
+ *
+ * 측정 결과에 **어느 배경을 잰 것인지**를 붙여 둔다. 배경이 바뀌면 새 측정이
+ * 끝나기 전까지 옛 값을 버려야 하기 때문이다. 그러지 않으면 어두운 사진에서
+ * 밝은 사진으로 바꾼 뒤 최대 LOAD_TIMEOUT_MS 동안 밝은 사진 위에 흰 글자가
+ * 남고, 그 창에서 내보내면 안 보이는 글자가 그대로 PNG에 박힌다. effect에서
+ * setRaw(null)로 지우지 않고 값에 꼬리표를 붙이는 이유는, 그러면 상자 on/off나
+ * 테마만 바뀔 때까지 덩달아 테마 기본색으로 한 번 튀기 때문이다 — 그 경우는
+ * 배경 그림이 그대로라 옛 값을 잠깐 더 쓰는 편이 맞다.
  */
 export function useAutoTextColors({
   backgroundUrl, theme, boxesEnabled, gridOpacity, sidebarOpacity,
 }: UseAutoTextColorsArgs): AreaTones {
-  const [raw, setRaw] = useState<Record<string, number> | null>(null)
+  const [raw, setRaw] = useState<{ url: string; values: Record<string, number> } | null>(null)
 
   // 상자 on/off가 바뀌면 재는 자리가 달라지므로 다시 읽어야 한다.
   const enabledKey = boxesEnabled.join(',')
@@ -53,7 +61,7 @@ export function useAutoTextColors({
     let alive = true
     const enabled = enabledKey.split(',').map((v) => v === 'true') as [boolean, boolean, boolean]
     void measureRegions(backgroundUrl, regionsFor(enabled), theme.pageBackground).then((result) => {
-      if (alive) setRaw(result)
+      if (alive) setRaw(result === null ? null : { url: backgroundUrl, values: result })
     })
     return () => {
       alive = false
@@ -65,7 +73,9 @@ export function useAutoTextColors({
   }, [backgroundUrl, enabledKey, theme.pageBackground])
 
   return useMemo(() => {
-    if (raw === null) return null
+    // 지금 배경을 잰 값이 아니면 없는 것으로 친다.
+    if (raw === null || raw.url !== backgroundUrl) return null
+    const values = raw.values
 
     const overlayFor = (area: TextColorArea): { hex: string; opacity: number } => {
       // 제목에는 배경 상자가 없다. 배경 이미지가 그대로 비치므로 덮는 것이 없다.
@@ -77,9 +87,9 @@ export function useAutoTextColors({
     return Object.fromEntries(
       TEXT_COLOR_AREAS.map((area) => {
         const overlay = overlayFor(area)
-        const effective = blendLuminance(raw[area] ?? 128, overlay.hex, overlay.opacity)
+        const effective = blendLuminance(values[area] ?? 128, overlay.hex, overlay.opacity)
         return [area, pickTextTone(effective)]
       }),
     ) as NonNullable<AreaTones>
-  }, [raw, theme, gridOpacity, sidebarOpacity])
+  }, [raw, backgroundUrl, theme, gridOpacity, sidebarOpacity])
 }

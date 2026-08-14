@@ -1,5 +1,6 @@
 import { useEffect, useRef, type CSSProperties, type ReactNode } from 'react'
 import { clampToRange, type PopoverPlacement, type ScreenRect } from './cellGeometry'
+import { useDialogFocus } from './useDialogFocus'
 
 /**
  * 강조 줄이 가장 넓다 — 라벨 56 + 버튼 7개×22 + 간격 6×6 = 246px.
@@ -35,6 +36,8 @@ export function DayPopover({
   anchor, placement, containerWidth, containerHeight, onClose, children,
 }: DayPopoverProps) {
   const boxRef = useRef<HTMLDivElement>(null)
+
+  useDialogFocus(boxRef)
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
@@ -122,6 +125,7 @@ export function DayPopover({
       ref={boxRef}
       role="dialog"
       aria-label="날짜 편집"
+      tabIndex={-1}
       style={{
         position: 'absolute',
         left,

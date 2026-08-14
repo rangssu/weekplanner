@@ -1,4 +1,5 @@
 import { useState, type RefObject } from 'react'
+import type { ResolvedTextColors } from '../model/textColors'
 import type { RecurringRulesApi } from '../state/useRecurringRules'
 import type { ScheduleDocApi } from '../state/useScheduleDoc'
 import type { FontOption } from '../theme/fonts'
@@ -20,6 +21,8 @@ export type EditorPanelProps = {
   onUserFontsChange: (fonts: FontOption[]) => void
   canvasRef: RefObject<HTMLDivElement | null>
   rulesApi: RecurringRulesApi
+  /** 지금 미리보기에 실제로 칠해지는 글자색. 글자색 견본이 이걸 그대로 보여준다. */
+  textColors: ResolvedTextColors
 }
 
 /**
@@ -33,7 +36,7 @@ export type EditorPanelProps = {
  * 날짜별 일정은 여기 없다. 미리보기 달력 칸을 클릭해 편집한다.
  */
 export function EditorPanel({
-  api, userFonts, onUserFontsChange, canvasRef, rulesApi,
+  api, userFonts, onUserFontsChange, canvasRef, rulesApi, textColors,
 }: EditorPanelProps) {
   const [tab, setTab] = useState<EditorTabId>(loadEditorTab)
 
@@ -58,7 +61,7 @@ export function EditorPanel({
       {tab === 'decorate' && (
         <>
           <ThemePicker api={api} />
-          <TextColorPicker api={api} />
+          <TextColorPicker api={api} resolved={textColors} />
           <BackgroundPicker api={api} />
           <FontPicker api={api} userFonts={userFonts} onUserFontsChange={onUserFontsChange} />
           <StickerManager api={api} />

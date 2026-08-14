@@ -1,4 +1,5 @@
-import { useEffect, type ReactNode } from 'react'
+import { useEffect, useRef, type ReactNode } from 'react'
+import { useDialogFocus } from './useDialogFocus'
 
 export type DaySheetProps = {
   onClose: () => void
@@ -16,6 +17,10 @@ export type DaySheetProps = {
  * .app-editor에 transform이 걸려 있지 않아 position: fixed가 정상 동작한다.
  */
 export function DaySheet({ onClose, children }: DaySheetProps) {
+  const boxRef = useRef<HTMLDivElement>(null)
+
+  useDialogFocus(boxRef)
+
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') onClose()
@@ -26,8 +31,10 @@ export function DaySheet({ onClose, children }: DaySheetProps) {
 
   return (
     <div
+      ref={boxRef}
       role="dialog"
       aria-label="날짜 편집"
+      tabIndex={-1}
       style={{
         position: 'fixed',
         left: 0, right: 0, bottom: 0,

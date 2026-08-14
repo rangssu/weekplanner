@@ -96,6 +96,40 @@ describe('useAutoTextColors', () => {
     await waitFor(() => expect(result.current?.title).toBe('light'))
   })
 
+  it('배경이 바뀌면 새 밝기가 나오기 전까지 이전 사진의 톤을 쓰지 않는다', async () => {
+    // 어두운 사진 → 밝은 사진으로 바꾸는 사이에 옛 톤이 남으면, 밝은 사진 위에
+    // 흰 글자가 걸린다. 그 창에서 내보내면 안 보이는 글자가 PNG에 박힌다.
+    // 측정이 끝날 때까지는 null(= 테마 기본색)이라는 안전한 상태여야 한다.
+    mockMeasure.mockResolvedValueOnce({
+      title: 0, goal: 0, todo: 0, memo: 0, calendar: 0,
+    })
+    // 두 번째 측정은 영영 끝나지 않는다 — 그 사이의 상태를 본다.
+    mockMeasure.mockReturnValueOnce(new Promise(() => {}))
+
+    const { result, rerender } = renderHook(
+      (props: UseAutoTextColorsArgs) => useAutoTextColors(props),
+      {
+        initialProps: {
+          ...base,
+          backgroundUrl: 'data:image/png;base64,AAAA',
+          gridOpacity: 0,
+          sidebarOpacity: 0,
+        } as UseAutoTextColorsArgs,
+      },
+    )
+
+    await waitFor(() => expect(result.current?.calendar).toBe('light'))
+
+    rerender({
+      ...base,
+      backgroundUrl: 'data:image/png;base64,BBBB',
+      gridOpacity: 0,
+      sidebarOpacity: 0,
+    })
+
+    expect(result.current).toBeNull()
+  })
+
   it('불투명도만 바뀌면 다시 재지 않는다 — 이 훅의 핵심 성능 불변식', async () => {
     // measureRegions는 4000×2250 이미지를 읽는 무거운 작업이다. 불투명도
     // 슬라이더를 끄는 동안마다 다시 돌면 눈에 띄게 멈춘다. 이 테스트가
