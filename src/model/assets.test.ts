@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import {
   blobToDataUrl, collectAssetUsage, collectUsedAssetIds, countAssets, deleteAsset, deleteUnusedAssets,
-  getAsset, listAssets, listUnusedAssets, putAsset,
+  getAsset, listAssets, listUnusedAssets, onAssetsChanged, putAsset,
 } from './assets'
 import { createEmptyDoc } from './defaults'
 import { saveDoc } from './storage'
@@ -226,5 +226,32 @@ describe('countAssets', () => {
     expect(await countAssets()).toBe(0)
     await putAsset({ kind: 'image', name: 'a', mime: 'image/png', blob: makeBlob('a') })
     expect(await countAssets()).toBe(1)
+  })
+})
+
+describe('onAssetsChanged', () => {
+  it('파일을 넣거나 지우면 알려 준다', async () => {
+    const seen: string[] = []
+    const stop = onAssetsChanged(() => seen.push('바뀜'))
+
+    const id = await putAsset({
+      kind: 'image', name: 'a', mime: 'image/png', blob: makeBlob('a'),
+    })
+    expect(seen).toHaveLength(1)
+
+    await deleteAsset(id)
+    expect(seen).toHaveLength(2)
+
+    stop()
+  })
+
+  it('해지하면 더 알리지 않는다', async () => {
+    let count = 0
+    const stop = onAssetsChanged(() => { count += 1 })
+    stop()
+
+    await putAsset({ kind: 'image', name: 'a', mime: 'image/png', blob: makeBlob('a') })
+
+    expect(count).toBe(0)
   })
 })

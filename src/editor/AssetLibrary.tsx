@@ -5,9 +5,11 @@ import {
   deleteAsset,
   deleteUnusedAssets,
   listAssets,
+  onAssetsChanged,
   type AssetRecord,
 } from '../model/assets'
 import { forgetAssetUrl } from '../state/useAssetUrl'
+import { objectParticle } from './particle'
 import { buttonStyle } from './controls'
 
 export type AssetLibraryProps = {
@@ -92,6 +94,7 @@ export function AssetLibrary({ onAssetsChange }: AssetLibraryProps) {
   const [open, setOpen] = useState(false)
   const [count, setCount] = useState<number | null>(null)
   const [entries, setEntries] = useState<Entry[] | null>(null)
+  const [notice, setNotice] = useState('')
 
   const refresh = useCallback(async () => {
     setCount(await countAssets())
@@ -106,32 +109,50 @@ export function AssetLibrary({ onAssetsChange }: AssetLibraryProps) {
 
   useEffect(() => {
     void refresh()
+    // 배경·폰트는 각자의 섹션에서 올린다. 저장소가 알려 주지 않으면 접힌 줄이
+    // "0개"인 채로 남아, 방금 올린 파일이 없는 것처럼 보인다.
+    return onAssetsChanged(() => void refresh())
   }, [refresh])
 
-  const afterDelete = async () => {
-    onAssetsChange()
-    await refresh()
-  }
+  // 목록 갱신은 위 구독이 맡는다. 여기서는 밖에 알리기만 한다.
+  const afterDelete = () => onAssetsChange()
 
   const handleDelete = async (entry: Entry) => {
     const { asset, months } = entry
-    if (months.length > 0) {
-      const what = asset.kind === 'image' ? '그림' : '폰트'
-      const ok = window.confirm(
-        `이 ${what}을 지우면 ${months.join(', ')}에서 사라집니다. 계속할까요?`,
-      )
-      if (!ok) return
+    setNotice('')
+
+    // 「사용 안 함」은 목록을 그린 순간의 스냅숏이다. 자동 저장이 400ms
+    // 디바운스라 방금 고른 배경·폰트는 아직 문서에 없을 수 있다. 그 스냅숏을
+    // 믿고 지우면 지금 쓰는 파일이 확인도 없이 사라진다. 지우기 직전에 참조를
+    // 다시 계산하는 deleteUnusedAssets에 맡기고, 막혔으면 목록을 새로 그린다.
+    if (months.length === 0) {
+      const removed = await deleteUnusedAssets([asset.id])
+      if (removed === 0) {
+        setNotice(`${asset.name}은(는) 지금 쓰고 있어 지우지 않았습니다.`)
+      } else {
+        forgetAssetUrl(asset.id)
+      }
+      afterDelete()
+      await refresh()
+      return
     }
+
+    const what = asset.kind === 'image' ? '그림' : '폰트'
+    const ok = window.confirm(
+      `이 ${what}${objectParticle(what)} 지우면 ${months.join(', ')}에서 사라집니다. 계속할까요?`,
+    )
+    if (!ok) return
+
     await deleteAsset(asset.id)
     forgetAssetUrl(asset.id)
-    await afterDelete()
+    afterDelete()
   }
 
   const handleDeleteUnused = async (unused: Entry[]) => {
     const ids = unused.map((entry) => entry.asset.id)
     await deleteUnusedAssets(ids)
     for (const id of ids) forgetAssetUrl(id)
-    await afterDelete()
+    afterDelete()
   }
 
   const used = entries?.filter((entry) => entry.months.length > 0) ?? []
@@ -147,6 +168,10 @@ export function AssetLibrary({ onAssetsChange }: AssetLibraryProps) {
       >
         {open ? '▾' : '▸'} 이미지·폰트 보관함 — 보관 중인 파일 {count ?? 0}개
       </button>
+
+      {open && notice && (
+        <p style={{ fontSize: 12, color: '#c0392b', marginTop: 8 }}>{notice}</p>
+      )}
 
       {open && entries !== null && entries.length === 0 && (
         <p style={{ ...metaStyle, marginTop: 8 }}>보관 중인 파일이 없습니다.</p>

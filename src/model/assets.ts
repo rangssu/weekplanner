@@ -87,6 +87,26 @@ function blobToArrayBuffer(blob: Blob): Promise<ArrayBuffer> {
   })
 }
 
+const changeListeners = new Set<() => void>()
+
+/**
+ * 보관 중인 파일이 늘거나 줄면 알려 준다. 해지 함수를 돌려준다.
+ *
+ * 올리는 곳(배경·폰트·스티커)과 보여주는 곳(보관함)이 서로를 모르기 때문에
+ * 저장소가 직접 알린다. 이렇게 두면 앞으로 올리는 경로가 더 생겨도 보관함이
+ * 저절로 따라온다. 여기는 `model/`이라 React를 모른다 — 그냥 콜백이다.
+ */
+export function onAssetsChanged(listener: () => void): () => void {
+  changeListeners.add(listener)
+  return () => {
+    changeListeners.delete(listener)
+  }
+}
+
+function announceChange(): void {
+  for (const listener of changeListeners) listener()
+}
+
 export async function putAsset(input: Omit<AssetRecord, 'id'>): Promise<string> {
   const stored: StoredAsset = {
     id: newId(),
@@ -96,6 +116,7 @@ export async function putAsset(input: Omit<AssetRecord, 'id'>): Promise<string> 
     data: await blobToArrayBuffer(input.blob),
   }
   await run('readwrite', (store) => store.put(stored))
+  announceChange()
   return stored.id
 }
 
@@ -106,6 +127,7 @@ export async function getAsset(id: string): Promise<AssetRecord | null> {
 
 export async function deleteAsset(id: string): Promise<void> {
   await run('readwrite', (store) => store.delete(id))
+  announceChange()
 }
 
 export async function listAssets(kind?: AssetKind): Promise<AssetRecord[]> {
