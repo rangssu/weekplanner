@@ -72,6 +72,21 @@ export async function downscalePng(
   return blob
 }
 
+/**
+ * 목표 크기가 캔버스와 다를 때만 다시 그린다.
+ *
+ * 같은 크기면 줄일 것이 없는데도 디코딩·캔버스 생성·PNG 재인코딩을 거치게 된다.
+ * 4000×2250 캔버스 하나가 RGBA로 약 36MB고, 바로 앞에서 `renderCanvasPng`가
+ * `toPng`를 두 번 부른 직후라 메모리 압박이 겹친다. iOS Safari는 이 지점에서
+ * 탭을 통째로 날린다. 이 앱은 아이패드에서 쓰인다. 되돌리지 말 것.
+ *
+ * `key === 'original'`로 판단하지 않는 것은 의도다. 크기로 보면 `EXPORT_SIZES`에
+ * 같은 크기 항목이 늘거나 `CANVAS_WIDTH`가 바뀌어도 저절로 맞는다.
+ */
+export function needsDownscale(width: number, height: number): boolean {
+  return width !== CANVAS_WIDTH || height !== CANVAS_HEIGHT
+}
+
 function triggerDownload(blob: Blob, filename: string): void {
   const url = URL.createObjectURL(blob)
   const link = document.createElement('a')
@@ -91,6 +106,9 @@ export async function exportSchedule(
 ): Promise<void> {
   const dataUrl = await renderCanvasPng(node)
   const size = EXPORT_SIZES[key]
-  const blob = await downscalePng(dataUrl, size.width, size.height)
+  // 이미 원하는 크기면 바이트만 꺼낸다. 사유는 needsDownscale 주석에 있다.
+  const blob = needsDownscale(size.width, size.height)
+    ? await downscalePng(dataUrl, size.width, size.height)
+    : await (await fetch(dataUrl)).blob()
   triggerDownload(blob, exportFileName(doc.year, doc.month, key))
 }
