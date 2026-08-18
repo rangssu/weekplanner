@@ -8,7 +8,13 @@ export default defineConfig({
   plugins: [
     react(),
     VitePWA({
-      registerType: 'autoUpdate',
+      // 'autoUpdate'는 새 버전을 감지하는 즉시 묻지 않고 새로고침한다. 일정을
+      // 채우던 사람에게는 화면이 이유 없이 초기화된 것으로 보인다. 갈아타는
+      // 시점은 UpdatePrompt가 사용자에게 묻는다.
+      registerType: 'prompt',
+      // 등록 코드를 플러그인이 따로 주입하지 않게 한다. main.tsx가 직접
+      // registerSW를 부르므로, 켜 두면 등록 경로가 둘이 된다.
+      injectRegister: null,
       includeAssets: ['apple-touch-icon.png'],
       manifest: {
         name: '월간 스케줄표 만들기',
