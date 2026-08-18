@@ -141,7 +141,7 @@ flex에 눌려 압축되는데, `overflow: hidden` 때문에 화면상 티가 �
 - **현재 상태**: [`docs/현재-상태.md`](docs/현재-상태.md) — 기능 전체, 데이터 모델, 제약, 남은 일
 - 작업 기록: [`docs/2026-08-10-작업-기록.md`](docs/2026-08-10-작업-기록.md) — 무엇을 왜 그렇게 했는지
 - 수동 검증: [`docs/manual-checklist.md`](docs/manual-checklist.md)
-- 설계·구현 계획: `docs/superpowers/specs/`, `docs/superpowers/plans/` (각 6건)
+- 설계 문서: `docs/superpowers/specs/` (6건) — 왜 이 구조인지
 
 ## 아직 안 한 것
 
