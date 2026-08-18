@@ -29,9 +29,15 @@ export default function App() {
   const rulesApi = useRecurringRules()
   const isNarrow = useIsNarrow()
 
-  useEffect(() => {
+  /**
+   * 보관함에서 폰트 파일을 지워도 이 목록이 그대로면 고를 수 있는 척 남는다.
+   * 지운 뒤 다시 읽어야 선택 목록에서도 빠진다.
+   */
+  const reloadUserFonts = useCallback(() => {
     void loadUserFonts().then(setUserFonts)
   }, [])
+
+  useEffect(reloadUserFonts, [reloadUserFonts])
 
   const fontFamily = fontFamilyFor(api.doc.fontId, userFonts)
   const backgroundUrl = useAssetUrl(api.doc.backgroundAssetId)
@@ -76,10 +82,15 @@ export default function App() {
     <div style={{ padding: 16, maxWidth: 2000, margin: '0 auto' }}>
       <h1 style={{ fontSize: 18, margin: '0 0 12px' }}>월간 스케줄표 만들기</h1>
 
+      {/*
+        quota는 localStorage(문서 JSON)가 가득 찼다는 뜻이다. 보관함이 다루는
+        IndexedDB(이미지·폰트)와는 할당량이 완전히 별개라, 파일을 지워도
+        이쪽 공간은 1바이트도 늘지 않는다. 정리를 해결책으로 가리키면 안 된다.
+      */}
       {api.saveError && (
         <p style={{ color: '#c0392b', fontSize: 13 }}>
           {api.saveError === 'quota'
-            ? '저장 공간이 가득 찼습니다. 배경 이미지나 폰트를 정리해 주세요.'
+            ? '일정을 저장하지 못했습니다. 브라우저의 저장 공간을 확인해 주세요.'
             : '저장에 실패했습니다.'}
         </p>
       )}
@@ -128,6 +139,7 @@ export default function App() {
             api={api}
             userFonts={userFonts}
             onUserFontsChange={setUserFonts}
+            onAssetsChange={reloadUserFonts}
             canvasRef={canvasRef}
             rulesApi={rulesApi}
             textColors={textColors}

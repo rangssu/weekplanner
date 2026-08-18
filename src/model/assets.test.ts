@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import {
-  blobToDataUrl, collectUsedAssetIds, deleteAsset, getAsset, listAssets, purgeUnusedAssets, putAsset,
+  blobToDataUrl, collectAssetUsage, collectUsedAssetIds, countAssets, deleteAsset, deleteUnusedAssets,
+  getAsset, listAssets, listUnusedAssets, putAsset,
 } from './assets'
 import { createEmptyDoc } from './defaults'
 import { saveDoc } from './storage'
@@ -105,25 +106,125 @@ describe('사용하지 않는 에셋 정리', () => {
     expect(used.has('bg-8')).toBe(true)
     expect(used.has('bg-9')).toBe(true)
   })
+})
 
-  it('참조되지 않는 에셋만 지운다', async () => {
+describe('collectAssetUsage', () => {
+  beforeEach(() => localStorage.clear())
+
+  it('배경·스티커·사용자 폰트를 참조하는 달과 함께 모은다', () => {
+    const doc = createEmptyDoc(2026, 8)
+    doc.backgroundAssetId = 'bg-1'
+    doc.stickers = [
+      { id: 's1', assetId: 'st-1', x: 0, y: 0, width: 400, rotation: 0, z: 0 },
+    ]
+    doc.fontId = 'user-f1'
+    saveDoc(doc)
+
+    const usage = collectAssetUsage()
+
+    expect(usage.get('bg-1')).toEqual(['2026-08'])
+    expect(usage.get('st-1')).toEqual(['2026-08'])
+    expect(usage.get('f1')).toEqual(['2026-08'])
+  })
+
+  it('여러 달이 같은 에셋을 쓰면 달을 모두 적는다', () => {
+    for (const month of [8, 9]) {
+      const doc = createEmptyDoc(2026, month)
+      doc.backgroundAssetId = 'bg-1'
+      saveDoc(doc)
+    }
+
+    expect(collectAssetUsage().get('bg-1')).toEqual(['2026-08', '2026-09'])
+  })
+
+  it('한 달이 같은 에셋을 두 번 써도 달은 한 번만 적는다', () => {
+    const doc = createEmptyDoc(2026, 8)
+    doc.backgroundAssetId = 'bg-1'
+    doc.stickers = [
+      { id: 's1', assetId: 'bg-1', x: 0, y: 0, width: 400, rotation: 0, z: 0 },
+    ]
+    saveDoc(doc)
+
+    expect(collectAssetUsage().get('bg-1')).toEqual(['2026-08'])
+  })
+
+  it('내장 폰트 id는 담지 않는다', () => {
+    const doc = createEmptyDoc(2026, 8)
+    doc.fontId = 'cafe24dongdong'
+    saveDoc(doc)
+
+    expect(collectAssetUsage().size).toBe(0)
+  })
+
+  it('손상된 문서가 섞여 있어도 나머지 달의 참조는 모은다', () => {
+    const doc = createEmptyDoc(2026, 9)
+    doc.backgroundAssetId = 'bg-9'
+    saveDoc(doc)
+    localStorage.setItem('weekplanner:doc:2026-08', '{망가진 JSON')
+
+    expect(collectAssetUsage().get('bg-9')).toEqual(['2026-09'])
+  })
+
+  it('미사용 에셋은 키 자체가 없다', () => {
+    expect(collectAssetUsage().has('bg-1')).toBe(false)
+  })
+})
+
+describe('listUnusedAssets', () => {
+  beforeEach(() => localStorage.clear())
+
+  it('사용 중인 에셋은 빼고 준다', async () => {
     const keepId = await putAsset({
       kind: 'image', name: 'keep', mime: 'image/png', blob: makeBlob('keep'),
     })
     const dropId = await putAsset({
       kind: 'image', name: 'drop', mime: 'image/png', blob: makeBlob('drop'),
     })
-
     const doc = createEmptyDoc(2026, 8)
     doc.backgroundAssetId = keepId
     saveDoc(doc)
 
-    expect(await purgeUnusedAssets()).toBe(1)
-    expect(await getAsset(keepId)).not.toBeNull()
-    expect(await getAsset(dropId)).toBeNull()
+    expect((await listUnusedAssets()).map((a) => a.id)).toEqual([dropId])
+  })
+})
+
+describe('deleteUnusedAssets', () => {
+  beforeEach(() => localStorage.clear())
+
+  it('넘긴 것 중 미사용인 것만 지우고 개수를 준다', async () => {
+    const a = await putAsset({
+      kind: 'image', name: 'a', mime: 'image/png', blob: makeBlob('a'),
+    })
+    const b = await putAsset({
+      kind: 'image', name: 'b', mime: 'image/png', blob: makeBlob('b'),
+    })
+
+    expect(await deleteUnusedAssets([a, b])).toBe(2)
+    expect(await getAsset(a)).toBeNull()
+    expect(await getAsset(b)).toBeNull()
   })
 
-  it('지울 게 없으면 0을 준다', async () => {
-    expect(await purgeUnusedAssets()).toBe(0)
+  it('목록을 본 뒤 사용 중이 된 에셋은 지우지 않는다', async () => {
+    const id = await putAsset({
+      kind: 'image', name: 'a', mime: 'image/png', blob: makeBlob('a'),
+    })
+    const unused = await listUnusedAssets()
+    expect(unused.map((a) => a.id)).toEqual([id])
+
+    // 목록을 보여준 뒤 사용자가 이 배경을 골랐다.
+    const doc = createEmptyDoc(2026, 8)
+    doc.backgroundAssetId = id
+    saveDoc(doc)
+
+    expect(await deleteUnusedAssets([id])).toBe(0)
+    expect(await getAsset(id)).not.toBeNull()
+  })
+})
+
+describe('countAssets', () => {
+  it('보관 중인 개수를 준다', async () => {
+    expect(await countAssets()).toBe(0)
+    await putAsset({ kind: 'image', name: 'a', mime: 'image/png', blob: makeBlob('a') })
+    expect(await countAssets()).toBe(1)
   })
 })

@@ -3,6 +3,7 @@ import type { ResolvedTextColors } from '../model/textColors'
 import type { RecurringRulesApi } from '../state/useRecurringRules'
 import type { ScheduleDocApi } from '../state/useScheduleDoc'
 import type { FontOption } from '../theme/fonts'
+import { AssetLibrary } from './AssetLibrary'
 import { BackgroundPicker } from './BackgroundPicker'
 import { EditorTabs, loadEditorTab, saveEditorTab, type EditorTabId } from './EditorTabs'
 import { ExportPanel } from './ExportPanel'
@@ -11,7 +12,6 @@ import { HeaderEditor } from './HeaderEditor'
 import { MonthPicker } from './MonthPicker'
 import { RecurringEditor } from './RecurringEditor'
 import { StickerManager } from './StickerManager'
-import { StorageStatus } from './StorageStatus'
 import { TextColorPicker } from './TextColorPicker'
 import { ThemePicker } from './ThemePicker'
 
@@ -19,6 +19,8 @@ export type EditorPanelProps = {
   api: ScheduleDocApi
   userFonts: FontOption[]
   onUserFontsChange: (fonts: FontOption[]) => void
+  /** 보관함에서 파일을 지운 뒤 불린다. 폰트 목록을 다시 읽는 데 쓴다. */
+  onAssetsChange: () => void
   canvasRef: RefObject<HTMLDivElement | null>
   rulesApi: RecurringRulesApi
   /** 지금 미리보기에 실제로 칠해지는 글자색. 글자색 견본이 이걸 그대로 보여준다. */
@@ -36,7 +38,7 @@ export type EditorPanelProps = {
  * 날짜별 일정은 여기 없다. 미리보기 달력 칸을 클릭해 편집한다.
  */
 export function EditorPanel({
-  api, userFonts, onUserFontsChange, canvasRef, rulesApi, textColors,
+  api, userFonts, onUserFontsChange, onAssetsChange, canvasRef, rulesApi, textColors,
 }: EditorPanelProps) {
   const [tab, setTab] = useState<EditorTabId>(loadEditorTab)
 
@@ -70,7 +72,7 @@ export function EditorPanel({
 
       {tab === 'sidebar' && <HeaderEditor api={api} />}
 
-      <StorageStatus api={api} />
+      <AssetLibrary onAssetsChange={onAssetsChange} />
     </div>
   )
 }

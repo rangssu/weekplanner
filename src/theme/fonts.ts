@@ -1,5 +1,5 @@
 import {
-  blobToDataUrl, deleteAsset, getAsset, listAssets, putAsset,
+  blobToDataUrl, listAssets, putAsset,
 } from '../model/assets'
 import { DEFAULT_FONT_ID } from '../model/defaults'
 
@@ -131,10 +131,4 @@ export async function loadUserFonts(): Promise<FontOption[]> {
     })
   }
   return options
-}
-
-export async function removeUserFont(option: FontOption): Promise<void> {
-  if (!option.assetId) return
-  if (await getAsset(option.assetId)) await deleteAsset(option.assetId)
-  // 등록된 @font-face는 남지만 참조가 사라지므로 표시에 영향이 없다.
 }

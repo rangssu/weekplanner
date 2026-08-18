@@ -2,6 +2,19 @@ import { useEffect, useState } from 'react'
 import { blobToDataUrl, getAsset } from '../model/assets'
 
 const cache = new Map<string, string>()
+const watchers = new Set<(assetId: string) => void>()
+
+/**
+ * 에셋이 지워졌음을 알린다. 캐시를 버리고 그것을 보고 있던 화면을 비운다.
+ *
+ * 캐시만 지우면 부족하다. `assetId`가 그대로면 훅의 effect가 다시 돌지 않아
+ * 화면에는 지운 그림이 그대로 남고, 내보낸 PNG에도 그대로 들어간다.
+ * 사용자는 삭제가 실패한 줄 안다.
+ */
+export function forgetAssetUrl(assetId: string): void {
+  cache.delete(assetId)
+  for (const notify of watchers) notify(assetId)
+}
 
 /**
  * IndexedDB 에셋을 data URL로 읽어 준다.
@@ -37,6 +50,16 @@ export function useAssetUrl(assetId: string | null): string | null {
     })
     return () => {
       alive = false
+    }
+  }, [assetId])
+
+  useEffect(() => {
+    const onForget = (forgotten: string) => {
+      if (forgotten === assetId) setUrl(null)
+    }
+    watchers.add(onForget)
+    return () => {
+      watchers.delete(onForget)
     }
   }, [assetId])
 
