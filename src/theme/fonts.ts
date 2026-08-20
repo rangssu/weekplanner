@@ -68,7 +68,7 @@ export function fontFaceRule(family: string, dataUrl: string, format: string): s
   return `@font-face { font-family: '${family}'; src: url(${dataUrl}) format('${format}'); font-display: block; }`
 }
 
-const STYLE_ELEMENT_ID = 'weekplanner-user-fonts'
+const STYLE_ELEMENT_ID = 'moony-user-fonts'
 
 function styleElement(): HTMLStyleElement {
   const existing = document.getElementById(STYLE_ELEMENT_ID)

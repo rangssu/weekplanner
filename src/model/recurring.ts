@@ -170,6 +170,7 @@ export function countClearTargets(doc: ScheduleDoc, rules: RecurringRule[]): num
   return planClear(doc, rules).size
 }
 
+// 옛 이름을 그대로 쓰는 이유는 storage.ts의 DOC_KEY_PREFIX 주석에 있다.
 const RULES_KEY = 'weekplanner:rules'
 
 /** 전역 규칙을 읽는다. 없거나 깨졌으면 빈 배열. */

@@ -1,5 +1,7 @@
 import { DOC_KEY_PREFIX, listSavedMonthKeys } from './storage'
 
+// 옛 이름을 그대로 쓴다. 바꾸면 빈 DB가 새로 생겨 이미 올려둔 폰트·배경·스티커를
+// 못 찾는다. 자세한 사유는 storage.ts의 DOC_KEY_PREFIX 주석에 있다.
 const DB_NAME = 'weekplanner'
 const DB_VERSION = 1
 const STORE = 'assets'

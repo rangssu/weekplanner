@@ -8,6 +8,9 @@ import {
   type TextColorSetting,
 } from './types'
 
+// 프로젝트 이름이 moony로 바뀐 뒤에도 저장소 키는 옛 이름을 쓴다. 바꾸는 순간
+// 이미 저장된 달들이 통째로 안 보인다. 키는 사용자에게 노출되지 않으므로 이름을
+// 맞출 이유도 없다. 정리하고 싶어지면 현재-상태.md 5장을 먼저 읽을 것.
 export const DOC_KEY_PREFIX = 'weekplanner:doc:'
 
 export type SaveResult = { ok: true } | { ok: false; reason: 'quota' | 'unknown' }

@@ -6,6 +6,7 @@ export const EDITOR_TABS: ReadonlyArray<{ id: EditorTabId; label: string }> = [
   { id: 'sidebar', label: '사이드바' },
 ]
 
+// 옛 이름을 그대로 쓰는 이유는 storage.ts의 DOC_KEY_PREFIX 주석에 있다.
 export const TAB_STORAGE_KEY = 'weekplanner:editor-tab'
 
 const isTabId = (value: string | null): value is EditorTabId =>
